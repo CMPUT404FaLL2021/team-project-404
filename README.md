@@ -5,8 +5,8 @@ CCID | NAME
 wwu3|name
 hhong1|Haoyang Hong
 bingran1|Bingran Huang
-zhengyao|name
-liu9|name
+zhengyao|Zhengyao Zhang
+liu9|Hao Liu
 
 https://github.com/CMPUT404FaLL2021/team-project-404
 
