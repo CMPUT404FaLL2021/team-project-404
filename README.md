@@ -10,5 +10,9 @@ liu9|name
 
 https://github.com/CMPUT404FaLL2021/team-project-404
 
-## LAB Section
+### LAB Section
 LAB 802
+
+## Collaboration
+
+## External Source Referenced
