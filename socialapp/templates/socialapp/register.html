@@ -2,17 +2,18 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>LogIn</title>
+        <title>register</title>
     </head>
     <body>
         <div style="margin: 15% 40%;">
-            <form action="/login/" method="POST">
+            <form action="/register/" method="POST">
                 {% csrf_token %}
                 {{ form }}
-                <input type='submit' value="Login">
+                <input type='submit' value="Sign Up">
             </form>
-            <a href='/index/'>Welcome Page</a>
-            <a href='/register/'>Sign Up</a>
+            <a href='/socialapp/index/'>Welcome Page</a>
+            <a href='/socialapp/login/'>Sign In</a>
         </div>
+        
     </body>
 </html>
