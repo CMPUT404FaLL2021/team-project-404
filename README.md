@@ -2,7 +2,7 @@
 ## Team Member
 CCID | NAME
 ---- | ----
-wwu3|name
+wwu3|Weiyi Wu
 hhong1|Haoyang Hong
 bingran1|Bingran Huang
 zhengyao|Zhengyao Zhang
