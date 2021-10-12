@@ -64,7 +64,7 @@ def add_post(request):
             post = form.cleaned_data['post']
             p = Post(post=post, username=username)
             p.save()
-        return HttpResponse(p.date)
+        return HttpResponse(p.post)
     else:
         form = PostForm()
 
