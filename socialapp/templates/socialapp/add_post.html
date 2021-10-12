@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Add Post</title>
+    </head>
+    <body>
+        <div style="margin: 15% 40%;">
+            <form action="/socialapp/add_post/" method="POST">
+                {% csrf_token %}
+                {{ form }}
+                <input type='submit' value="Add">
+            </form>
+        </div>
+        
+    </body>
+</html>

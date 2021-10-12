@@ -1,8 +1,9 @@
 # Create your views here.
 from django.shortcuts import render, redirect
-from socialapp.forms import UserForm
+from socialapp.forms import UserForm, PostForm
 from socialapp.models import *
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+import datetime
 
 def index(request):
     users = User.objects.all()
@@ -37,7 +38,12 @@ def login(request):
             if user:
                 info = 'Login Successfully!'
                 content = {'info':info}
-                return render(request, 'socialapp/index.html', content)
+
+                # set cookies
+                response = redirect(add_post) # testing only, should set cookies go to main page
+                response.set_cookie('username', username, max_age=60)
+                return response 
+
             else:
                 info = 'Login Failed!'
                 content = {'info':info}
@@ -46,6 +52,23 @@ def login(request):
         form = UserForm()
     
     return render(request, 'socialapp/login.html', {'form':form})
+
+def add_post(request):
+    # check if cookie valid
+    if 'username' not in request.COOKIES:
+        return render(request, 'socialapp/login.html', {'form':UserForm()})
+    username = request.COOKIES['username']
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.cleaned_data['post']
+            p = Post(post=post, username=username)
+            p.save()
+        return HttpResponse(p.post)
+    else:
+        form = PostForm()
+
+    return render(request, 'socialapp/add_post.html', {'form':form})       
 
 def logout(request):
     

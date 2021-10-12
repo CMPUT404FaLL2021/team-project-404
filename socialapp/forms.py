@@ -8,3 +8,9 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'password')
+
+class PostForm(forms.ModelForm):
+    post = forms.CharField(label='post', required=True)
+    class Meta:
+        model = Post
+        fields = ('post',)
