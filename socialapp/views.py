@@ -5,6 +5,8 @@ from socialapp.models import *
 from django.http import HttpResponse, HttpResponseRedirect
 import datetime
 
+chosen_post = 5
+
 def index(request):
     users = User.objects.all()
     content = {'users': users}
@@ -40,7 +42,7 @@ def login(request):
                 content = {'info':info}
 
                 # set cookies
-                response = redirect(add_post) # testing only, should set cookies go to main page
+                response = redirect(show_post) # testing only, should set cookies go to main page
                 response.set_cookie('username', username, max_age=60)
                 return response 
 
@@ -68,7 +70,32 @@ def add_post(request):
     else:
         form = PostForm()
 
-    return render(request, 'socialapp/add_post.html', {'form':form})       
+    return render(request, 'socialapp/add_post.html', {'form':form})     
+
+
+def show_post(request):
+    post_to_show = Post.objects.get(pk=chosen_post)
+    post_info = "Content: %s\n\nAuthor: %s\n\nDate: %s" % (post_to_show.post, post_to_show.username, post_to_show.date)
+    #id_content = {'num':chosen_post}
+    content = {'info':post_info}
+    return render(request, 'socialapp/show_post.html', content)
+
+def edit_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            changed_post = form.cleaned_data['post']
+            p = Post.objects.get(pk=chosen_post)
+            p.post = changed_post
+            p.date = datetime.date.today()
+            p.save()
+            response = redirect(show_post)
+            return response
+    else:
+        form = PostForm()
+
+    return render(request, 'socialapp/edit_post.html', {'form':form})
+
 
 def logout(request):
     
