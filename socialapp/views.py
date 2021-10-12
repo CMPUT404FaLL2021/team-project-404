@@ -1,17 +1,20 @@
 # Create your views here.
 from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import UserForm, PostForm
 from socialapp.models import *
-from django.http import HttpResponse, HttpResponseRedirect
 import datetime
 
 chosen_post = 5
 
+# view of index.html
 def index(request):
     users = User.objects.all()
     content = {'users': users}
     return render(request, "socialapp/index.html", content)
 
+
+# view of register.html
 def register(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -30,6 +33,8 @@ def register(request):
         form = UserForm()
     return render(request, 'socialapp/register.html', {'form':form})
 
+
+# view of login.html
 def login(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -55,6 +60,25 @@ def login(request):
     
     return render(request, 'socialapp/login.html', {'form':form})
 
+
+# view of user_profile.html
+def user_profile(request):
+    username = 'unknown'
+    if request.method == 'GET':
+        # check if user_id recored in cookies
+        if 'username' not in request.COOKIES:
+            return render(request, 'socialapp/login.html', {'form':UserForm()})
+        username = request.COOKIES['username']
+    # other methods might need to be handled at here
+    else:
+        # might subject to change
+        # return redirect(login)
+        pass
+
+    return render(request, "socialapp/user_profile.html", {'username':username})
+
+
+# view of add_post.html
 def add_post(request):
     # check if cookie valid
     if 'username' not in request.COOKIES:
@@ -73,6 +97,7 @@ def add_post(request):
     return render(request, 'socialapp/add_post.html', {'form':form})     
 
 
+# view of show_post.html
 def show_post(request):
     post_to_show = Post.objects.get(pk=chosen_post)
     post_info = "Content: %s\n\nAuthor: %s\n\nDate: %s" % (post_to_show.post, post_to_show.username, post_to_show.date)
@@ -80,6 +105,8 @@ def show_post(request):
     content = {'info':post_info}
     return render(request, 'socialapp/show_post.html', content)
 
+
+# view of edit_post.html
 def edit_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -97,6 +124,7 @@ def edit_post(request):
     return render(request, 'socialapp/edit_post.html', {'form':form})
 
 
+# view of logout.html
 def logout(request):
     
     return redirect('/index/')
