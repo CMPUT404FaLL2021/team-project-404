@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Edit Post</title>
+    </head>
+    <body>
+        <div style="margin: 15% 40%;">
+            <h1>Edit Post</h1>
+            <form action="/socialapp/edit_post/" method="POST">
+                {% csrf_token %}
+                {{ form }}
+                <input type='submit' value="Save change">
+            </form>
+        </div>
+        
+    </body>
+</html>
