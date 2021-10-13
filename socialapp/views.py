@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from socialapp.forms import UserForm, PostForm
+from socialapp.forms import UserForm, PostForm, CheckBox
 from socialapp.models import *
 import datetime
 
@@ -48,7 +48,7 @@ def login(request):
 
                 # set cookies
                 response = redirect(show_post) # testing only, should set cookies go to main page
-                response.set_cookie('username', username, max_age=60)
+                response.set_cookie('username', username)
                 return response 
 
             else:
@@ -86,15 +86,18 @@ def add_post(request):
     username = request.COOKIES['username']
     if request.method == 'POST':
         form = PostForm(request.POST)
-        if form.is_valid():
+        check_box = CheckBox(request.POST)
+        if form.is_valid() and check_box.is_valid():
+            friends_only = check_box.cleaned_data['friends_only']
             post = form.cleaned_data['post']
-            p = Post(post=post, username=username)
+            p = Post(post=post, username=username, friends_only=friends_only)
             p.save()
         return HttpResponse(p.post)
     else:
         form = PostForm()
+        check_box = CheckBox()
 
-    return render(request, 'socialapp/add_post.html', {'form':form})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'check_box':check_box})     
 
 
 # view of show_post.html
