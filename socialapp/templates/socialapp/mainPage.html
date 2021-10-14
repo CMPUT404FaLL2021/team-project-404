@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Main Page</title>
-    </head>
 
-    <body>
-        <div style="margin: 20% 40%;">
-            <h1>Wecome to SocialApp</h1>
-            <strong>{{ info }}</strong>
-            <a href='/socialapp/<uid>/profile/'>Profile</a>
-            <a href='/socialapp/inbox/'>Inbox</a>
-            <a href='/socialapp/index/'>Log Out</a>
-            <a href='/socialapp/friendOnly/'>Friend Only</a>
-            <!--List of posts-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
 
+<body>
+    <header>
+        <a href="#" class="logo">Main Page</a>
+        <ul class="navigation">
+            <li><a href="#">Inbox</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Post</a></li>
+
+        </ul>
+    </header>
+
+    <div class="banner">
+        <div class="content">
+            <h2>Post</h2>
+            <p>
+                Post List
+            </p>
         </div>
-    </body>
+        
+    </div>
+</body>
+
 </html>

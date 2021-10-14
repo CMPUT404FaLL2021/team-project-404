@@ -1,52 +1,75 @@
-body{
+* {
     margin: 0;
     padding: 0;
-    background-image: url(../img/timg.jpg);
-    background-repeat: no-repeat;
+    box-sizing: border-box;
 }
- 
-#bigBox{
-    margin: 0 auto;
-    margin-top: 200px;
-    padding: 20px 50px;
-    background-color: rgba(0,0,0,0.8);
-    width: 400px;
-    height: 300px;
-    border-radius: 10px;
-    text-align: center;
+header {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 100px;
+    z-index: 10;
+    background: #3c3c3f;
 }
- 
-#bigBox h1{
-    color: white;
- 
+header .logo {
+    position: relative;
+    font-size: 1.5em;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
 }
- 
-#bigBox .inputBox{
-    margin-top: 50px;
+header .navigation {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0;
 }
- 
-#bigBox .inputBox .inputText{
+header .navigation li {
+    list-style: none;
+    margin: 0 20px;
+}
+header .navigation li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+header .navigation li a:hover{
+    color: #ffed3b;
+}
+
+.banner {
+    background: #F1F2B5;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #135058, #F1F2B5);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #135058, #F1F2B5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    padding: 200px 100px 100px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.banner .content {
+    max-width: 1000px;
+}
+.banner .content h2 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+.banner .content p {
+    font-size: 1em;
+    color: #333;
+}
+.banner .content a {
+    display: inline-block;
+    background: #434978;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-weight: 600;
     margin-top: 20px;
-}
- 
-#bigBox .inputBox .inputText span{
-    color: white;
-}
- 
-#bigBox .inputBox .inputText input{
-    border: 0;
-    padding: 10px 10px;
-    border-bottom: 1px solid white;
-    background-color: #00000000;
-    color: white;
-}
- 
-#bigBox .inputBox .inputButton{
-    border:  0;
-    width: 150px;
-    height: 25px;
-    color: white;
-    margin-top: 30px;
-    border-radius: 20px;
-    background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%);
 }
