@@ -10,10 +10,17 @@ class UserForm(forms.ModelForm):
         fields = ('username', 'password')
 
 class PostForm(forms.ModelForm):
-    post = forms.CharField(label=False, required=True, widget=forms.TextInput(attrs={'placeholder': 'Write a caption ...'}))
+    hint_text = "Write a caption ..."
+    post = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
     class Meta:
         model = Post
         fields = ('post',)
+
+# class EditForm(forms.ModelForm):
+#     edit = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': '...'}))
+#     class Meta:
+#         model = Post
+#         fields = ('edit',)
 
 # reference: https://www.geeksforgeeks.org/choicefield-django-forms/
 class VisiChoices(forms.Form):

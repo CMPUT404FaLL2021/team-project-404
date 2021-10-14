@@ -12,3 +12,4 @@ class Post(models.Model):
     date = models.DateField(default=timezone.now)
     visibility = models.CharField(max_length=30, default='PUBLIC')
     unlisted = models.BooleanField(default=False)
+    #edit = models.CharField(max_length=140)

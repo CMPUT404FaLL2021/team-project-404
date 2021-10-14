@@ -13,6 +13,9 @@ def index(request):
     content = {'users': users}
     return render(request, "socialapp/index.html", content)
 
+def mainPage(request):
+    return HttpResponse("This is the mainPage, to be implemented...")
+
 
 # view of register.html
 def register(request):

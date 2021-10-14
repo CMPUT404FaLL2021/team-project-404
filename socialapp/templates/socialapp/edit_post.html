@@ -3,16 +3,59 @@
     <head>
         <meta charset="UTF-8">
         <title>Edit Post</title>
+        <style>
+            .box{
+                margin:0 auto;
+            }
+            .box .header{
+                height:120px;
+                background-color: rgb(177, 197, 142);
+                line-height:120px;
+            }
+            .box .main{
+                margin: 3% 6%;
+            }
+            ul {
+                margin: 0% 3%;
+                list-style-type: none;
+                padding: 0;
+            }
+            li {
+                float: right;
+            }
+            li a {
+                display: block;
+                padding: 8px;
+            }
+            h1{
+                margin: 0% 4%;
+            }
+            form [name=post] {
+                height: 150px;
+                width: 800px;
+                padding: 12px 12px;
+            }
+            form [name=post]:focus {
+                border: 1px solid rgb(190, 224, 219);
+            }
+        </style>
     </head>
     <body>
-        <div style="margin: 15% 40%;">
-            <h1>Edit Post</h1>
-            <form action="/socialapp/edit_post/" method="POST">
-                {% csrf_token %}
-                {{ form }}
-                <input type='submit' value="Save change">
-            </form>
+        <div class="box">
+            <div class="header">
+                <ul>
+                     <li style="float:right"><a href='/socialapp/show_post/'>Back</a></li>
+                </ul>
+                <h1>Edit Post</h1>
+            </div>
+            <div class="main">
+                 <form action="/socialapp/edit_post/" method="POST">
+                    {% csrf_token %}
+                    <br><br>
+                    {{ form }}<br><br>
+                    <input type='submit' style= "background-color: #eff7e1;" value="Save change">
+                </form>
+            </div>
         </div>
-        
     </body>
 </html>
