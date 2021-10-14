@@ -120,18 +120,19 @@ def show_post(request):
 
 # view of edit_post.html
 def edit_post(request):
+    p = Post.objects.get(pk=chosen_post)
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
             changed_post = form.cleaned_data['post']
-            p = Post.objects.get(pk=chosen_post)
             p.post = changed_post
             p.date = datetime.date.today()
             p.save()
             response = redirect(show_post)
             return response
     else:
-        form = PostForm()
+        form = PostForm(initial={"post":p.post})
+        #form.fields["post"].initial = p.post
 
     return render(request, 'socialapp/edit_post.html', {'form':form})
 
