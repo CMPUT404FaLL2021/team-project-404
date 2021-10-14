@@ -10,4 +10,5 @@ class Post(models.Model):
     post = models.CharField(max_length=140)
     username = models.CharField(max_length=32)
     date = models.DateField(default=timezone.now)
-    friends_only = models.BooleanField(default=False)
+    visibility = models.CharField(max_length=30, default='PUBLIC')
+    unlisted = models.BooleanField(default=False)

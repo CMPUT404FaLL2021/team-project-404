@@ -15,7 +15,19 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ('post',)
 
+# reference: https://www.geeksforgeeks.org/choicefield-django-forms/
+class VisiChoices(forms.Form):
+    VISIBILITY_CHOICES = {
+        ("PUBLIC", 'public'),
+        ("FRIENDS", 'friends only'),
+        ("PRIVATE", 'private')
+    }
+    visibility = forms.ChoiceField(choices = VISIBILITY_CHOICES)
+    class Meta:
+        model = Post
+        fields = ('visibility',)
+
 class CheckBox(forms.Form):
-    friends_only = forms.BooleanField(label='friends_only', required=False)
+    check_box = forms.BooleanField(required=False, label=False)
     class Meta:
         model = Post

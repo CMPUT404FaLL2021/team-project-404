@@ -52,7 +52,9 @@
                 <form action="/socialapp/add_post/" method="POST">
                     {% csrf_token %}
                     {{ form }}<br><br>
-                    {{ check_box }}<br><br>
+                    {{ visibility }}<br>
+                    <p>unlisted: {{ check_box }}</p>
+                    <br><br>
                     <input type='submit' value="Share">
                 </form>
             </div>

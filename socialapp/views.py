@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from socialapp.forms import UserForm, PostForm, CheckBox
+from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox
 from socialapp.models import *
 import datetime
 
@@ -80,24 +80,30 @@ def user_profile(request):
 
 # view of add_post.html
 def add_post(request):
-    # check if cookie valid
+    # check if user_in in cookies
     if 'username' not in request.COOKIES:
         return render(request, 'socialapp/login.html', {'form':UserForm()})
     username = request.COOKIES['username']
+
     if request.method == 'POST':
         form = PostForm(request.POST)
+        visibility = VisiChoices(request.POST)
         check_box = CheckBox(request.POST)
-        if form.is_valid() and check_box.is_valid():
-            friends_only = check_box.cleaned_data['friends_only']
+        # read and save inputs
+        if form.is_valid() and visibility.is_valid() and check_box.is_valid():
             post = form.cleaned_data['post']
-            p = Post(post=post, username=username, friends_only=friends_only)
+            visibility = visibility.cleaned_data['visibility']
+            unlisted = check_box.cleaned_data['check_box']
+            p = Post(post=post, username=username, visibility=visibility, unlisted=unlisted)
             p.save()
         return HttpResponse(p.post)
+
     else:
         form = PostForm()
+        visibility = VisiChoices()
         check_box = CheckBox()
 
-    return render(request, 'socialapp/add_post.html', {'form':form, 'check_box':check_box})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'visibility':visibility, 'check_box':check_box})     
 
 
 # view of show_post.html
