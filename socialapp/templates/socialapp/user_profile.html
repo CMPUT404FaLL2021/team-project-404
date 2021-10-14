@@ -2,14 +2,31 @@
 <html lang="en">
 	<head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>User Profile</title>
+        <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+            integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     </head>
 
     <body>
-        <div style="margin: 20% 40%;">
-            <h1>{{username}}</h1>
-            <!-- <strong>{{ info }}</strong> -->
-            <!--main page做好后放跳转链接-->
+        <header>
+            <a href="/socialapp/user_profile/" class="logo">User Profile</a>
+            <ul class="navigation">
+                <li><a href="/socialapp/mainPage/">Main Page</a></li>
+                <li><a href="#">Inbox</a></li>
+                <li><a href="/socialapp/add_post/">Post</a></li>
+            </ul>
+        </header>
+
+    <div class="banner">
+        <div class="content">
+            <h2>Hello!</h2>
+            <p>
+                {{username}}
+            </p>
         </div>
+    </div>
+
     </body>
 </html>

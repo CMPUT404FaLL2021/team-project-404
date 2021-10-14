@@ -51,12 +51,9 @@ def login(request):
                 content = {'info':info}
 
                 # set cookies
-                #response = redirect(show_post) # testing only, should set cookies go to main page
-                #response.set_cookie('username', username)
-                #return response 
-                
-                return render(request, 'socialapp/mainPage.html') # after test redict to the main page
-
+                response = redirect(mainPage)
+                response.set_cookie('username', username)
+                return response 
 
             else:
                 info = 'Login Failed!'
@@ -78,8 +75,7 @@ def user_profile(request):
         username = request.COOKIES['username']
     # other methods might need to be handled at here
     else:
-        # might subject to change
-        # return redirect(login)
+        # 可能需要处理其他request method
         pass
 
     return render(request, "socialapp/user_profile.html", {'username':username})
