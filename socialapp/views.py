@@ -51,9 +51,12 @@ def login(request):
                 content = {'info':info}
 
                 # set cookies
-                response = redirect(show_post) # testing only, should set cookies go to main page
-                response.set_cookie('username', username)
-                return response 
+                #response = redirect(show_post) # testing only, should set cookies go to main page
+                #response.set_cookie('username', username)
+                #return response 
+                
+                return render(request, 'socialapp/mainPage.html') # after test redict to the main page
+
 
             else:
                 info = 'Login Failed!'
