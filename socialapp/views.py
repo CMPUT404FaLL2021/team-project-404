@@ -22,17 +22,16 @@ def mainPage(request):
 def register(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
+        # check if the sign up process succeds
         if form.is_valid():
             form.save()
             info = 'Sign Up Successfully!'
             content = {'info':info}
             return render(request, 'socialapp/index.html', content)
-            #return HttpResponse('Sign Up Successfully!')
         else:
-            info = 'Sign Up Failed!'
+            info = 'Sign Up Failed! Ivalid Username or Password'
             content = {'info':info}
             return render(request, 'socialapp/index.html', content)
-            #return HttpResponse(form.errors)
     else:
         form = UserForm()
     return render(request, 'socialapp/register.html', {'form':form})
@@ -42,23 +41,22 @@ def register(request):
 def login(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = User.objects.filter(username=username, password=password)
-            if user:
-                info = 'Login Successfully!'
-                content = {'info':info}
+        username = form.data['username']
+        password = form.data['password']
+        user = User.objects.filter(username=username, password=password)
+        if user:
+            info = 'Login Successfully!'
+            content = {'info':info}
 
-                # set cookies
-                response = redirect(mainPage)
-                response.set_cookie('username', username)
-                return response 
+            # set cookies
+            response = redirect(mainPage)
+            response.set_cookie('username', username)
+            return response 
 
-            else:
-                info = 'Login Failed!'
-                content = {'info':info}
-                return render(request, 'socialapp/index.html', content)
+        else:
+            info = 'Login Failed!'
+            content = {'info':info}
+            return render(request, 'socialapp/index.html', content)
     else:
         form = UserForm()
     
@@ -75,7 +73,6 @@ def user_profile(request):
         username = request.COOKIES['username']
     # other methods might need to be handled at here
     else:
-        # 可能需要处理其他request method
         pass
 
     return render(request, "socialapp/user_profile.html", {'username':username})
