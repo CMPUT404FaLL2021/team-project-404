@@ -5,7 +5,7 @@ from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox
 from socialapp.models import *
 import datetime
 
-chosen_post = 5
+chosen_post = 1
 
 # view of index.html
 def index(request):
@@ -94,7 +94,7 @@ def add_post(request):
             post = form.cleaned_data['post']
             visibility = visibility.cleaned_data['visibility']
             unlisted = check_box.cleaned_data['check_box']
-            p = Post(post=post, username=username, visibility=visibility, unlisted=unlisted)
+            p = Post(post=post, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted)
             p.save()
         return HttpResponse(p.post)
 
@@ -109,7 +109,7 @@ def add_post(request):
 # view of show_post.html
 def show_post(request):
     post_to_show = Post.objects.get(pk=chosen_post)
-    post_info = "Content: %s\n\nAuthor: %s\n\nDate: %s" % (post_to_show.post, post_to_show.username, post_to_show.date)
+    post_info = "Content: %s\n\nAuthor: %s\n\nDate: %s" % (post_to_show.post, post_to_show.user.username, post_to_show.date)
     #id_content = {'num':chosen_post}
     content = {'info':post_info}
     return render(request, 'socialapp/show_post.html', content)

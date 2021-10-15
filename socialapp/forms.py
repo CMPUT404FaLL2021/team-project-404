@@ -29,7 +29,7 @@ class VisiChoices(forms.Form):
         ("FRIENDS", 'friends only'),
         ("PRIVATE", 'private')
     }
-    visibility = forms.ChoiceField(choices = VISIBILITY_CHOICES)
+    visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES)
     class Meta:
         model = Post
         fields = ('visibility',)

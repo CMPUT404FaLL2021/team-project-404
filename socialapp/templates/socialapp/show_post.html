@@ -1,50 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="UTF-8">
-        <title>Show Post</title><style>
-            .box{
-                margin:0 auto;
-            }
-            .box .header{
-                height:120px;
-                background-color: rgb(177, 197, 142);
-                line-height:120px;
-            }
-            .box .main{
-                margin: 3% 6%;
-            }
-            ul {
-                margin: 0% 3%;
-                list-style-type: none;
-                padding: 0;
-            }
-            li {
-                float: right;
-            }
-            li a {
-                display: block;
-                padding: 8px;
-            }
-            h1{
-                margin: 0% 4%;
-            }
-        </style>
+        <title>Show Post</title>
+        <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     </head>
     <body>
-        <div class="box">
-            <div class="header">
-                <ul>
-                    <li style="float:right"><a href='/socialapp/mainPage/'>Back</a></li>
-                    <!-- mainPage to be done -->
-                </ul>
-                <h1>Show Post</h1>
-            </div>
-        </div>
+        <header>
+            <a href="/socialapp/show_post/" class="logo">Post Details</a>
+            <ul class="navigation">
+                <li><a href="#">Inbox</a></li>
+                <li><a href="/socialapp/user_profile/">User Profile</a></li>
+                <li><a href="/socialapp/mainPage/">Main Page</a></li>
+                <!-- 下次开会完成跳转-->
+            </ul>
+        </header>
+
         <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
-            <pre>{{ info }}</pre>
+            <pre>{{ info }}</pre><br><br>
             <a href='/socialapp/edit_post/'>
-                <button style= "background-color: #eff7e1;" type="button">Edit</button>
+                <button style= "background-color: #eff7e1; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
             </a>
             <!-- 下面这行临时放在这，有main page再改 -->
             <br><br><br><br><br><br>

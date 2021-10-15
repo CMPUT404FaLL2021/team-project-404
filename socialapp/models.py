@@ -9,7 +9,8 @@ class User(models.Model):
 
 class Post(models.Model):
     post = models.CharField(max_length=140)
-    username = models.CharField(max_length=32)
+    # username = models.CharField(max_length=32)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     date = models.DateField(default=timezone.now)
     visibility = models.CharField(max_length=30, default='PUBLIC')
     unlisted = models.BooleanField(default=False)
