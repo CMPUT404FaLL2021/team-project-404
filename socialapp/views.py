@@ -1,5 +1,6 @@
 # Create your views here.
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox
 from socialapp.models import *
@@ -25,9 +26,12 @@ def register(request):
         # check if the sign up process succeds
         if form.is_valid():
             form.save()
-            info = 'Sign Up Successfully!'
-            content = {'info':info}
-            return render(request, 'socialapp/index.html', content)
+            #info = 'Sign Up Successfully!'
+            #content = {'info':info}
+            #return render(request, 'socialapp/login.html', content)
+            #如果注册成功，重定向到login页面，展示“注册成功”信息 (详细在loing.html)
+            messages.success(request, 'Sign up successfully!')
+            return redirect(login)
         else:
             info = 'Sign Up Failed! Ivalid Username or Password'
             content = {'info':info}

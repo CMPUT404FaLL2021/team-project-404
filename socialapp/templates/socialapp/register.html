@@ -2,18 +2,46 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>register</title>
+        <title>SignUp</title>
+        <link rel="stylesheet" href="/static/css/register.css">
     </head>
     <body>
-        <div style="margin: 15% 40%;">
-            <form action="/socialapp/register/" method="POST">
-                {% csrf_token %}
-                {{ form }}
-                <input type='submit' value="Sign Up">
-            </form>
-            <a href='/socialapp/index/'>Welcome Page</a>
-            <a href='/socialapp/login/'>Sign In</a>
-        </div>
-        
+        <form action="/socialapp/register/" method="POST">
+            {% csrf_token %}
+
+            <div id="maxbox">
+                <h1>Sign Up</h1>
+                {{ form.non_field_errors }}
+                <div class="inputbox">
+
+                    <div id="inputText">
+                        {{ form.username.errors }}
+                        <label for="{{ form.username.id_for_label }}"></label>
+                        {{ form.username }}
+                    </div>
+
+                    <div id="inputText">
+                        {{ form.password.errors }}
+                        <label for="{{ form.password.id_for_label }}"></label>
+                        {{ form.password }}
+                    </div>
+
+                    <input class="inputButton" type='submit' value="Sign Up"/>
+
+                    <div id="welcome">
+                        Want to back to Welcome Page? <a href='/socialapp/index/'>Welcome Page</a>
+                    </div>
+                    
+                    <div id="login">
+                        Already have account? <a href='/socialapp/login/'>Log In</a>
+                    </div>
+
+                    
+                    
+                </div>
+
+            </div>
+
+        </form>
     </body>
 </html>

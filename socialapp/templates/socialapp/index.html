@@ -2,15 +2,26 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Welocme Page</title>
+        <title>Welcome</title>
+        <link rel="stylesheet" href="/static/css/index.css">
     </head>
-
     <body>
-        <div style="margin: 20% 40%;">
-            <h1>Wecome to SocialApp</h1>
-            <strong>{{ info }}</strong>
-            <a href='/socialapp/register/'>Sign Up</a>
-            <a href='/socialapp/login/'>Sign In</a>
-        </div>
+        <form action="/socialapp/index/" method="GET">
+            {% csrf_token %}
+            
+            <div style="margin: 8% 34%;">
+            <h1>Welcome to SocialApp</h1>
+            </div>
+
+            <div id="maxbox">
+            <div id="signup">
+                Create a new account! <a href='/socialapp/register/'>Sign Up</a>
+            </div>
+                    
+            <div id="login">
+                Already have account? <a href='/socialapp/login/'>Log In</a>
+            </div>
+            </div>
+        </form>
     </body>
 </html>

@@ -1,0 +1,64 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: #F1F2B5;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #135058, #F1F2B5);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #135058, #F1F2B5);
+    /*the same background colour with mainpage*/
+}
+
+#maxbox{
+    margin: 0 auto;
+    margin-top: 200px;
+    padding: 20px, 50px;
+    background-color: #00000090;
+    text-align: center;
+    width: 600px;
+    height: 400px;
+    border-radius: 30px
+}
+
+#maxbox h1{
+    padding: 0;
+    padding-top: 60px;
+    color: rgb(238, 238, 238);
+    font-size: 30px;
+}
+
+#maxbox .inputbox{
+    margin-top: 40px;
+}
+
+#inputText{
+    margin-top: 20px;
+}
+
+#inputText input{
+    border: 0;
+    padding: 6px;
+    border-bottom: 1px solid white;
+    background-color: #FFFFFF00;
+    color: whitesmoke;
+}
+
+#maxbox .inputButton {
+    margin: 0;
+    border: 0;
+    margin-top: 45px;
+    width: 150px;
+    height: 25px;
+    border-radius: 25px;
+    color: white;
+    background-image: linear-gradient(to right, #ff8177 0%, #ff867a 0%, #ff8c7f 21%, #f99185 52%, #cf556c 78%, #b12a5b 100%);
+
+}
+
+#sign_up{
+    margin-top: 50px;
+    color: white;
+    font-size: 17px;
+}
+
+#sign_up a{
+    color: #3498db
+}
