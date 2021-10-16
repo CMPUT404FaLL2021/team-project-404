@@ -102,7 +102,8 @@ def add_post(request):
             unlisted = check_box.cleaned_data['check_box']
             p = Post(post=post, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted)
             p.save()
-        return HttpResponse(p.post)
+            response = redirect(mainPage)
+            return response
 
     else:
         form = PostForm()
