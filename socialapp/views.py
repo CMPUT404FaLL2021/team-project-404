@@ -109,7 +109,7 @@ def add_post(request):
         visibility = VisiChoices()
         check_box = CheckBox()
 
-    return render(request, 'socialapp/add_post.html', {'form':form, 'visibility':visibility, 'check_box':check_box})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'visibility':visibility, 'check_box':check_box, 'username':username})     
 
 
 # view of show_post.html
@@ -131,7 +131,7 @@ def show_post(request, show_post_id):
     else:
         form = CommentForm()
 
-    return render(request, 'socialapp/show_post.html', {'post': post_to_show, 'username': username, 'form':form, 'author':post_to_show.user.username, 'post_comments':post_comments})
+    return render(request, 'socialapp/show_post.html', {'post_to_show': post_to_show, 'username': username, 'form':form, 'author':post_to_show.user.username, 'post_comments':post_comments})
 
 
 # view of edit_post.html
@@ -144,13 +144,13 @@ def edit_post(request, edit_post_id):
             p.post = changed_post
             p.date = datetime.date.today()
             p.save()
-            response = redirect(show_post)
+            response = redirect(show_post, edit_post_id)
             return response
     else:
         form = PostForm(initial={"post":p.post})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_post.html', {'form':form, 'post_id':edit_post_id})
+    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':p})
 
 
 # view of logout.html
