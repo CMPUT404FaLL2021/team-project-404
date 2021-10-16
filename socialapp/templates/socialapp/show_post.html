@@ -10,7 +10,7 @@
     </head>
     <body>
         <header>
-            <a href="{% url 'show_post' post.id %}" class="logo">Post Details</a>
+            <a href="{% url 'show_post' post_to_show.id %}" class="logo">Post Details</a>
             <ul class="navigation">
                 <li><a href="#">Inbox</a></li>
                 <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
@@ -20,10 +20,10 @@
         </header>
 
         <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
-            <pre>Content: {{ post.post }}</pre><br>
-            <pre>Author: {{ post.user.username }}</pre><br>
-            <pre>Date: {{ post.date }}</pre><br><br>
-            <a href="{% url 'edit_post' post.id %}">
+            <pre>Content: {{ post_to_show.post }}</pre><br>
+            <pre>Author: {{ post_to_show.user.username }}</pre><br>
+            <pre>Date: {{ post_to_show.date }}</pre><br><br>
+            <a href="{% url 'edit_post' post_to_show.id %}">
                 <button style= "background-color: #eff7e1; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
             </a>
         </div>
