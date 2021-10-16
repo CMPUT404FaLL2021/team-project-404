@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox
+from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox, CommentForm
 from socialapp.models import *
 import datetime
 
@@ -114,12 +114,24 @@ def add_post(request):
 
 # view of show_post.html
 def show_post(request, show_post_id):
-    # check if user_in in cookies
+    # check authorization
     if 'username' not in request.COOKIES:
         return render(request, 'socialapp/login.html', {'form':UserForm()})
     username = request.COOKIES['username']
+
     post_to_show = Post.objects.get(pk=show_post_id)
-    return render(request, 'socialapp/show_post.html', {'post': post_to_show, 'username': username})
+    post_comments = Comment.objects.filter(post=post_to_show).values_list('comment', 'user') 
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.cleaned_data['comment']
+        c = Comment(comment=comment, post=post_to_show, user=User.objects.get(username=username))
+        c.save()
+        # return HttpResponse(post_comments)
+    else:
+        form = CommentForm()
+
+    return render(request, 'socialapp/show_post.html', {'post': post_to_show, 'username': username, 'form':form, 'author':post_to_show.user.username, 'post_comments':post_comments})
 
 
 # view of edit_post.html

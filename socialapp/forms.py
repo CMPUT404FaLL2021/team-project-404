@@ -38,3 +38,14 @@ class CheckBox(forms.Form):
     check_box = forms.BooleanField(required=False, label=False)
     class Meta:
         model = Post
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('comment',)
+        widgets = {
+            'comment':forms.TextInput(attrs={'placeholder': 'Write a comment'}),
+        }
+        labels = {
+            'comment':'',
+        }

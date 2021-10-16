@@ -7,6 +7,24 @@
         <link rel="stylesheet" href="/static/css/style.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <style>
+            form [name=comment]{
+                height: 150px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+            form [name=comment]:focus {
+                border: 3px solid rgb(190, 224, 219);
+            }
+            form [type=submit] {
+                height: 25px;
+                width: 70px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -23,9 +41,22 @@
             <pre>Content: {{ post.post }}</pre><br>
             <pre>Author: {{ post.user.username }}</pre><br>
             <pre>Date: {{ post.date }}</pre><br><br>
-            <a href="{% url 'edit_post' post.id %}">
-                <button style= "background-color: #eff7e1; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
-            </a>
+            {% if username == author %}
+                <a href="{% url 'edit_post' post.id %}">
+                    <button style= "background-color: #eff7e1; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
+                </a><br>
+            {% else %}
+                <form action="{% url 'show_post' post.id %}" method=POST>
+                    {% csrf_token %}
+                    <pre>Comment:</pre><br>
+                    {{ form }}<br><br>
+                    <input type='submit' value='Post'>
+                </form>
+            {% endif %}
+            <br><pre>Comments:</pre><br>
+            {% for c in post_comments %}
+                <pre>{{ c.1 }}: {{ c.0 }}</pre><br>
+            {% endfor %}
         </div>
         
     </body>
