@@ -5,7 +5,7 @@ from django.utils import timezone
 class User(models.Model):
     username = models.CharField(max_length=32, primary_key=True)
     password = models.CharField(max_length=32)
-    # friends = models.ManyToManyField("self", symmetrical=False)
+    friends = models.ManyToManyField("self", symmetrical=False)
 
 class Post(models.Model):
     post = models.CharField(max_length=140)
