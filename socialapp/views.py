@@ -6,7 +6,6 @@ from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox
 from socialapp.models import *
 import datetime
 
-chosen_post = 1
 
 # view of index.html
 def index(request):
@@ -16,7 +15,11 @@ def index(request):
 
 # view of mainPage
 def mainPage(request):
-    return render(request, "socialapp/mainPage.html")
+    # check if user_in in cookies
+    if 'username' not in request.COOKIES:
+        return render(request, 'socialapp/login.html', {'form':UserForm()})
+    username = request.COOKIES['username']
+    return render(request, "socialapp/mainPage.html", {'username':username})
 
 
 # view of register.html
@@ -68,8 +71,7 @@ def login(request):
 
 
 # view of user_profile.html
-def user_profile(request):
-    username = 'unknown'
+def user_profile(request, username):
     if request.method == 'GET':
         # check if user_id recored in cookies
         if 'username' not in request.COOKIES:
@@ -111,17 +113,18 @@ def add_post(request):
 
 
 # view of show_post.html
-def show_post(request):
-    post_to_show = Post.objects.get(pk=chosen_post)
-    post_info = "Content: %s\n\nAuthor: %s\n\nDate: %s" % (post_to_show.post, post_to_show.user.username, post_to_show.date)
-    #id_content = {'num':chosen_post}
-    content = {'info':post_info}
-    return render(request, 'socialapp/show_post.html', content)
+def show_post(request, show_post_id):
+    # check if user_in in cookies
+    if 'username' not in request.COOKIES:
+        return render(request, 'socialapp/login.html', {'form':UserForm()})
+    username = request.COOKIES['username']
+    post_to_show = Post.objects.get(pk=show_post_id)
+    return render(request, 'socialapp/show_post.html', {'post': post_to_show, 'username': username})
 
 
 # view of edit_post.html
-def edit_post(request):
-    p = Post.objects.get(pk=chosen_post)
+def edit_post(request, edit_post_id):
+    p = Post.objects.get(pk=edit_post_id)
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
@@ -135,7 +138,7 @@ def edit_post(request):
         form = PostForm(initial={"post":p.post})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_post.html', {'form':form})
+    return render(request, 'socialapp/edit_post.html', {'form':form, 'post_id':edit_post_id})
 
 
 # view of logout.html
