@@ -44,12 +44,12 @@
         <div class="box">
             <div class="header">
                 <ul>
-                     <li style="float:right"><a href='/socialapp/show_post/'>Back</a></li>
+                     <li style="float:right"><a href='/socialapp/show_post/{{ post_id }}/'>Back</a></li>
                 </ul>
                 <h1>Edit Post</h1>
             </div>
             <div class="main">
-                 <form action="/socialapp/edit_post/" method="POST">
+                 <form action="/socialapp/edit_post/{{ post_id }}/" method="POST">
                     {% csrf_token %}
                     <br><br>
                     {{ form }}<br><br>
