@@ -73,11 +73,41 @@ def login(request):
 # view of user_profile.html
 def user_profile(request, username):
     if request.method == 'GET':
-        pass
-    else:
-        pass
+        me = User.objects.get(pk=username)
+        p_list = Post.objects.filter(user=me, unlisted=False).order_by('-pk').values_list('post', 'user', 'date', 'pk')
 
-    return render(request, "socialapp/user_profile.html", {'username':username})
+    return render(request, "socialapp/user_profile.html", {'username':username, 'p_list': p_list})
+
+
+# view of user_follows_me.html
+def user_follows_me(request, username):
+    if request.method == 'GET':
+        me = User.objects.get(pk=username)
+        user_list = []
+        for user in User.objects.all():
+            if me in user.friends.all():
+                user_list.append(user)
+
+    return render(request, "socialapp/user_follows_me.html", {'username':username, 'user_list': user_list})
+
+
+# view of user_I_follow.html
+def user_I_follow(request, username):
+    if request.method == 'GET':
+        me = User.objects.get(pk=username)
+        user_list = me.friends.all()
+    return render(request, "socialapp/user_I_follow.html", {'username':username, 'user_list': user_list})
+
+
+# view of my_friends.html
+def my_friends(request, username):
+    if request.method == 'GET':
+        me = User.objects.get(pk=username)
+        user_list = []
+        for user in me.friends.all():
+            if me in user.friends.all():
+                user_list.append(user)
+    return render(request, "socialapp/my_friends.html", {'username':username, 'user_list': user_list})
 
 
 # view of add_post.html
@@ -146,6 +176,10 @@ def show_post(request, username, show_post_id):
             p.save()
             response = redirect(mainPage, username)
             return response
+
+        elif 'follow_button' in request.POST:
+            me = User.objects.get(pk=username)
+            me.friends.add(post_to_show.user)
 
         return HttpResponseRedirect(reverse('show_post', args=[username, show_post_id]))
 
