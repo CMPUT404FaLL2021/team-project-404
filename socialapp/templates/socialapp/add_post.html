@@ -42,7 +42,7 @@
 
     <body>
         <header>
-            <a href="/socialapp/add_post/" class="logo">New Post!</a>
+            <a href="{% url 'add_post' username %}" class="logo">New Post!</a>
             <ul class="navigation">
                 <li><a href="#">Inbox</a></li>
                 <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
@@ -51,7 +51,7 @@
             </ul>
         </header>
         <div class="content">
-            <form action="/socialapp/add_post/" method="POST">
+            <form action="{% url 'add_post' username %}" method="POST">
                 {% csrf_token %}
                 {{ form }}<br><br>
                 <p>visibility: {{ visibility }}</p><br><br>
