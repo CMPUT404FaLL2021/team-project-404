@@ -155,6 +155,15 @@ def show_post(request, show_post_id):
             del_comment = Comment.objects.get(id=id)
             del_comment.delete()
 
+        elif 'share_post' in request.POST:
+            post = ("%s forwarded %s's post:\n" % (username, post_to_show.user.username)) + post_to_show.post
+            # visibility = 
+            # unlisted = check_box.cleaned_data['check_box']
+            p = Post(post=post, user=User.objects.get(username=username))
+            p.save()
+            response = redirect(mainPage)
+            return response
+
         return HttpResponseRedirect(reverse('show_post', args=[show_post_id]))
 
     else:

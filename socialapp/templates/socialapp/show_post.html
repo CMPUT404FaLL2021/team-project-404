@@ -43,7 +43,12 @@
             {% if username == post_to_show.user.username %}
                 <a href="{% url 'edit_post' post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
+                </a>&nbsp&nbsp
+                <!-- DELETE 还没写 -->
+                <a href="/socialapp/mainPage/">
+                    <button style= "background-color: #cc3300; width: 70px; height: 25px; border-radius: 3px;" type="button" name='delete_post'>Delete</button>
                 </a><br>
+                <!-- DELETE 还没写 -->
             {% else %}
                 <form action="{% url 'show_post' post_to_show.id %}" method=POST>
                     {% csrf_token %}
@@ -54,6 +59,8 @@
                         {% else %}
                             Like
                         {% endif %}
+                    </button>
+                    <button type="submit" name='share_post' value='Post'>Share
                     </button><br><br><br>
                 </form>
                 <form action="{% url 'show_post' post_to_show.id %}" method=POST>
