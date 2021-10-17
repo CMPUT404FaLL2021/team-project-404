@@ -33,7 +33,6 @@
                 <li><a href="#">Inbox</a></li>
                 <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
                 <li><a href="/socialapp/mainPage/">Main Page</a></li>
-                <!-- 下次开会完成跳转-->
             </ul>
         </header>
 
@@ -43,7 +42,7 @@
             <pre>Date: {{ post_to_show.date }}</pre><br><br>
             {% if username == post_to_show.user.username %}
                 <a href="{% url 'edit_post' post_to_show.id %}">
-                    <button style= "background-color: #eff7e1; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
+                    <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a><br>
             {% else %}
                 <form action="{% url 'show_post' post_to_show.id %}" method=POST>

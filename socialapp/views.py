@@ -103,7 +103,8 @@ def add_post(request):
             unlisted = check_box.cleaned_data['check_box']
             p = Post(post=post, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted)
             p.save()
-        return HttpResponse(p.post)
+            response = redirect(mainPage)
+            return response
 
     else:
         form = PostForm()
@@ -163,21 +164,21 @@ def show_post(request, show_post_id):
 
 # view of edit_post.html
 def edit_post(request, edit_post_id):
-    p = Post.objects.get(pk=edit_post_id)
+    post_to_show = Post.objects.get(pk=edit_post_id)
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
             changed_post = form.cleaned_data['post']
-            p.post = changed_post
-            p.date = datetime.date.today()
-            p.save()
+            post_to_show.post = changed_post
+            post_to_show.date = datetime.date.today()
+            post_to_show.save()
             response = redirect(show_post, edit_post_id)
             return response
     else:
-        form = PostForm(initial={"post":p.post})
+        form = PostForm(initial={"post":post_to_show.post})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':p})
+    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show})
 
 
 # view of logout.html
