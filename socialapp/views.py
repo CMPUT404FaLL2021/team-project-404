@@ -15,7 +15,7 @@ def index(request):
     return render(request, "socialapp/index.html", content)
 
 # view of mainPage
-def mainPage(request):
+def mainPage(request, username):
     # check if user_in in cookies
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk').values_list('post', 'user', 'date', 'pk')
 
@@ -59,7 +59,7 @@ def login(request):
             content = {'info':info}
 
             # set cookies
-            response = redirect(mainPage)
+            response = redirect(mainPage, username)
             response.set_cookie('username', username)
             return response 
 

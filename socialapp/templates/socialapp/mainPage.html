@@ -14,7 +14,7 @@
 
 <body>
     <header>
-        <a href="/socialapp/mainPage/" class="logo">Main Page</a>
+        <a href="{% url 'mainPage' username %}" class="logo">Main Page</a>
         <ul class="navigation">
             <li><a href="#">Inbox</a></li>
             <li><a href="{% url 'user_profile' username %}">User Profile</a></li>

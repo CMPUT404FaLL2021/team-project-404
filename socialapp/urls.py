@@ -13,5 +13,5 @@ urlpatterns = [
     path('edit_post/<int:edit_post_id>/', views.edit_post, name = 'edit_post'),
     path('show_post/<int:show_post_id>/', views.show_post, name = 'show_post'),
     path('user_profile/<str:username>/', views.user_profile, name = 'user_profile'),
-    path('mainPage/', views.mainPage, name = 'mainPage')
+    path('mainPage/<str:username>/', views.mainPage, name = 'mainPage')
 ]
