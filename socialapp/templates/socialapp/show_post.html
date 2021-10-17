@@ -38,7 +38,8 @@
 
         <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
             <pre>Content: {{ post_to_show.post }}</pre><br>
-            <pre>Author: {{ post_to_show.user.username }}</pre><br>
+            <pre>Author: {{ post_to_show.user.username }}
+                <form action="{% url 'show_post' username post_to_show.id %}" method="POST">{% csrf_token %}<button type="submit" name='follow_button' value='Follow'>Follow</button></pre><br></form>
             <pre>Date: {{ post_to_show.date }}</pre><br><br>
             {% if username == post_to_show.user.username %}
                 <a href="{% url 'edit_post' username post_to_show.id %}">
