@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>User Profile</title>
         <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="/static/css/post_list.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
             integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     </head>
@@ -13,7 +14,7 @@
         <header>
             <a href="{% url 'user_profile' username %}" class="logo">User Profile</a>
             <ul class="navigation">
-                <li><a href="/socialapp/mainPage/">Main Page</a></li>
+                <li><a href="{% url 'mainPage' username %}">Main Page</a></li>
                 <li><a href="#">Inbox</a></li>
                 <li><a href="/socialapp/add_post/">Post</a></li>
             </ul>

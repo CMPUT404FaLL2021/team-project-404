@@ -32,7 +32,7 @@
             <ul class="navigation">
                 <li><a href="#">Inbox</a></li>
                 <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
-                <li><a href="/socialapp/mainPage/">Main Page</a></li>
+                <li><a href="{% url 'mainPage' username %}">Main Page</a></li>
             </ul>
         </header>
 
@@ -45,7 +45,7 @@
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a>&nbsp&nbsp
                 <!-- DELETE 还没写 -->
-                <a href="/socialapp/mainPage/">
+                <a href="{% url 'mainPage' username %}">
                     <button style= "background-color: #cc3300; width: 70px; height: 25px; border-radius: 3px;" type="button" name='delete_post'>Delete</button>
                 </a><br>
                 <!-- DELETE 还没写 -->
