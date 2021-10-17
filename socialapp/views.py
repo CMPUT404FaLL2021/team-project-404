@@ -19,9 +19,6 @@ def mainPage(request, username):
     # check if user_in in cookies
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk').values_list('post', 'user', 'date', 'pk')
 
-    if 'username' not in request.COOKIES:
-        return render(request, 'socialapp/login.html', {'form':UserForm()})
-    username = request.COOKIES['username']
     return render(request, "socialapp/mainPage.html", {'username':username, 'p_list':p_list})
 
 
@@ -76,11 +73,7 @@ def login(request):
 # view of user_profile.html
 def user_profile(request, username):
     if request.method == 'GET':
-        # check if user_id recored in cookies
-        if 'username' not in request.COOKIES:
-            return render(request, 'socialapp/login.html', {'form':UserForm()})
-        username = request.COOKIES['username']
-    # other methods might need to be handled at here
+        pass
     else:
         pass
 
@@ -88,12 +81,7 @@ def user_profile(request, username):
 
 
 # view of add_post.html
-def add_post(request):
-    # check if user_in in cookies
-    if 'username' not in request.COOKIES:
-        return render(request, 'socialapp/login.html', {'form':UserForm()})
-    username = request.COOKIES['username']
-
+def add_post(request, username):
     if request.method == 'POST':
         form = PostForm(request.POST)
         visibility = VisiChoices(request.POST)
@@ -105,7 +93,7 @@ def add_post(request):
             unlisted = check_box.cleaned_data['check_box']
             p = Post(post=post, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted)
             p.save()
-            response = redirect(mainPage)
+            response = redirect(mainPage, username)
             return response
 
     else:
@@ -121,12 +109,7 @@ def if_like(post_to_show, username):
     return False
 
 # view of show_post.html
-def show_post(request, show_post_id):
-    # check authorization
-    if 'username' not in request.COOKIES:
-        return render(request, 'socialapp/login.html', {'form':UserForm()})
-    username = request.COOKIES['username']
-
+def show_post(request, username, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
     post_comments = Comment.objects.filter(post=post_to_show).order_by("-date").values_list('comment', 'user', 'date', 'id')
     context = {'post_to_show': post_to_show, 'username': username, 'post_comments':post_comments}
@@ -161,10 +144,10 @@ def show_post(request, show_post_id):
             # unlisted = check_box.cleaned_data['check_box']
             p = Post(post=post, user=User.objects.get(username=username))
             p.save()
-            response = redirect(mainPage)
+            response = redirect(mainPage, username)
             return response
 
-        return HttpResponseRedirect(reverse('show_post', args=[show_post_id]))
+        return HttpResponseRedirect(reverse('show_post', args=[username, show_post_id]))
 
     else:
         form = CommentForm()
@@ -174,7 +157,7 @@ def show_post(request, show_post_id):
 
 
 # view of edit_post.html
-def edit_post(request, edit_post_id):
+def edit_post(request, username, edit_post_id):
     post_to_show = Post.objects.get(pk=edit_post_id)
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -183,13 +166,13 @@ def edit_post(request, edit_post_id):
             post_to_show.post = changed_post
             post_to_show.date = datetime.date.today()
             post_to_show.save()
-            response = redirect(show_post, edit_post_id)
+            response = redirect(show_post, username, edit_post_id)
             return response
     else:
         form = PostForm(initial={"post":post_to_show.post})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show})
+    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show, 'username':username})
 
 
 # view of logout.html
