@@ -40,22 +40,41 @@
             <pre>Content: {{ post_to_show.post }}</pre><br>
             <pre>Author: {{ post_to_show.user.username }}</pre><br>
             <pre>Date: {{ post_to_show.date }}</pre><br><br>
-            {% if username == author %}
+            {% if username == post_to_show.user.username %}
                 <a href="{% url 'edit_post' post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a><br>
             {% else %}
                 <form action="{% url 'show_post' post_to_show.id %}" method=POST>
                     {% csrf_token %}
-                    <pre>Comment:</pre><br>
+                    <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre>
+                    <button type="submit" name='like_button' value=like>
+                        {% if like_status %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button><br><br><br>
+                </form>
+                <form action="{% url 'show_post' post_to_show.id %}" method=POST>
+                    {% csrf_token %}
                     {{ form }}<br><br>
-                    <input type='submit' value='Post'>
+                    <input type='submit' name='post_button' value='Post'>
                 </form>
             {% endif %}
             <br><pre>Comments:</pre><br>
-            {% for c in post_comments %}
-                <pre>{{ c.1 }}: {{ c.0 }}</pre><br>
-            {% endfor %}
+            <div style="font-size: 16px;">
+            <form action = "{% url 'show_post' post_to_show.id %}" method = "POST">
+                {% csrf_token %}
+                {% for c in post_comments %}
+                    <pre> @{{ c.1 }}: </pre><br>
+                    <pre>   {{ c.0 }}</pre><br>
+                    <pre>   {{ c.2 }}</pre><br>
+                    <button type="hidden" name='delete_comment' value="{{ c.3 }}">Delete</button>
+                    <pre>-------------------</pre>
+                {% endfor %}
+            </form>
+            </div>
         </div>
         
     </body>

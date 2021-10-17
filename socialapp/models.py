@@ -15,8 +15,13 @@ class Post(models.Model):
     visibility = models.CharField(max_length=30, default='PUBLIC')
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
+    likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
+    
+    def like_count(self):
+        return self.likes.count()
 
 class Comment(models.Model):
     comment = models.CharField(max_length=140)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
