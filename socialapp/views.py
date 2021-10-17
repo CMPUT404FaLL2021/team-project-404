@@ -16,10 +16,12 @@ def index(request):
 # view of mainPage
 def mainPage(request):
     # check if user_in in cookies
+    p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk').values_list('post', 'user', 'date', 'pk')
+
     if 'username' not in request.COOKIES:
         return render(request, 'socialapp/login.html', {'form':UserForm()})
     username = request.COOKIES['username']
-    return render(request, "socialapp/mainPage.html", {'username':username})
+    return render(request, "socialapp/mainPage.html", {'username':username, 'p_list':p_list})
 
 
 # view of register.html

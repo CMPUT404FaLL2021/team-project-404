@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Main Page</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/post_list.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"> -->
 </head>
 
 <body>
@@ -17,19 +19,30 @@
             <li><a href="#">Inbox</a></li>
             <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
             <li><a href="/socialapp/add_post/">Post</a></li>
-            <!-- 下次开会完成跳转-->
+
         </ul>
     </header>
-
-    <div class="banner">
-        <div class="content">
-            <h2>Post</h2>
-            <p>
-                Post List
-            </p>
-        </div>
-        
+    <div style="margin: 1% 5%; width: 900px;">
+        {% for c in p_list %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+            
+                    <h1>{{ c.1 }}</h1>
+                    <h2>{{ c.2 }}</h2>
+                    <p>{{ c.0 }}</p>
+            
+                    <p class="read-more">
+                        <a href="{% url 'show_post' c.3 %}">Read More</a>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
     </div>
+
 </body>
 
 </html>
