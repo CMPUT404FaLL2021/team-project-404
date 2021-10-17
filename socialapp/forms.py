@@ -40,12 +40,7 @@ class CheckBox(forms.Form):
         model = Post
 
 class CommentForm(forms.ModelForm):
+    comment = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': 'Write a comment'}))
     class Meta:
         model = Comment
         fields = ('comment',)
-        widgets = {
-            'comment':forms.TextInput(attrs={'placeholder': 'Write a comment'}),
-        }
-        labels = {
-            'comment':'',
-        }
