@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox, CommentForm
 from socialapp.models import *
+from django.urls import reverse
 import datetime
 
 
@@ -112,6 +113,10 @@ def add_post(request):
 
     return render(request, 'socialapp/add_post.html', {'form':form, 'visibility':visibility, 'check_box':check_box, 'username':username})     
 
+def if_like(post_to_show, username):
+    if post_to_show.likes.filter(username=username).exists():
+        return True
+    return False
 
 # view of show_post.html
 def show_post(request, show_post_id):
@@ -121,18 +126,40 @@ def show_post(request, show_post_id):
     username = request.COOKIES['username']
 
     post_to_show = Post.objects.get(pk=show_post_id)
-    post_comments = Comment.objects.filter(post=post_to_show).values_list('comment', 'user') 
+    post_comments = Comment.objects.filter(post=post_to_show).order_by("-date").values_list('comment', 'user', 'date', 'id')
+    context = {'post_to_show': post_to_show, 'username': username, 'post_comments':post_comments}
 
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.cleaned_data['comment']
-        c = Comment(comment=comment, post=post_to_show, user=User.objects.get(username=username))
-        c.save()
-        # return HttpResponse(post_comments)
+    like_status = if_like(post_to_show, username)
+    context['like_status'] = like_status
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST or None)
+        context['form'] = form
+        if 'like_button' in request.POST:
+            if like_status:
+                post_to_show.likes.remove(User.objects.get(username=username))
+            else:
+                post_to_show.likes.add(User.objects.get(username=username))
+
+        elif 'post_button' in request.POST:
+            comment = form.data['comment']
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+                c = Comment(comment=comment, post=post_to_show, user=User.objects.get(username=username))
+                c.save()
+        
+        elif 'delete_comment' in request.POST:
+            id = request.POST['delete_comment']
+            del_comment = Comment.objects.get(id=id)
+            del_comment.delete()
+
+        return HttpResponseRedirect(reverse('show_post', args=[show_post_id]))
+
     else:
         form = CommentForm()
 
-    return render(request, 'socialapp/show_post.html', {'post_to_show': post_to_show, 'username': username, 'form':form, 'author':post_to_show.user.username, 'post_comments':post_comments})
+    context['form'] = form
+    return render(request, 'socialapp/show_post.html', context)
 
 
 # view of edit_post.html
