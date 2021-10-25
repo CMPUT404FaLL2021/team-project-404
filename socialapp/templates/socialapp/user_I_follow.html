@@ -12,11 +12,11 @@
 
     <body>
         <header>
-            <a href="{% url 'user_I_follow' username %}" class="logo">User Profile</a>
+            <a href="{% url 'user_I_follow' user_id %}" class="logo">User Profile</a>
             <ul class="navigation">
-                <li><a href="{% url 'mainPage' username %}">Main Page</a></li>
+                <li><a href="{% url 'main_page' user_id %}">Main Page</a></li>
                 <li><a href="#">Inbox</a></li>
-                <li><a href="{% url 'add_post' username %}">Post</a></li>
+                <li><a href="{% url 'add_post' user_id %}">Post</a></li>
             </ul>
         </header>
 

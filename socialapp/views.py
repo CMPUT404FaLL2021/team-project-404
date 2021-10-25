@@ -14,12 +14,12 @@ def index(request):
     content = {'users': users}
     return render(request, "socialapp/index.html", content)
 
-# view of mainPage
-def mainPage(request, username):
+# view of main_page
+def main_page(request, user_id):
     # check if user_in in cookies
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk').values_list('post', 'user', 'date', 'pk')
 
-    return render(request, "socialapp/mainPage.html", {'username':username, 'p_list':p_list})
+    return render(request, "socialapp/main_page.html", {'user_id':user_id, 'p_list':p_list})
 
 
 # view of register.html
@@ -56,7 +56,7 @@ def login(request):
             content = {'info':info}
 
             # set cookies
-            response = redirect(mainPage, username)
+            response = redirect(main_page, user[0].user_id)
             response.set_cookie('username', username)
             return response 
 
@@ -71,47 +71,47 @@ def login(request):
 
 
 # view of user_profile.html
-def user_profile(request, username):
+def user_profile(request, user_id):
     if request.method == 'GET':
-        me = User.objects.get(pk=username)
+        me = User.objects.get(pk=user_id)
         p_list = Post.objects.filter(user=me, unlisted=False).order_by('-pk').values_list('post', 'user', 'date', 'pk')
 
-    return render(request, "socialapp/user_profile.html", {'username':username, 'p_list': p_list})
+    return render(request, "socialapp/user_profile.html", {'user': me, 'p_list': p_list})
 
 
 # view of user_follows_me.html
-def user_follows_me(request, username):
+def user_follows_me(request, user_id):
     if request.method == 'GET':
-        me = User.objects.get(pk=username)
+        me = User.objects.get(pk=user_id)
         user_list = []
         for user in User.objects.all():
             if me in user.friends.all():
                 user_list.append(user)
 
-    return render(request, "socialapp/user_follows_me.html", {'username':username, 'user_list': user_list})
+    return render(request, "socialapp/user_follows_me.html", {'user_id':user_id, 'user_list': user_list})
 
 
 # view of user_I_follow.html
-def user_I_follow(request, username):
+def user_I_follow(request, user_id):
     if request.method == 'GET':
-        me = User.objects.get(pk=username)
+        me = User.objects.get(pk=user_id)
         user_list = me.friends.all()
-    return render(request, "socialapp/user_I_follow.html", {'username':username, 'user_list': user_list})
+    return render(request, "socialapp/user_I_follow.html", {'user_id':user_id, 'user_list': user_list})
 
 
 # view of my_friends.html
-def my_friends(request, username):
+def my_friends(request, user_id):
     if request.method == 'GET':
-        me = User.objects.get(pk=username)
+        me = User.objects.get(pk=user_id)
         user_list = []
         for user in me.friends.all():
             if me in user.friends.all():
                 user_list.append(user)
-    return render(request, "socialapp/my_friends.html", {'username':username, 'user_list': user_list})
+    return render(request, "socialapp/my_friends.html", {'user_id':user_id, 'user_list': user_list})
 
 
 # view of add_post.html
-def add_post(request, username):
+def add_post(request, user_id):
     if request.method == 'POST':
         form = PostForm(request.POST)
         # read and save inputs
@@ -122,28 +122,28 @@ def add_post(request, username):
             visibility = form.cleaned_data['visibility']
             content_type = form.cleaned_data['content_type']
             unlisted = form.cleaned_data['unlisted']
-            p = Post(title=title, post=post, description=description, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted, content_type=content_type)
+            p = Post(title=title, post=post, description=description, user=User.objects.get(user_id=user_id), visibility=visibility, unlisted=unlisted, content_type=content_type)
             p.save()
-            response = redirect(mainPage, username)
+            response = redirect(main_page, user_id)
             return response
 
     else:
         form = PostForm()
 
-    return render(request, 'socialapp/add_post.html', {'form':form, 'username':username})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'user_id':user_id})     
 
-def if_like(post_to_show, username):
-    if post_to_show.likes.filter(username=username).exists():
+def if_like(post_to_show, user_id):
+    if post_to_show.likes.filter(user_id=user_id).exists():
         return True
     return False
 
 # view of show_post.html
-def show_post(request, username, show_post_id):
+def show_post(request, user_id, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
     post_comments = Comment.objects.filter(post=post_to_show).order_by("-date").values_list('comment', 'user', 'date', 'id')
-    context = {'post_to_show': post_to_show, 'username': username, 'post_comments':post_comments, 'comment_count':post_comments.count()}
+    context = {'post_to_show': post_to_show, 'user_id': user_id, 'post_comments':post_comments, 'comment_count':post_comments.count()}
 
-    like_status = if_like(post_to_show, username)
+    like_status = if_like(post_to_show, user_id)
     context['like_status'] = like_status
 
     if request.method == 'POST':
@@ -151,15 +151,15 @@ def show_post(request, username, show_post_id):
         context['form'] = form
         if 'like_button' in request.POST:
             if like_status:
-                post_to_show.likes.remove(User.objects.get(username=username))
+                post_to_show.likes.remove(User.objects.get(user_id=user_id))
             else:
-                post_to_show.likes.add(User.objects.get(username=username))
+                post_to_show.likes.add(User.objects.get(user_id=user_id))
 
         elif 'post_button' in request.POST:
             comment = form.data['comment']
             if form.is_valid():
                 comment = form.cleaned_data['comment']
-                c = Comment(comment=comment, post=post_to_show, user=User.objects.get(username=username))
+                c = Comment(comment=comment, post=post_to_show, user=User.objects.get(user_id=user_id))
                 c.save()
         
         elif 'delete_comment' in request.POST:
@@ -168,19 +168,20 @@ def show_post(request, username, show_post_id):
             del_comment.delete()
 
         elif 'share_post' in request.POST:
-            post = ("%s forwarded %s's post:\n" % (username, post_to_show.user.username)) + post_to_show.post
+            user = User.objects.get(user_id=user_id)
+            post = ("%s forwarded %s's post:\n" % (user.username, post_to_show.user.username)) + post_to_show.post
             # visibility = 
             # unlisted = check_box.cleaned_data['check_box']
-            p = Post(post=post, user=User.objects.get(username=username))
+            p = Post(post=post, user=User.objects.get(user_id=user_id))
             p.save()
-            response = redirect(mainPage, username)
+            response = redirect(main_page, user_id)
             return response
 
         elif 'follow_button' in request.POST:
-            me = User.objects.get(pk=username)
+            me = User.objects.get(pk=user_id)
             me.friends.add(post_to_show.user)
 
-        return HttpResponseRedirect(reverse('show_post', args=[username, show_post_id]))
+        return HttpResponseRedirect(reverse('show_post', args=[user_id, show_post_id]))
 
     else:
         form = CommentForm()
@@ -190,7 +191,7 @@ def show_post(request, username, show_post_id):
 
 
 # view of edit_post.html
-def edit_post(request, username, edit_post_id):
+def edit_post(request, user_id, edit_post_id):
     post_to_show = Post.objects.get(pk=edit_post_id)
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -199,13 +200,13 @@ def edit_post(request, username, edit_post_id):
             post_to_show.post = changed_post
             post_to_show.date = datetime.date.today()
             post_to_show.save()
-            response = redirect(show_post, username, edit_post_id)
+            response = redirect(show_post, user_id, edit_post_id)
             return response
     else:
         form = PostForm(initial={"post":post_to_show.post})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show, 'username':username})
+    return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show, 'user_id':user_id})
 
 
 # view of logout.html
