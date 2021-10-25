@@ -8,17 +8,20 @@ class User(models.Model):
     friends = models.ManyToManyField("self", symmetrical=False)
 
 class Post(models.Model):
+    title = models.CharField(max_length=140, default='')
+    description = models.CharField(max_length=140, default='')
     post = models.CharField(max_length=140)
-    # username = models.CharField(max_length=32)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    date = models.DateField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     visibility = models.CharField(max_length=30, default='PUBLIC')
+    content_type = models.CharField(max_length=30, default='PLAIN')
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
     likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
     
     def like_count(self):
         return self.likes.count()
+    
 
 class Comment(models.Model):
     comment = models.CharField(max_length=140)

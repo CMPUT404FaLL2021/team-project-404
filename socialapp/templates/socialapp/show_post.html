@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <title>Show Post</title>
         <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="/static/css/post_list.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <style>
@@ -37,10 +38,22 @@
         </header>
 
         <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
-            <pre>Content: {{ post_to_show.post }}</pre><br>
-            <pre>Author: {{ post_to_show.user.username }}
-                <form action="{% url 'show_post' username post_to_show.id %}" method="POST">{% csrf_token %}<button type="submit" name='follow_button' value='Follow'>Follow</button></pre><br></form>
-            <pre>Date: {{ post_to_show.date }}</pre><br><br>
+            <div class="blog-card">
+                <div class="meta">
+                    <div class="photo" style="background-color: #F1F2B5"></div>
+                    <ul class="details"></ul>
+                </div>
+                    <div class="description">
+                        <h1>{{ post_to_show.user.username }}</h1>
+                        <form action="{% url 'show_post' username post_to_show.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name='follow_button' value='Follow'>Follow</button></pre><br>
+                        </form>
+                        <h2>{{ post_to_show.date }}</h2>
+                        <p>{{ post_to_show.post }}</p>
+                    </div>
+            </div>
+            <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
             {% if username == post_to_show.user.username %}
                 <a href="{% url 'edit_post' username post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
@@ -53,7 +66,6 @@
             {% else %}
                 <form action="{% url 'show_post' username post_to_show.id %}" method=POST>
                     {% csrf_token %}
-                    <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre>
                     <button type="submit" name='like_button' value=like>
                         {% if like_status %}
                             Unlike
@@ -74,6 +86,7 @@
             <div style="font-size: 16px;">
             <form action = "{% url 'show_post' username post_to_show.id %}" method = "POST">
                 {% csrf_token %}
+                <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
                 {% for c in post_comments %}
                     <pre> @{{ c.1 }}: </pre><br>
                     <pre>   {{ c.0 }}</pre><br>
