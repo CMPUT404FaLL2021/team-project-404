@@ -1,10 +1,16 @@
+import uuid
 from django.db import models
 from django.utils import timezone
 
 # Create your models here.
 class User(models.Model):
-    username = models.CharField(max_length=32, primary_key=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    username = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
+    # user_image =
+    # host =
+    # url =
+    # github =
     friends = models.ManyToManyField("self", symmetrical=False)
 
 class Post(models.Model):

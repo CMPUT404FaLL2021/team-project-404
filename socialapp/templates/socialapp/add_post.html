@@ -76,16 +76,16 @@
 
     <body>
         <header>
-            <a href="{% url 'add_post' username %}" class="logo">New Post!</a>
+            <a href="{% url 'add_post' user_id %}" class="logo">New Post!</a>
             <ul class="navigation">
                 <li><a href="#">Inbox</a></li>
-                <li><a href="{% url 'user_profile' username %}">User Profile</a></li>
-                <li><a href="{% url 'mainPage' username %}">Main Page</a></li>
+                <li><a href="{% url 'user_profile' user_id %}">User Profile</a></li>
+                <li><a href="{% url 'main_page' user_id %}">Main Page</a></li>
                 <!-- 下次开会完成跳转-->
             </ul>
         </header>
         <div class="content">
-            <form action="{% url 'add_post' username %}" method="POST">
+            <form action="{% url 'add_post' user_id %}" method="POST">
                 {% csrf_token %}
                 {{ form.title }}<br><br>
                 {{ form.description }}<br><br>
