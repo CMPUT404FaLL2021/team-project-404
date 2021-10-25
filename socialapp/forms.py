@@ -10,11 +10,28 @@ class UserForm(forms.ModelForm):
         fields = ('username', 'password')
 
 class PostForm(forms.ModelForm):
+    CONTENT_TYPES = {
+        ("MARKDOWN", 'text/markdown'),
+        ("PLAIN", 'text/plain')
+        # add png & jpeg
+    }
+    VISIBILITY_CHOICES = {
+        ("PUBLIC", 'public'),
+        ("FRIENDS", 'friends only'),
+        ("PRIVATE", 'private')
+    }
     hint_text = "Write a caption ..."
+
     post = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
+    visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES, initial='PUBLIC')
+    content_type = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='PLAIN')
     class Meta:
         model = Post
-        fields = ('post',)
+        fields = ('post', 'description', 'title', 'unlisted', 'visibility', 'content_type')
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Enter title here'}),
+            'description': forms.Textarea(attrs={'placeholder': 'Enter description here'}),
+        }
 
 # class EditForm(forms.ModelForm):
 #     edit = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': '...'}))
@@ -22,22 +39,6 @@ class PostForm(forms.ModelForm):
 #         model = Post
 #         fields = ('edit',)
 
-# reference: https://www.geeksforgeeks.org/choicefield-django-forms/
-class VisiChoices(forms.Form):
-    VISIBILITY_CHOICES = {
-        ("PUBLIC", 'public'),
-        ("FRIENDS", 'friends only'),
-        ("PRIVATE", 'private')
-    }
-    visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES)
-    class Meta:
-        model = Post
-        fields = ('visibility',)
-
-class CheckBox(forms.Form):
-    check_box = forms.BooleanField(required=False, label=False)
-    class Meta:
-        model = Post
 
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': 'Write a comment'}))

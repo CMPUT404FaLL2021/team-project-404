@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from socialapp.forms import UserForm, PostForm, VisiChoices, CheckBox, CommentForm
+from socialapp.forms import UserForm, PostForm, CommentForm
 from socialapp.models import *
 from django.urls import reverse
 import datetime
@@ -114,24 +114,23 @@ def my_friends(request, username):
 def add_post(request, username):
     if request.method == 'POST':
         form = PostForm(request.POST)
-        visibility = VisiChoices(request.POST)
-        check_box = CheckBox(request.POST)
         # read and save inputs
-        if form.is_valid() and visibility.is_valid() and check_box.is_valid():
+        if form.is_valid():
+            title = form.cleaned_data['title']
             post = form.cleaned_data['post']
-            visibility = visibility.cleaned_data['visibility']
-            unlisted = check_box.cleaned_data['check_box']
-            p = Post(post=post, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted)
+            description = form.cleaned_data['description']
+            visibility = form.cleaned_data['visibility']
+            content_type = form.cleaned_data['content_type']
+            unlisted = form.cleaned_data['unlisted']
+            p = Post(title=title, post=post, description=description, user=User.objects.get(username=username), visibility=visibility, unlisted=unlisted, content_type=content_type)
             p.save()
             response = redirect(mainPage, username)
             return response
 
     else:
         form = PostForm()
-        visibility = VisiChoices()
-        check_box = CheckBox()
 
-    return render(request, 'socialapp/add_post.html', {'form':form, 'visibility':visibility, 'check_box':check_box, 'username':username})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'username':username})     
 
 def if_like(post_to_show, username):
     if post_to_show.likes.filter(username=username).exists():
@@ -142,7 +141,7 @@ def if_like(post_to_show, username):
 def show_post(request, username, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
     post_comments = Comment.objects.filter(post=post_to_show).order_by("-date").values_list('comment', 'user', 'date', 'id')
-    context = {'post_to_show': post_to_show, 'username': username, 'post_comments':post_comments}
+    context = {'post_to_show': post_to_show, 'username': username, 'post_comments':post_comments, 'comment_count':post_comments.count()}
 
     like_status = if_like(post_to_show, username)
     context['like_status'] = like_status
