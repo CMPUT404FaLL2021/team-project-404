@@ -12,23 +12,23 @@
 
     <body>
         <header>
-            <a href="{% url 'my_friends' user_id %}" class="logo">User Profile</a>
+            <a href="{% url 'my_friends' author_id %}" class="logo">User Profile</a>
             <ul class="navigation">
-                <li><a href="{% url 'main_page' user_id %}">Main Page</a></li>
+                <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
                 <li><a href="#">Inbox</a></li>
-                <li><a href="{% url 'add_post' user_id %}">Post</a></li>
+                <li><a href="{% url 'add_post' author_id %}">Post</a></li>
             </ul>
         </header>
 
         <div style="margin: 1% 1%; width: 900px;">
-            {% for user in user_list %}
+            {% for author in author_list %}
                 <div class="blog-card">
                 <div class="meta">
                     <div class="photo" style="background-color: #F1F2B5"></div>
                     <ul class="details"></ul>
                 </div>
                     <div class="description">       
-                        <h1>{{ user.username }}</h1>       
+                        <h1>{{ author.displayName }}</h1>       
                     </div>
                 </div>
             {% endfor %}

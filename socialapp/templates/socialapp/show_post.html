@@ -29,11 +29,11 @@
     </head>
     <body>
         <header>
-            <a href="{% url 'show_post' user_id post_to_show.id %}" class="logo">Post Details</a>
+            <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
             <ul class="navigation">
                 <li><a href="#">Inbox</a></li>
-                <li><a href="{% url 'user_profile' user_id %}">User Profile</a></li>
-                <li><a href="{% url 'main_page' user_id %}">Main Page</a></li>
+                <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
+                <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
             </ul>
         </header>
 
@@ -44,8 +44,8 @@
                     <ul class="details"></ul>
                 </div>
                     <div class="description">
-                        <h1>{{ post_to_show.author.username }}</h1>
-                        <form action="{% url 'show_post' user_id post_to_show.id %}" method="POST">
+                        <h1>{{ post_to_show.author.displayName }}</h1>
+                        <form action="{% url 'show_post' author_id post_to_show.id %}" method="POST">
                             {% csrf_token %}
                             <button type="submit" name='follow_button' value='Follow'>Follow</button></pre><br>
                         </form>
@@ -54,17 +54,17 @@
                     </div>
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
-            {% if user_id == post_to_show.author.user_id %}
-                <a href="{% url 'edit_post' user_id post_to_show.id %}">
+            {% if author_id == post_to_show.author.author_id %}
+                <a href="{% url 'edit_post' author_id post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a>&nbsp&nbsp
                 <!-- DELETE 还没写 -->
-                <a href="{% url 'main_page' user_id %}">
+                <a href="{% url 'main_page' author_id %}">
                     <button style= "background-color: #cc3300; width: 70px; height: 25px; border-radius: 3px;" type="button" name='delete_post'>Delete</button>
                 </a><br>
                 <!-- DELETE 还没写 -->
             {% else %}
-                <form action="{% url 'show_post' user_id post_to_show.id %}" method=POST>
+                <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
                     {% csrf_token %}
                     <button type="submit" name='like_button' value=like>
                         {% if like_status %}
@@ -76,7 +76,7 @@
                     <button type="submit" name='share_post' value='Post'>Share
                     </button><br><br><br>
                 </form>
-                <form action="{% url 'show_post' user_id post_to_show.id %}" method=POST>
+                <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
                     {% csrf_token %}
                     {{ form }}<br><br>
                     <input type='submit' name='post_button' value='Post'>
@@ -84,7 +84,7 @@
             {% endif %}
             <br><pre>Comments:</pre><br>
             <div style="font-size: 16px;">
-            <form action = "{% url 'show_post' user_id post_to_show.id %}" method = "POST">
+            <form action = "{% url 'show_post' author_id post_to_show.id %}" method = "POST">
                 {% csrf_token %}
                 <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
                 {% for c in post_comments %}
