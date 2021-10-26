@@ -16,7 +16,7 @@ def index(request):
 
 # view of main_page
 def main_page(request, author_id):
-    p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk')
+    p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
 
     return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list})
 
