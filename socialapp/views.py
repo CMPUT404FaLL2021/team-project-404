@@ -16,7 +16,7 @@ def index(request):
 
 # view of main_page
 def main_page(request, author_id):
-    p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk').values_list('content', 'author', 'published', 'pk')
+    p_list = Post.objects.filter(visibility='PUBLIC').order_by('-pk')
 
     return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list})
 
@@ -73,7 +73,7 @@ def login(request):
 def author_profile(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
-        p_list = Post.objects.filter(author=me, unlisted=False).order_by('-pk').values_list('content', 'author', 'published', 'pk')
+        p_list = Post.objects.filter(author=me, unlisted=False).order_by('-pk')
 
     return render(request, "socialapp/author_profile.html", {'author': me, 'p_list': p_list})
 
