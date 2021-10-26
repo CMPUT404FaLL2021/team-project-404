@@ -141,7 +141,8 @@ def if_like(post_to_show, user_id):
 def show_post(request, user_id, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
     post_comments = Comment.objects.filter(post=post_to_show).order_by("-published").values_list('comment', 'author', 'published', 'id')
-    context = {'post_to_show': post_to_show, 'user_id': user_id, 'post_comments':post_comments, 'comment_count':post_comments.count()}
+    comment_author = User.objects.get(user_id=post_comments[0][1]).username
+    context = {'post_to_show': post_to_show, 'user_id': user_id, 'post_comments':post_comments, 'comment_count':post_comments.count(), 'comment_author':comment_author}
 
     like_status = if_like(post_to_show, user_id)
     context['like_status'] = like_status

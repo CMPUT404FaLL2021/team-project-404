@@ -54,7 +54,7 @@
                     </div>
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
-            {% if user_id == post_to_show.author.id %}
+            {% if user_id == post_to_show.author.user_id %}
                 <a href="{% url 'edit_post' user_id post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a>&nbsp&nbsp
@@ -88,7 +88,7 @@
                 {% csrf_token %}
                 <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
                 {% for c in post_comments %}
-                    <pre> @{{ c.1 }}: </pre><br>
+                    <pre> @{{ comment_author }}: </pre><br>
                     <pre>   {{ c.0 }}</pre><br>
                     <pre>   {{ c.2 }}</pre><br>
                     <button type="hidden" name='delete_comment' value="{{ c.3 }}">Delete</button>
