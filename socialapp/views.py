@@ -73,29 +73,29 @@ def login(request):
 def author_profile(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
-        p_list = Post.objects.filter(author=me, unlisted=False).order_by('-pk')
+        p_list = Post.objects.filter(author=me, unlisted=False, visibility='PUBLIC').order_by('-published')
 
     return render(request, "socialapp/author_profile.html", {'author': me, 'p_list': p_list})
 
 
 # view of author_follows_me.html
-def author_follows_me(request, author_id):
+def my_followers(request, author_id):
+    if request.method == 'GET':
+        me = Author.objects.get(pk=author_id)
+        author_list = me.followers.all()
+
+    return render(request, "socialapp/my_followers.html", {'author_id':author_id, 'author_list': author_list})
+
+
+# view of author_I_follow.html
+def my_follows(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
         author_list = []
         for author in Author.objects.all():
             if me in author.followers.all():
                 author_list.append(author)
-
-    return render(request, "socialapp/author_follows_me.html", {'author_id':author_id, 'author_list': author_list})
-
-
-# view of author_I_follow.html
-def author_I_follow(request, author_id):
-    if request.method == 'GET':
-        me = Author.objects.get(pk=author_id)
-        author_list = me.followers.all()
-    return render(request, "socialapp/author_I_follow.html", {'author_id':author_id, 'author_list': author_list})
+    return render(request, "socialapp/my_follows.html", {'author_id':author_id, 'author_list': author_list})
 
 
 # view of my_friends.html

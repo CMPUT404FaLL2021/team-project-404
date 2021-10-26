@@ -20,7 +20,7 @@
             </ul>
         </header>
 
-        <div style="margin: 1% 1%; width: 900px;">
+        <div style="margin: 1% 0.1%; width: 55%;">
             {% for p in p_list %}
                 <div class="blog-card">
                 <div class="meta">
@@ -41,13 +41,59 @@
             {% endfor %}
         </div>
 
-        <div>
-            <ul>
-                <strong style="font-size: 35pt"> Hi, {{author.displayName}} </strong><br><br><br><br><br><br>
-                <li><a style="font-size: 20pt" href="{% url 'author_follows_me' author.id %}">Author follows Me</a></li><br><br><br>
-                <li><a style="font-size: 20pt" href="{% url 'author_I_follow' author.id %}">Author I follow</a></li><br><br><br>
-                <li><a style="font-size: 20pt" href="{% url 'my_friends' author.id %}">My Friends</a></li>
-            <ul>
+        <div style="width: 30%">
+            <strong style="font-size: 30pt"> {{author.displayName}} </strong><br><br>
+            <div class="blog-card">
+                <div class="meta">
+                    <div class="photo" style="background-color: #F1F2B5"></div>
+                    <ul class="details"></ul>
+                </div>
+                    <div class="description">
+                        <p>Modify User Info</p>                
+                        <p class="read-more">
+                            <a href="#">-></a>
+                        </p>
+                    </div>
+            </div>
+
+            <div class="blog-card">
+                <div class="meta">
+                    <div class="photo" style="background-color: #F1F2B5"></div>
+                    <ul class="details"></ul>
+                </div>
+                    <div class="description">
+                        <p>My Followers</p>                
+                        <p class="read-more">
+                            <a href="{% url 'my_followers' author.id %}">-></a>
+                        </p>
+                    </div>
+            </div>
+
+            <div class="blog-card">
+                <div class="meta">
+                    <div class="photo" style="background-color: #F1F2B5"></div>
+                    <ul class="details"></ul>
+                </div>
+                    <div class="description">
+                        <p>My Follows</p>                
+                        <p class="read-more">
+                            <a href="{% url 'my_follows' author.id %}">-></a>
+                        </p>
+                    </div>
+            </div>
+
+            <div class="blog-card">
+                <div class="meta">
+                    <div class="photo" style="background-color: #F1F2B5"></div>
+                    <ul class="details"></ul>
+                </div>
+                    <div class="description">
+                        <p>My Friends</p>                
+                        <p class="read-more">
+                            <a href="{% url 'my_friends' author.id %}">-></a>
+                        </p>
+                    </div>
+            </div>
         </div>
 
     </body>
