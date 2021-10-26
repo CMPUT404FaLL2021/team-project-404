@@ -15,12 +15,16 @@ class User(models.Model):
 
 class Post(models.Model):
     title = models.CharField(max_length=140, default='')
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    # source
+    # origin
     description = models.CharField(max_length=140, default='')
-    post = models.CharField(max_length=140)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    date = models.DateTimeField(default=timezone.now)
+    contentType = models.CharField(max_length=30, default='PLAIN')
+    content = models.CharField(max_length=140)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    # categories
+    published = models.DateTimeField(default=timezone.now)
     visibility = models.CharField(max_length=30, default='PUBLIC')
-    content_type = models.CharField(max_length=30, default='PLAIN')
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
     likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
@@ -30,7 +34,9 @@ class Post(models.Model):
     
 
 class Comment(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.CharField(max_length=140)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(default=timezone.now)
+    contentType = models.CharField(max_length=30, default='PLAIN')
+    published = models.DateTimeField(default=timezone.now)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)

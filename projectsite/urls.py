@@ -22,4 +22,5 @@ from socialapp.views import index
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('socialapp/', include('socialapp.urls')),
+    path('api/', include('socialapp.api.urls')),
 ]

@@ -22,12 +22,12 @@ class PostForm(forms.ModelForm):
     }
     hint_text = "Write a caption ..."
 
-    post = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
+    content = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
     visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES, initial='PUBLIC')
-    content_type = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='PLAIN')
+    contentType = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='PLAIN')
     class Meta:
         model = Post
-        fields = ('post', 'description', 'title', 'unlisted', 'visibility', 'content_type')
+        fields = ('content', 'description', 'title', 'unlisted', 'visibility', 'contentType')
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Enter title here'}),
             'description': forms.Textarea(attrs={'placeholder': 'Enter description here'}),
