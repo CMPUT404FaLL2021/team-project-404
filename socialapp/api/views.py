@@ -6,7 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 
-from socialapp.models import Post, User
+from socialapp.models import Post, Author
 from socialapp.api.serializers import PostSerializer
 
 @api_view(['GET', 'POST'])

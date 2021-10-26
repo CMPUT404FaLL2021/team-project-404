@@ -28,13 +28,13 @@
     </head>
     <body>
         <header>
-            <a href="{% url 'edit_post' user_id modified_post.id %}" class="logo">Edit Post</a>
+            <a href="{% url 'edit_post' author_id modified_post.id %}" class="logo">Edit Post</a>
             <ul class="navigation">
-                <li><a href="{% url 'show_post' user_id modified_post.id %}">Back</a></li>
+                <li><a href="{% url 'show_post' author_id modified_post.id %}">Back</a></li>
             </ul>
         </header>
         <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
-            <form action="{% url 'edit_post' user_id modified_post.id %}" method="POST">
+            <form action="{% url 'edit_post' author_id modified_post.id %}" method="POST">
                     {% csrf_token %}
                     <br><br>
                     {{ form }}<br><br>

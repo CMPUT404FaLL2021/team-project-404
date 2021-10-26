@@ -2,12 +2,12 @@ from django import forms
 
 from socialapp.models import *
 
-class UserForm(forms.ModelForm):
-    username = forms.CharField(label='username', required=True, widget=forms.TextInput(attrs={'placeholder': 'username'}))
+class AuthorForm(forms.ModelForm):
+    displayName = forms.CharField(label='displayName', required=True, widget=forms.TextInput(attrs={'placeholder': 'username'}))
     password = forms.CharField(label='password', widget=forms.PasswordInput(attrs={'placeholder': 'password'}), required=True)
     class Meta:
-        model = User
-        fields = ('username', 'password')
+        model = Author
+        fields = ('displayName', 'password')
 
 class PostForm(forms.ModelForm):
     CONTENT_TYPES = {
