@@ -14,7 +14,7 @@ urlpatterns = [
     path('show_post/<uuid:author_id>/<uuid:show_post_id>/', views.show_post, name = 'show_post'),
     path('author_profile/<uuid:author_id>/', views.author_profile, name = 'author_profile'),
     path('main_page/<uuid:author_id>/', views.main_page, name = 'main_page'),
-    path('author_follows_me/<uuid:author_id>/', views.author_follows_me, name  = 'author_follows_me'),
-    path('author_I_follow/<uuid:author_id>/', views.author_I_follow, name  = 'author_I_follow'),
+    path('my_followers/<uuid:author_id>/', views.my_followers, name  = 'my_followers'),
+    path('my_follows/<uuid:author_id>/', views.my_follows, name  = 'my_follows'),
     path('my_friends/<uuid:author_id>/', views.my_friends, name  = 'my_friends')
 ]
