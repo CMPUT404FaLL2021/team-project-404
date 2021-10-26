@@ -36,7 +36,7 @@
                 background-color: rgba(255, 255, 255, 0.6);
             }
 
-            form [name=post] {
+            form [name=content] {
                 height: 150px;
                 width: 800px;
                 padding: 12px 12px;
@@ -54,13 +54,13 @@
                 border: 3px solid rgb(190, 224, 219);
             }
 
-            form [name=content_type] {
+            form [name=contentType] {
                 height: 30px;
                 width: 80px;
                 border-radius: 3px;
                 background-color: rgba(255, 255, 255, 0.6);
             }
-            form [name=content_type]:focus {
+            form [name=contentType]:focus {
                 border: 3px solid rgb(190, 224, 219);
             }
 
@@ -89,10 +89,10 @@
                 {% csrf_token %}
                 {{ form.title }}<br><br>
                 {{ form.description }}<br><br>
-                {{ form.post }}<br><br>
+                {{ form.content }}<br><br>
                 <p>visibility: {{ form.visibility }}</p><br><br>
                 <p>unlisted: {{ form.unlisted }}</p><br><br>
-                <p>content type: {{ form.content_type }}</p>
+                <p>content type: {{ form.contentType }}</p>
                 <br><br>
                 <input type='submit' value="Share">
             </form>
