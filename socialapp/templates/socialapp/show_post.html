@@ -47,14 +47,20 @@
                         <h1>{{ post_to_show.author.displayName }}</h1>
                         <form action="{% url 'show_post' author_id post_to_show.id %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" name='follow_button' value='Follow'>Follow</button></pre><br>
+                            <button type="submit" name='follow_button' value='Follow'>
+                            {% if follow_status %}
+                                Unfollow
+                            {% else %}
+                                Follow
+                            {% endif %}
+                            </button></pre><br>
                         </form>
                         <h2>{{ post_to_show.published }}</h2>
                         <pre>{{ post_to_show.content }}</pre>
                     </div>
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
-            {% if author_id == post_to_show.author.author_id %}
+            {% if author_id == post_to_show.author.id %}
                 <a href="{% url 'edit_post' author_id post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
                 </a>&nbsp&nbsp

@@ -84,7 +84,7 @@ def author_follows_me(request, author_id):
         me = Author.objects.get(pk=author_id)
         author_list = []
         for author in Author.objects.all():
-            if me in author.friends.all():
+            if me in author.followers.all():
                 author_list.append(author)
 
     return render(request, "socialapp/author_follows_me.html", {'author_id':author_id, 'author_list': author_list})
@@ -94,7 +94,7 @@ def author_follows_me(request, author_id):
 def author_I_follow(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
-        author_list = me.friends.all()
+        author_list = me.followers.all()
     return render(request, "socialapp/author_I_follow.html", {'author_id':author_id, 'author_list': author_list})
 
 
@@ -103,8 +103,8 @@ def my_friends(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
         author_list = []
-        for author in me.friends.all():
-            if me in author.friends.all():
+        for author in me.followers.all():
+            if me in author.followers.all():
                 author_list.append(author)
     return render(request, "socialapp/my_friends.html", {'author_id':author_id, 'author_list': author_list})
 
@@ -136,6 +136,14 @@ def if_like(post_to_show, author_id):
         return True
     return False
 
+def if_follow(post_to_show, author_id):
+    post_author = post_to_show.author
+    me = Author.objects.get(pk=author_id)
+    followers = post_author.followers.all()
+    if me in followers:
+        return True
+    return False
+
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
@@ -147,6 +155,8 @@ def show_post(request, author_id, show_post_id):
 
     like_status = if_like(post_to_show, author_id)
     context['like_status'] = like_status
+    follow_status = if_follow(post_to_show, author_id)
+    context['follow_status'] = follow_status
 
     if request.method == 'POST':
         form = CommentForm(request.POST or None)
@@ -181,7 +191,11 @@ def show_post(request, author_id, show_post_id):
 
         elif 'follow_button' in request.POST:
             me = Author.objects.get(pk=author_id)
-            me.friends.add(post_to_show.author)
+            post_author = post_to_show.author
+            if follow_status:
+                post_author.followers.remove(me)
+            else:
+                post_author.followers.add(me)
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
 

@@ -11,7 +11,7 @@ class Author(models.Model):
     # host =
     # url =
     # github =
-    friends = models.ManyToManyField("self", symmetrical=False)
+    followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
