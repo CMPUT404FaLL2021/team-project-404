@@ -88,10 +88,12 @@
                 {% csrf_token %}
                 <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
                 {% for c in post_comments %}
-                    <pre> @{{ comment_author }}: </pre><br>
-                    <pre>   {{ c.0 }}</pre><br>
-                    <pre>   {{ c.2 }}</pre><br>
-                    <button type="hidden" name='delete_comment' value="{{ c.3 }}">Delete</button>
+                    <pre> @{{ c.author.displayName }}: </pre><br>
+                    <pre>   {{ c.comment }}</pre><br>
+                    <pre>   {{ c.published }}</pre><br>
+                    {% if c.author.id == author_id %}
+                        <button type="hidden" name='delete_comment' value="{{ c.id }}">Delete</button>
+                    {% endif %}
                     <pre>-------------------</pre>
                 {% endfor %}
             </form>
