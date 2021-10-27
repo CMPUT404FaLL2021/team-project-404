@@ -33,11 +33,16 @@ class PostForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'placeholder': 'Enter description here'}),
         }
 
+class ViewerForm(forms.Form):
+    viewers_choices = [(v.id, v.displayName) for v in Author.objects.all()]
+    viewers = forms.ChoiceField(label=False, choices = viewers_choices)
+
+
 # class EditForm(forms.ModelForm):
 #     edit = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': '...'}))
-#     class Meta:
-#         model = Post
-#         fields = ('edit',)
+    # class Meta:
+    #     model = Post
+    #     fields = ('edit',)
 
 
 class CommentForm(forms.ModelForm):

@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from socialapp.forms import AuthorForm, PostForm, CommentForm
+from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
 from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
@@ -75,9 +75,10 @@ def login(request):
 # view of inbox.html
 def inbox(request, author_id):
     author = Author.objects.get(pk=author_id)
-    inbox = Inbox.objects.get(author=author)
-    friend_request_list = FriendRequest.objects.filter(inbox=inbox)
-    return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list})
+    inbox = Inbox.objects.filter(author=author)
+    # friend_request_list = FriendRequest.objects.filter(inbox=inbox)
+    # return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list})
+    return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'inbox':inbox})
 
 
 # view of author_profile.html
@@ -134,13 +135,45 @@ def add_post(request, author_id):
             unlisted = form.cleaned_data['unlisted']
             p = Post(title=title, content=content, description=description, author=Author.objects.get(id=author_id), visibility=visibility, unlisted=unlisted, contentType=contentType)
             p.save()
+            if visibility == "FRIENDS":
+                friends = Author.objects.get(id=author_id).followers.all()
+                for friend in friends:
+                    inbox = Inbox(author=friend, post=p, type='post', message='Friend-Only Post')
+                    inbox.save()
+            elif visibility == "PRIVATE":
+                return render(request, 'socialapp/select_viewers.html', {'form':form, 'author_id':author_id, 'post_id':p.id})
             response = redirect(main_page, author_id)
             return response
 
     else:
         form = PostForm()
 
-    return render(request, 'socialapp/add_post.html', {'form':form, 'author_id':author_id})     
+    return render(request, 'socialapp/add_post.html', {'form':form, 'author_id':author_id})  
+
+def select_viewers(request, author_id, post_id):
+    if request.method == 'POST':
+        form = ViewerForm()
+        post = Post.objects.get(id=post_id)
+        """
+        cannot not figure out why form.is_valid() always returns false
+        """
+        # if form.is_valid():
+        #     return HttpResponse("test")
+            # for viewer in viewers:
+                # inbox = Inbox(author=Author.objects.get(id=viewer), post=post, type='post', message='Private Post')
+                # inbox.save()
+            # response = redirect(main_page, author_id)
+            # return response
+        viewers = request.POST.get('viewers', '')
+        inbox = Inbox(author=Author.objects.get(id=viewers), post=post, type='post', message='Private Post')
+        inbox.save()
+        response = redirect(main_page, author_id)
+        return response
+
+    else:
+        form = ViewerForm()
+
+    return render(request, 'socialapp/select_viewers.html', {'form':form, 'author_id':author_id, 'post_id':post_id})
 
 def if_like(post_to_show, author_id):
     if post_to_show.likes.filter(id=author_id).exists():
@@ -214,6 +247,8 @@ def show_post(request, author_id, show_post_id):
                 post_author.followers.add(me)
                 friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
                 friend_request.save()
+                inbox = Inbox(author=post_author, friend_request=friend_request, type='friend_request')
+                inbox.save()
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
 

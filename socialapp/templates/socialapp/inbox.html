@@ -23,17 +23,24 @@
     </header>
 
     <div style="margin: 1% 5%; width: 900px;">
-        {% for friend_request in friend_request_list %}
+        {% for i in inbox %}
             <div class="blog-card">
             <div class="meta">
                 <div class="photo" style="background-color: #F1F2B5"></div>
                 <ul class="details"></ul>
             </div>
                 <div class="description">
-                    <h1>Friend Request from {{ friend_request.actor.displayName }}</h1>
-                    <h2>Click Follow to Follow Him/Her</h2>
-                    <p>这里应该有个按钮</p>
-                    </p>
+                    {% if i.type == 'friend_request' %}
+                        <h1>{{ i.message }} from {{ i.friend_request.actor.displayName }}</h1>
+                        <h2>Click Follow to Follow Him/Her</h2>
+                        <p>这里应该有个按钮</p>
+
+                    {% elif i.type == 'post' %}
+                        <h1>{{ i.message }} from {{ i.post.author.displayName }}</h1>                       
+                        <p>{{ i.post.content }}</p>
+                        <a href="{% url 'show_post' author_id i.post.id %}">Post Detail</a>
+
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}
