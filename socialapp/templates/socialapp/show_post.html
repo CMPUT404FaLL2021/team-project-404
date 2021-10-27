@@ -61,14 +61,24 @@
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
             {% if author_id == post_to_show.author.id %}
-                <a href="{% url 'edit_post' author_id post_to_show.id %}">
+                <!-- <a href="{% url 'edit_post' author_id post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
-                </a>&nbsp&nbsp
-                <!-- DELETE 还没写 -->
-                <a href="{% url 'main_page' author_id %}">
+                </a>&nbsp&nbsp -->
+                <form action="{% url 'edit_post' author_id post_to_show.id %}" method=GET>
+                    {% csrf_token %}
+                    <button type="submit" name='edit_button' value=edit style= "background-color: #dee6b8; display: inline-block; float: left;">Edit</button>
+                </form>
+                <p style="display: inline-block; float: left;">&nbsp&nbsp</p>
+
+                <form action="{% url 'show_post' author_id post_to_show.id %}" method=GET>
+                    {% csrf_token %}
+                    <button type="submit" name='delete_button' value=delete style= "background-color: #cc3300; vertical-align: top;">Delete</button>
+                </form>
+
+                <!-- <a href="{% url 'main_page' author_id %}">
                     <button style= "background-color: #cc3300; width: 70px; height: 25px; border-radius: 3px;" type="button" name='delete_post'>Delete</button>
-                </a><br>
-                <!-- DELETE 还没写 -->
+                </a><br> -->
+
             {% else %}
                 <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
                     {% csrf_token %}

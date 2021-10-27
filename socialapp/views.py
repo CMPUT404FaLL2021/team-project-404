@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import AuthorForm, PostForm, CommentForm
 from socialapp.models import *
 from django.urls import reverse
-import datetime
+from django.utils import timezone
 
 
 # view of index.html
@@ -147,6 +147,11 @@ def if_follow(post_to_show, author_id):
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
     post_to_show = Post.objects.get(pk=show_post_id)
+    if request.method == 'GET' and 'delete_button' in request.GET:
+        post_to_show.delete()
+        response = redirect(main_page, author_id)
+        return response
+
     post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0}
     if post_comments:
@@ -212,14 +217,24 @@ def edit_post(request, author_id, edit_post_id):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            changed_post = form.cleaned_data['post']
-            post_to_show.content = changed_post
-            post_to_show.published = datetime.date.today()
+            changed_title = form.cleaned_data['title']
+            changed_content = form.cleaned_data['content']
+            changed_description = form.cleaned_data['description']
+            changed_visibility = form.cleaned_data['visibility']
+            changed_contentType = form.cleaned_data['contentType']
+            changed_unlisted = form.cleaned_data['unlisted']
+            post_to_show.title = changed_title
+            post_to_show.description = changed_description
+            post_to_show.content = changed_content
+            post_to_show.visibility = changed_visibility
+            post_to_show.contentType = changed_contentType
+            post_to_show.unlisted = changed_unlisted
+            post_to_show.published = timezone.now()
             post_to_show.save()
             response = redirect(show_post, author_id, edit_post_id)
             return response
     else:
-        form = PostForm(initial={"post":post_to_show.published})
+        form = PostForm(initial={"title":post_to_show.title, "content":post_to_show.content, "description":post_to_show.description, "visibility":post_to_show.visibility, "contentType":post_to_show.contentType, "unlisted":post_to_show.unlisted})
         #form.fields["post"].initial = p.post
 
     return render(request, 'socialapp/edit_post.html', {'form':form, 'modified_post':post_to_show, 'author_id':author_id})

@@ -8,22 +8,69 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <style>
-            form [name=comment]{
+            body {
+                background: #F1F2B5;  /* fallback for old browsers */
+                background: -webkit-linear-gradient(to right, #135058, #F1F2B5);  /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to right, #135058, #F1F2B5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                padding: 50px 100px 100px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .content {
+                margin: 8% 8%;
+            }
+            form [name=title]{
+                height:30px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+            form [name=description] {
+                height: 30px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+            form [name=content] {
                 height: 150px;
                 width: 800px;
                 padding: 12px 12px;
                 border-radius: 3px;
                 background-color: rgba(255, 255, 255, 0.6);
             }
-            form [name=comment]:focus {
+
+            form [name=visibility] {
+                height: 30px;
+                width: 80px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+            form [name=visibility]:focus {
                 border: 3px solid rgb(190, 224, 219);
             }
+
+            form [name=contentType] {
+                height: 30px;
+                width: 80px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+            form [name=contentType]:focus {
+                border: 3px solid rgb(190, 224, 219);
+            }
+
             form [type=submit] {
                 height: 25px;
                 width: 70px;
                 border-radius: 3px;
                 background-color: rgba(255, 255, 255, 0.6);
             }
+
         </style>
     </head>
     <body>
@@ -33,14 +80,18 @@
                 <li><a href="{% url 'show_post' author_id modified_post.id %}">Back</a></li>
             </ul>
         </header>
-        <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
+        <div class="content">
             <form action="{% url 'edit_post' author_id modified_post.id %}" method="POST">
-                    {% csrf_token %}
-                    <br><br>
-                    {{ form }}<br><br>
-                    <input type='submit' style= "background-color: #e6e6e6; width: 100px" value="Save change">
-                </form>         
+                {% csrf_token %}
+                {{ form.title }}<br><br>
+                {{ form.description }}<br><br>
+                {{ form.content }}<br><br>
+                <p>visibility: {{ form.visibility }}</p><br><br>
+                <p>unlisted: {{ form.unlisted }}</p><br><br>
+                <p>content type: {{ form.contentType }}</p>
+                <br><br>
+                <input type='submit' value="Save change" style="width: 8em; background-color: #dee6b8;">
+            </form>
         </div>
-        
     </body>
 </html>
