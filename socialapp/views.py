@@ -141,7 +141,7 @@ def add_post(request, author_id):
                     inbox = Inbox(author=friend, post=p, type='post', message='Friend-Only Post')
                     inbox.save()
             elif visibility == "PRIVATE":
-                return render(request, 'socialapp/select_viewers.html', {'form':ViewerForm, 'author_id':author_id, 'post_id':p.id})
+                return render(request, 'socialapp/select_viewers.html', {'form':form, 'author_id':author_id, 'post_id':p.id})
             response = redirect(main_page, author_id)
             return response
 
