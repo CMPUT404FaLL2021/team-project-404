@@ -19,6 +19,13 @@ class Inbox(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
 
 
+class FriendRequest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    actor = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
+    object = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='frieqnd_request_object', null=True)
+    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
+
+
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=140, default='')

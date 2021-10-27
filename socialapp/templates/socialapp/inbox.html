@@ -19,9 +19,25 @@
             <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
             <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
             <li><a href="{% url 'add_post' author_id %}">Post</a></li>
-
         </ul>
     </header>
+
+    <div style="margin: 1% 5%; width: 900px;">
+        {% for friend_request in friend_request_list %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+                    <h1>Friend Request from {{ friend_request.actor.displayName }}</h1>
+                    <h2>Click Follow to Follow Him/Her</h2>
+                    <p>这里应该有个按钮</p>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
 </body>
 

@@ -45,16 +45,18 @@
                 </div>
                     <div class="description">
                         <h1>{{ post_to_show.author.displayName }}</h1>
-                        <form action="{% url 'show_post' author_id post_to_show.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" name='follow_button' value='Follow'>
-                            {% if follow_status %}
-                                Unfollow
-                            {% else %}
-                                Follow
-                            {% endif %}
-                            </button></pre><br>
-                        </form>
+                        {% if author_id != post_to_show.author.id%}
+                            <form action="{% url 'show_post' author_id post_to_show.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" name='follow_button' value='Follow'>
+                                {% if follow_status %}
+                                    Unfollow
+                                {% else %}
+                                    Follow
+                                {% endif %}
+                                </button></pre><br>
+                            </form>
+                        {% endif %}
                         <h2>{{ post_to_show.published }}</h2>
                         <pre>{{ post_to_show.content }}</pre>
                     </div>
