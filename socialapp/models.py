@@ -13,6 +13,11 @@ class Author(models.Model):
     # github =
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
+
+class Inbox(models.Model):
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=140, default='')
@@ -28,6 +33,7 @@ class Post(models.Model):
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
     likes = models.ManyToManyField(Author, related_name='post_likes', blank=True)
+    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True)
     
     def like_count(self):
         return self.likes.count()

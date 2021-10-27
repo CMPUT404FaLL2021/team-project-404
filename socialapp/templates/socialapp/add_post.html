@@ -78,7 +78,7 @@
         <header>
             <a href="{% url 'add_post' author_id %}" class="logo">New Post!</a>
             <ul class="navigation">
-                <li><a href="#">Inbox</a></li>
+                <li><a href="{% url 'inbox' author_id %}">Inbox</a></li>
                 <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
                 <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
                 <!-- 下次开会完成跳转-->

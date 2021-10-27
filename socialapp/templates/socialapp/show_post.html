@@ -31,7 +31,7 @@
         <header>
             <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
             <ul class="navigation">
-                <li><a href="#">Inbox</a></li>
+                <li><a href="{% url 'inbox' author_id %}">Inbox</a></li>
                 <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
                 <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
             </ul>

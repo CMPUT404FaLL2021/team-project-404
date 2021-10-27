@@ -15,7 +15,7 @@
             <a href="{% url 'author_profile' author_id %}" class="logo">User Profile</a>
             <ul class="navigation">
                 <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
-                <li><a href="#">Inbox</a></li>
+                <li><a href="{% url 'inbox' author_id %}">Inbox</a></li>
                 <li><a href="{% url 'add_post' author_id %}">Post</a></li>
             </ul>
         </header>

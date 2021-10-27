@@ -69,6 +69,11 @@ def login(request):
     return render(request, 'socialapp/login.html', {'form':form})
 
 
+# view of inbox.html
+def inbox(request, author_id):
+    return render(request, 'socialapp/inbox.html', {'author_id': author_id})
+
+
 # view of author_profile.html
 def author_profile(request, author_id):
     if request.method == 'GET':

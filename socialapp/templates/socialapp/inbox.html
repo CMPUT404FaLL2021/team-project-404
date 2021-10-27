@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inbox</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/post_list.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"> -->
+</head>
+
+<body>
+    <header>
+        <a href="{% url 'inbox' author_id %}" class="logo">Inbox</a>
+        <ul class="navigation">
+            <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
+            <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
+            <li><a href="{% url 'add_post' author_id %}">Post</a></li>
+
+        </ul>
+    </header>
+
+</body>
+
+</html>
