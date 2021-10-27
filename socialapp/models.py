@@ -15,7 +15,8 @@ class Author(models.Model):
 
 
 class Inbox(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
 
 
 class Post(models.Model):
@@ -33,7 +34,7 @@ class Post(models.Model):
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
     likes = models.ManyToManyField(Author, related_name='post_likes', blank=True)
-    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True)
+    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
     
     def like_count(self):
         return self.likes.count()
