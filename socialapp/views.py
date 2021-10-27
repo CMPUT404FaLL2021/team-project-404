@@ -25,6 +25,7 @@ def main_page(request, author_id):
 def register(request):
     if request.method == 'POST':
         form = AuthorForm(request.POST)
+        name = form.data['displayName']
         # check if the sign up process succeds
         if form.is_valid():
             form.save()
@@ -33,6 +34,8 @@ def register(request):
             #return render(request, 'socialapp/login.html', content)
             #如果注册成功，重定向到login页面，展示“注册成功”信息 (详细在loing.html)
             messages.success(request, 'Sign up successfully!')
+            inbox = Inbox(author=Author.objects.get(displayName=name))
+            inbox.save()
             return redirect(login)
         else:
             info = 'Sign Up Failed! Ivalid Username or Password'
@@ -71,7 +74,10 @@ def login(request):
 
 # view of inbox.html
 def inbox(request, author_id):
-    return render(request, 'socialapp/inbox.html', {'author_id': author_id})
+    author = Author.objects.get(pk=author_id)
+    inbox = Inbox.objects.get(author=author)
+    friend_request_list = FriendRequest.objects.filter(inbox=inbox)
+    return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list})
 
 
 # view of author_profile.html
@@ -191,10 +197,10 @@ def show_post(request, author_id, show_post_id):
 
         elif 'share_post' in request.POST:
             author = Author.objects.get(id=author_id)
-            content = ("%s forwarded %s's post:\n" % (author.displayName, post_to_show.author.displayName)) + post_to_show.content
+            content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
             # visibility = 
             # unlisted = check_box.cleaned_data['check_box']
-            p = Post(content=content, author=Author.objects.get(id=author_id))
+            p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
             p.save()
             response = redirect(main_page, author_id)
             return response
@@ -206,6 +212,8 @@ def show_post(request, author_id, show_post_id):
                 post_author.followers.remove(me)
             else:
                 post_author.followers.add(me)
+                friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
+                friend_request.save()
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
 
