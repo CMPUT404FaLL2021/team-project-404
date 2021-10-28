@@ -5,7 +5,7 @@ from django.utils import timezone
 # Create your models here.
 class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    displayName = models.CharField(max_length=32)
+    displayName = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
     # profileImage =
     # host =

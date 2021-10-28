@@ -106,16 +106,19 @@
             <div style="font-size: 16px;">
             <form action = "{% url 'show_post' author_id post_to_show.id %}" method = "POST">
                 {% csrf_token %}
-                <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
-                {% for c in post_comments %}
-                    <pre> @{{ c.author.displayName }}: </pre><br>
-                    <pre>   {{ c.comment }}</pre><br>
-                    <pre>   {{ c.published }}</pre><br>
-                    {% if c.author.id == author_id %}
-                        <button type="hidden" name='delete_comment' value="{{ c.id }}">Delete</button>
-                    {% endif %}
-                    <pre>-------------------</pre>
+                {% if post_to_show.visibility == 'FRIENDS' and post_to_show.author.id != author_id %}
+                {% else %}
+                    <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
+                    {% for c in post_comments %}
+                        <pre> @{{ c.author.displayName }}: </pre><br>
+                        <pre>   {{ c.comment }}</pre><br>
+                        <pre>   {{ c.published }}</pre><br>
+                        {% if c.author.id == author_id %}
+                            <button type="hidden" name='delete_comment' value="{{ c.id }}">Delete</button>
+                        {% endif %}
+                        <pre>-------------------</pre>
                 {% endfor %}
+                {% endif %}
             </form>
             </div>
         </div>
