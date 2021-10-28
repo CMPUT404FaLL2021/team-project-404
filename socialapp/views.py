@@ -166,7 +166,10 @@ def add_post(request, author_id):
                     inbox = Inbox.objects.get(author=Author.objects.get(id=friend.id))
                     p.inbox.add(inbox)
             elif visibility == "PRIVATE":
-                return render(request, 'socialapp/select_viewers.html', {'form':ViewerForm(), 'author_id':author_id, 'post_id':p.id})
+                viewerForm = ViewerForm()
+                viewers_choices = [(v.id, v.displayName) for v in Author.objects.all()]
+                viewerForm.fields['viewer'].choices = viewers_choices
+                return render(request, 'socialapp/select_viewers.html', {'form':viewerForm, 'author_id':author_id, 'post_id':p.id})
 
             response = redirect(main_page, author_id)
             return response
@@ -177,8 +180,10 @@ def add_post(request, author_id):
     return render(request, 'socialapp/add_post.html', {'form':form, 'author_id':author_id})  
 
 def select_viewers(request, author_id, post_id):
+    viewers_choices = [(v.id, v.displayName) for v in Author.objects.all()]
     if request.method == 'POST':
         form = ViewerForm()
+        form.fields['viewer'].choices = viewers_choices
         post = Post.objects.get(id=post_id)
         """
         cannot not figure out why form.is_valid() always returns false
@@ -199,6 +204,7 @@ def select_viewers(request, author_id, post_id):
 
     else:
         form = ViewerForm()
+        form.fields['viewer'].choices = viewers_choices
 
     return render(request, 'socialapp/select_viewers.html', {'form':form, 'author_id':author_id, 'post_id':post_id})
    

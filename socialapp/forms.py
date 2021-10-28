@@ -34,8 +34,7 @@ class PostForm(forms.ModelForm):
         }
 
 class ViewerForm(forms.Form):
-    viewers_choices = [(v.id, v.displayName) for v in Author.objects.all()]
-    viewer = forms.ChoiceField(label=False, choices = viewers_choices)
+    viewer = forms.ChoiceField(label=False)
 
 # class EditForm(forms.ModelForm):
 #     edit = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': '...'}))
