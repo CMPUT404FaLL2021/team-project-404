@@ -73,7 +73,7 @@ def login(request):
 
 
 # view of inbox.html
-def inbox(request, author_id):
+def author_inbox(request, author_id):
     author = Author.objects.get(pk=author_id)
     inbox = Inbox.objects.get(author=author)
     friend_request_list = FriendRequest.objects.filter(inbox=inbox)
@@ -83,8 +83,14 @@ def inbox(request, author_id):
         for friend_request in friend_request_list:
             if 'follow_button_' + friend_request.actor.displayName in request.POST:
                 friend_request.actor.followers.add(author)
+                # wthether send friend request
+                if friend_request.actor not in author.followers.all():
+                    new_friend_request = FriendRequest(actor=author, object=friend_request.actor, inbox=Inbox.objects.get(author=friend_request.actor))
+                    new_friend_request.save()
+                friend_request.delete()
+                return redirect(author_inbox, author_id)
 
-    return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts})
+    return render(request, 'socialapp/author_inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts})
 
 
 # view of author_profile.html
@@ -207,20 +213,27 @@ def select_viewers(request, author_id, post_id):
         form.fields['viewer'].choices = viewers_choices
 
     return render(request, 'socialapp/select_viewers.html', {'form':form, 'author_id':author_id, 'post_id':post_id})
-   
 
+
+# helper function for checking if I like the post
 def if_like(post_to_show, author_id):
     if post_to_show.likes.filter(id=author_id).exists():
         return True
     return False
 
-def if_follow(post_to_show, author_id):
+# helper function for checking the follow status
+def follow_check(post_to_show, author_id):
+    if_follow = False
+    if_follows_me = False
+
     post_author = post_to_show.author
     me = Author.objects.get(pk=author_id)
-    followers = post_author.followers.all()
-    if me in followers:
-        return True
-    return False
+    if me in post_author.followers.all():
+        if_follow = True
+    if post_author in me.followers.all():
+        if_follows_me = True
+
+    return (if_follow, if_follows_me)
 
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
@@ -238,7 +251,8 @@ def show_post(request, author_id, show_post_id):
 
     like_status = if_like(post_to_show, author_id)
     context['like_status'] = like_status
-    follow_status = if_follow(post_to_show, author_id)
+    follow_status = follow_check(post_to_show, author_id)[0]
+    friend_request_status = follow_check(post_to_show, author_id)[1]
     context['follow_status'] = follow_status
 
     if request.method == 'POST':
@@ -279,8 +293,9 @@ def show_post(request, author_id, show_post_id):
                 post_author.followers.remove(me)
             else:
                 post_author.followers.add(me)
-                friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
-                friend_request.save()
+                if not friend_request_status:
+                    friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
+                    friend_request.save()
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
 

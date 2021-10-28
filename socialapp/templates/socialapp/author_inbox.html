@@ -14,7 +14,7 @@
 
 <body>
     <header>
-        <a href="{% url 'inbox' author_id %}" class="logo">Inbox</a>
+        <a href="{% url 'author_inbox' author_id %}" class="logo">Inbox</a>
         <ul class="navigation">
             <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
             <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
@@ -32,7 +32,7 @@
                 <div class="description">
                     <h1>Friend Request from {{ friend_request.actor.displayName }}</h1>
                     <h2>Click Follow to Follow Him/Her</h2>
-                    <form action="{% url 'inbox' author_id%}" method="POST">
+                    <form action="{% url 'author_inbox' author_id%}" method="POST">
                         {% csrf_token %}
                         <button type="submit" name='follow_button_{{friend_request.actor.displayName}}' value='Follow'>Follow</button></pre><br>
                     </form>
