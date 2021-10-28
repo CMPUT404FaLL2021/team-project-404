@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="UTF-8">
+        <title>Edit Profile</title>
+        <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <style>
+            body {
+                background: #F1F2B5;  /* fallback for old browsers */
+                background: -webkit-linear-gradient(to right, #135058, #F1F2B5);  /* Chrome 10-25, Safari 5.1-6 */
+                background: linear-gradient(to right, #135058, #F1F2B5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+                padding: 50px 100px 100px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .content {
+                margin: 8% 8%;
+            }
+            form [name=title]{
+                height:30px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+            form [name=description] {
+                height: 30px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+            form [name=content] {
+                height: 150px;
+                width: 800px;
+                padding: 12px 12px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+            form [name=visibility] {
+                height: 30px;
+                width: 80px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+            form [name=visibility]:focus {
+                border: 3px solid rgb(190, 224, 219);
+            }
+
+            form [name=contentType] {
+                height: 30px;
+                width: 80px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+            form [name=contentType]:focus {
+                border: 3px solid rgb(190, 224, 219);
+            }
+
+            form [type=submit] {
+                height: 25px;
+                width: 70px;
+                border-radius: 3px;
+                background-color: rgba(255, 255, 255, 0.6);
+            }
+
+        </style>
+    </head>
+    <body>
+        <header>
+            <a href="{% url 'edit_profile' author_id %}" class="logo">Edit Profile</a>
+            <ul class="navigation">
+                <li><a href="{% url 'author_profile' author_id %}">Back</a></li>
+            </ul>
+        </header>
+        <div class="content">
+            <form action="{% url 'edit_profile' author_id %}" method="POST">
+                {% csrf_token %}
+                {{ form.displayName }}<br><br>
+                {{ form.password }}<br><br>
+                <br><br>
+                <input type='submit' value="Save change" style="width: 7em; background-color: #dee6b8;">
+            </form>
+        </div>       
+    </body>
+</html>

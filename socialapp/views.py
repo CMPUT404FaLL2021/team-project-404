@@ -96,6 +96,25 @@ def author_profile(request, author_id):
     return render(request, "socialapp/author_profile.html", {'author': me, 'p_list': p_list})
 
 
+def edit_profile(request, author_id):
+    me = Author.objects.get(pk=author_id)
+    if request.method == 'POST':
+        form = AuthorForm(request.POST)
+        if form.is_valid():
+            changed_name = form.cleaned_data['displayName']
+            changed_passwaord = form.cleaned_data['password']
+            me.displayName = changed_name
+            me.password = changed_passwaord
+            me.save()
+            response = redirect(author_profile, author_id)
+            return response
+    else:
+        form = AuthorForm(initial={"displayName":me.displayName, "password":me.password})
+        #form.fields["post"].initial = p.post
+
+    return render(request, 'socialapp/edit_profile.html', {'form':form, 'author_id':author_id})
+
+
 # view of author_follows_me.html
 def my_followers(request, author_id):
     if request.method == 'GET':
