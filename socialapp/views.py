@@ -97,7 +97,7 @@ def author_inbox(request, author_id):
 def author_profile(request, author_id):
     if request.method == 'GET':
         me = Author.objects.get(pk=author_id)
-        p_list = Post.objects.filter(author=me, unlisted=False, visibility='PUBLIC').order_by('-published')
+        p_list = Post.objects.filter(author=me, unlisted=False).order_by('-published')
 
     return render(request, "socialapp/author_profile.html", {'author': me, 'p_list': p_list})
 
