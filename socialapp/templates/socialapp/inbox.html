@@ -51,7 +51,7 @@
                     {% else %}
                         <h1>friend post from {{ post.author.displayName }}</h1>
                     {% endif %}
-                    <p>post.content</p>
+                    <p>{{ post.content }}</p>
                     <a href="{% url 'show_post' author_id post.id %}">details</a>
                     </p>
                 </div>
