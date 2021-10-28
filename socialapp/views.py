@@ -78,6 +78,12 @@ def inbox(request, author_id):
     inbox = Inbox.objects.get(author=author)
     friend_request_list = FriendRequest.objects.filter(inbox=inbox)
     posts = Post.objects.filter(inbox=inbox)
+
+    if request.method == 'POST':
+        for friend_request in friend_request_list:
+            if 'follow_button_' + friend_request.actor.displayName in request.POST:
+                friend_request.actor.followers.add(author)
+
     return render(request, 'socialapp/inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts})
 
 

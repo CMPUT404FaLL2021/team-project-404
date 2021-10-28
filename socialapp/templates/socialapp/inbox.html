@@ -32,8 +32,10 @@
                 <div class="description">
                     <h1>Friend Request from {{ friend_request.actor.displayName }}</h1>
                     <h2>Click Follow to Follow Him/Her</h2>
-                    <p>这里应该有个按钮</p>
-                    </p>
+                    <form action="{% url 'inbox' author_id%}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" name='follow_button_{{friend_request.actor.displayName}}' value='Follow'>Follow</button></pre><br>
+                    </form>
                 </div>
             </div>
         {% endfor %}
