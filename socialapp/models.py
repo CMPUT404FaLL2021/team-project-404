@@ -41,7 +41,7 @@ class Post(models.Model):
     unlisted = models.BooleanField(default=False)
     #edit = models.CharField(max_length=140)
     likes = models.ManyToManyField(Author, related_name='post_likes', blank=True)
-    inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
+    inbox = models.ManyToManyField(Inbox, blank=True)
     
     def like_count(self):
         return self.likes.count()

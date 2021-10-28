@@ -39,6 +39,26 @@
                 </div>
             </div>
         {% endfor %}
+        {% for post in posts %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+                    {% if post.visibility == 'PRIVATE' %}
+                        <h1>private post from {{ post.author.displayName }}</h1>
+                    {% else %}
+                        <h1>friend post from {{ post.author.displayName }}</h1>
+                    {% endif %}
+                    <p>post.content</p>
+                    <a href="{% url 'show_post' author_id post.id %}">details</a>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+
+
     </div>
 
 </body>

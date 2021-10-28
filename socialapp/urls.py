@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/', views.logout, name = 'logout'),
     path('inbox/<uuid:author_id>/', views.inbox, name = 'inbox'),
     path('add_post/<uuid:author_id>/', views.add_post, name = 'add_post'),
+    path('select_views/<uuid:author_id>/<uuid:post_id>/', views.select_viewers, name = 'select_viewers'),
     path('edit_post/<uuid:author_id>/<uuid:edit_post_id>/', views.edit_post, name = 'edit_post'),
     path('show_post/<uuid:author_id>/<uuid:show_post_id>/', views.show_post, name = 'show_post'),
     path('author_profile/<uuid:author_id>/', views.author_profile, name = 'author_profile'),
