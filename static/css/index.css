@@ -7,25 +7,29 @@ body{
     /*the same background colour with mainpage*/
 }
 
+h1{
+    padding-top: 1.5em;
+    text-align: center;
+}
+
+
 #maxbox{
     margin: 0 auto;
-    margin-top: 410px;
-    padding: 20px, 50px;
+    background-color: #00000090;
     text-align: center;
-    width: 600px;
-    height: 400px;
-    border-radius: 30px
+    width: 40%;
+    border-style: solid;
 }
 
 #signup{
-    
-    margin-top: 20px;
+    margin-top: 1em;
     color: white;
     font-size: 22px;
 }
 
 #login{
-    margin-top: 20px;
+    margin-top: 1em;
+    margin-bottom: 1em;
     color: white;
     font-size: 22px;
 }
@@ -36,4 +40,29 @@ body{
 
 #login a{
     color: #3498db
+}
+
+#fig {
+    float: left;
+    margin-top: 2em;
+    margin-left: 7em;
+    margin-right: auto;
+    border-color:antiquewhite;
+    border-style: solid;
+}
+
+img {
+    margin: 1em;
+    display: block;
+}
+
+
+#tags {
+    float: right;
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 2em;
+    margin-left: auto;
+    padding-top: 3%;
+    padding-right: 23%
 }

@@ -10,11 +10,9 @@
     <body>
         <form action="/socialapp/index/" method="GET">
             {% csrf_token %}
-            
-            <div style="margin: 8% 34%;">
+        
             <h1>Welcome to SocialApp</h1>
-            </div>
-
+    
             <div id="maxbox">
             <div id="signup">
                 Create a new account! <a href='/socialapp/register/'>Sign Up</a>
@@ -23,6 +21,21 @@
             <div id="login">
                 Already have account? <a href='/socialapp/login/'>Log In</a>
             </div>
+            </div>
+
+            <div id="fig">
+                <img src="/static/img/img.jpg" alt="App Image">
+            </div>
+
+            <div id="tags">
+                <p>
+                    <ul>
+                        <li>Social Community</li><br><br>
+                        <li>Diversity and Inclusion</li><br><br>
+                        <li>Interact with Friends&Strangers</li><br><br>
+                        <li>Show Yourself</li>
+                    </ul>
+                </p>
             </div>
         </form>
     </body>
