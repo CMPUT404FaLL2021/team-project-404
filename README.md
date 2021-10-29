@@ -30,10 +30,31 @@ REST API: https://www.youtube.com/playlist?list=PLgCYzUzKIBE9Pi8wtx8g55fExDAPXBs
 
 #### CSS Related:
 
+color and desige : https://uigradients.com/#CalmDarya
+
 https://codepen.io/ChynoDeluxe/ Chyno Deluxe August 24, 2015 Dependencies:font-awesome.css
 
 ***
 
 #### Function Related:
 
-Like function: https://morioh.com/p/626428a91af5
+login function: 
+
+https://learndjango.com/tutorials/django-login-and-logout-tutorial
+
+Register function:
+
+https://wsvincent.com/django-user-authentication-tutorial-signup/
+
+Edit Prifrofile:
+
+https://wsvincent.com/django-user-authentication-tutorial-password-reset/
+
+Like function: 
+
+https://morioh.com/p/626428a91af5
+
+
+
+
+
