@@ -1,3 +1,11 @@
+'''
+this file set the api of the function in views.py 
+includes:
+auther_details
+post_comments
+post_details
+post_like
+'''
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view

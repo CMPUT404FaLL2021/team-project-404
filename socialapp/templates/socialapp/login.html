@@ -1,3 +1,5 @@
+<!--this html create the page to let user can login using account information-->
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -16,7 +18,7 @@
                     {% if message.tags == 'success' %}
                         <div class="alert alert-success" role="alert">{{ message|escape|safe }}</div>
                     {% elif message.tags == 'error' %}
-                        <div class="alert alert-danger" role="alert">{{ message|escape|safe }}</div>
+                        <div class="alert alert-danger" role="alert">{{ message|escape|safe }}</div> 
                     {% endif %}
                 {% endfor %}
                 {% endif %}

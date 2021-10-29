@@ -1,7 +1,12 @@
-from django import forms
+'''
+this file we create the forms using the django.forms 
+which is used in creating the forms in html pages
+'''
 
+from django import forms
 from socialapp.models import *
 
+#author form
 class AuthorForm(forms.ModelForm):
     displayName = forms.CharField(label='displayName', required=True, widget=forms.TextInput(attrs={'placeholder': 'username'}))
     password = forms.CharField(label='password', widget=forms.PasswordInput(attrs={'placeholder': 'password'}), required=True)
@@ -9,6 +14,7 @@ class AuthorForm(forms.ModelForm):
         model = Author
         fields = ('displayName', 'password')
 
+#post form
 class PostForm(forms.ModelForm):
     CONTENT_TYPES = {
         ("MARKDOWN", 'text/markdown'),
@@ -33,6 +39,7 @@ class PostForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'placeholder': 'Enter description here'}),
         }
 
+#view form
 class ViewerForm(forms.Form):
     viewer = forms.ChoiceField(label=False)
 
@@ -42,7 +49,7 @@ class ViewerForm(forms.Form):
 #         model = Post
 #         fields = ('edit',)
 
-
+#comment form
 class CommentForm(forms.ModelForm):
     comment = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': 'Write a comment'}))
     class Meta:

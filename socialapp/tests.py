@@ -1,3 +1,6 @@
+'''
+this file we create the test which is used to test our functions 
+'''
 from django.test import TestCase
 from socialapp.forms import *
 from socialapp.models import *

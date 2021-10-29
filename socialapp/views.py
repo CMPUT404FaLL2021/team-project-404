@@ -1,4 +1,7 @@
-# Create your views here.
+'''
+this file we create the functions and achieve rerender function.
+views.py includes all the function of the pages
+'''
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
@@ -32,7 +35,7 @@ def register(request):
             #info = 'Sign Up Successfully!'
             #content = {'info':info}
             #return render(request, 'socialapp/login.html', content)
-            #如果注册成功，重定向到login页面，展示“注册成功”信息 (详细在loing.html)
+            
             messages.success(request, 'Sign up successfully!')
             inbox = Inbox(author=Author.objects.get(displayName=name))
             inbox.save()

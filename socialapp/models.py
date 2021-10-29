@@ -1,8 +1,13 @@
+'''
+in thjis file we create the models used to collcet the data easier 
+and use the models in views.py
+'''
+
 import uuid
 from django.db import models
 from django.utils import timezone
 
-# Create your models here.
+# Author model
 class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     displayName = models.CharField(max_length=32, unique=True)
@@ -13,19 +18,19 @@ class Author(models.Model):
     # github =
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
-
+#Inbox model
 class Inbox(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
 
-
+#froends model
 class FriendRequest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     actor = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     object = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='frieqnd_request_object', null=True)
     inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
 
-
+#post model
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=140, default='')
@@ -46,7 +51,7 @@ class Post(models.Model):
     def like_count(self):
         return self.likes.count()
     
-
+#comment model
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)

@@ -1,6 +1,16 @@
+'''
+this file set the api serializer
+function includes:
+
+AuthorSerializer
+CommentSerializer
+PostSerializer
+'''
+
 from rest_framework import serializers
 from socialapp.models import Author, Post, Comment
 
+#set the serializer of Author
 class AuthorSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     @classmethod
@@ -10,6 +20,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ['type', 'id', 'displayName']
 
+#set the serializer of Comments
 class CommentSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     author = AuthorSerializer(read_only=True)
@@ -20,6 +31,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
 
+#set the serializer of Post
 class PostSerializer(serializers.ModelSerializer): 
     type = serializers.SerializerMethodField()
     author = AuthorSerializer(read_only=True)
