@@ -5,6 +5,7 @@ which is used in creating the forms in html pages
 
 from django import forms
 from socialapp.models import *
+from mdeditor . fields import MDTextFormField
 
 #author form
 class AuthorForm(forms.ModelForm):
@@ -28,7 +29,8 @@ class PostForm(forms.ModelForm):
     }
     hint_text = "Write a caption ..."
 
-    content = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
+    content = MDTextFormField()
+    # content = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
     visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES, initial='PUBLIC')
     contentType = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='PLAIN')
     class Meta:

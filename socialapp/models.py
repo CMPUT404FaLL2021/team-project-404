@@ -6,6 +6,8 @@ and use the models in views.py
 import uuid
 from django.db import models
 from django.utils import timezone
+from mdeditor.fields import MDTextField
+import markdown
 
 # Author model
 class Author(models.Model):
@@ -38,7 +40,7 @@ class Post(models.Model):
     # origin
     description = models.CharField(max_length=140, default='')
     contentType = models.CharField(max_length=30, default='PLAIN')
-    content = models.CharField(max_length=140)
+    content = MDTextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     # categories
     published = models.DateTimeField(default=timezone.now)
@@ -50,6 +52,13 @@ class Post(models.Model):
     
     def like_count(self):
         return self.likes.count()
+
+    def get_markdown_content(self):
+        return markdown.markdown(self.content, extensions=[
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc',
+        ])
     
 #comment model
 class Comment(models.Model):

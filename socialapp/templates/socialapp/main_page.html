@@ -34,7 +34,7 @@
             
                     <h1>{{ p.author.displayName }} - {{p.title}}</h1>
                     <h2>{{ p.published }}</h2>
-                    <p>{{ p.content }}</p>
+                    <p>{{ p.description }}</p>
             
                     <p class="read-more">
                         <a href="{% url 'show_post' author_id p.id %}">Read More</a>

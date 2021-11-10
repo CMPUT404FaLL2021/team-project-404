@@ -37,7 +37,7 @@
             </ul>
         </header>
 
-        <div style="margin: 10% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
+        <div style="margin: 2% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
             <div class="blog-card">
                 <div class="meta">
                     <div class="photo" style="background-color: #F1F2B5"></div>
@@ -60,7 +60,7 @@
                         <h2>{{ post_to_show.published }}</h2>
                         <pre>Title: {{ post_to_show.title }}</pre>
                         <pre>Description: {{ post_to_show.description }}</pre>
-                        <pre>Content: {{ post_to_show.content }}</pre>
+                        <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
                     </div>
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>

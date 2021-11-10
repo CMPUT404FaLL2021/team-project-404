@@ -29,6 +29,10 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"] #this is used to allow all host can use this website -HHY
 
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'socialapp.apps.SicialAppConfig',
-    'rest_framework',
+    'rest_framework',                      
+    'mdeditor',       # markdown
 ]
 
 MIDDLEWARE = [
@@ -103,6 +108,18 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# MDEDITOR_CONFIGS = {
+#     'toolbar' : [ "undo" , "redo" , "|" ,
+#                  "bold" , "del" , "italic" , "quote" , "ucwords" , "uppercase" , "lowercase" , "|" ,
+#                  "h1" , "h2" , "h3" , "h5" , "h6" , "|" ,
+#                  "list-ul" , "list-ol" , "hr" , "|" ,
+#                  "link" , "reference-link" , "image" , "code" , "preformatted-text" , "code-block" , "table" , "datetime" ,
+#                  "emoji" , "html-entities" , "pagebreak" , "goto-line" , "|" ,
+#                  "help" , "info" ,
+#                  "||" , "preview" , "watch" , "fullscreen" ] ,
+
+# }
 
 
 # Internationalization

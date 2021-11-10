@@ -15,12 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url
 from django.urls import include
 from socialapp import views
 from socialapp.views import index
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('socialapp/', include('socialapp.urls')),
     path('api/', include('socialapp.api.urls')),
+    url(r'mdeditor/', include('mdeditor.urls')),
 ]

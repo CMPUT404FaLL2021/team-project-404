@@ -9,6 +9,13 @@
         <link rel="stylesheet" href="/static/css/style.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="/static/css/markdowncss/editormd.css" type="text/css" media="all">
+        
+        <script src="/static/js/markdownjs/jquery.min.js"></script>
+        <script src="/static/js/markdownjs/prettify.min.js"></script>
+        <script src="/static/js/markdownjs/marked.min.js"></script>
+        <script src="/static/js/markdownjs/editormd.min.js"></script>
         <style>
             body {
                 background: #F1F2B5;  /* fallback for old browsers */
@@ -20,7 +27,7 @@
             }
 
             .content {
-                margin: 8% 8%;
+                margin: 8% 9%;
             }
             form [name=title]{
                 height:30px;
@@ -87,7 +94,104 @@
                 {% csrf_token %}
                 {{ form.title }}<br><br>
                 {{ form.description }}<br><br>
-                {{ form.content }}<br><br>
+                
+                    <style type="text/css">
+    .wmd-wrapper  ul {
+        margin-left: 0px !important;
+    }
+    .wmd-wrapper ul li{
+        list-style: disc !important;
+    }
+    .wmd-wrapper ul ul li{
+        list-style: circle !important;
+    }
+    .wmd-wrapper h1,
+    .wmd-wrapper h2,
+    .wmd-wrapper h3,
+    .wmd-wrapper h4,
+    .wmd-wrapper h5,
+    .wmd-wrapper h6 {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .wmd-wrapper h2,
+    .wmd-wrapper h3,
+    .wmd-wrapper h4{
+        padding: 0px !important;
+    }
+    .wmd-wrapper h5{
+        letter-spacing: 0px !important;
+        text-transform: none !important;
+        font-size: 1em !important;
+    }
+    .wmd-wrapper h6{
+        font-size: 1em !important;
+        color: #777 !important;
+    }
+</style>
+            <div class="wmd-wrapper"  id="id_content-wmd-wrapper">
+  <textarea  cols="40" id="id_content" name="content" rows="10" required>{{modified_post.content|safe}}</textarea>
+</div>
+
+
+<script type="text/javascript">
+
+    $(function () {
+        editormd("id_content-wmd-wrapper", {
+            watch: true, 
+            lineNumbers: false,
+            lineWrapping: false,
+            width: "100%",
+            height: 500,
+            placeholder: '',
+            onfullscreen : function() {
+                this.editor.css("border-radius", 0).css("z-index", 9999);
+            },
+            onfullscreenExit : function() {
+                this.editor.css({
+                    zIndex : 10,
+                    border : "1px solid rgb(221,221,221)"
+                })
+            },
+            syncScrolling: "single",
+            path: "/static/mdeditor/js/lib/",
+            // theme
+            theme : "default",
+            previewTheme : "default",
+            editorTheme : "default",
+
+            saveHTMLToTextarea: true,
+            toolbarAutoFixed: true,
+            searchReplace: true,
+            emoji: true,
+            tex: true,
+            taskList: false,
+            flowChart: true,
+            sequenceDiagram: true,
+
+            // image upload
+            imageUpload: true,
+            imageFormats: ['jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF', 'png', 'PNG', 'bmp', 'BMP', 'webp', 'WEBP'],
+            imageUploadURL: "/mdeditor/uploads/",
+            toolbarIcons: function () {
+                return ['undo', 'redo', '|', 'bold', 'del', 'italic', 'quote', 'ucwords', 'uppercase', 'lowercase', '|', 'h1', 'h2', 'h3', 'h5', 'h6', '|', 'list-ul', 'list-ol', 'hr', '|', 'link', 'reference-link', 'image', 'code', 'preformatted-text', 'code-block', 'table', 'datetime', 'emoji', 'html-entities', 'pagebreak', 'goto-line', '|', 'help', 'info', '||', 'preview', 'watch', 'fullscreen']
+            },
+            onload: function () {
+                console.log('onload', this);
+                //this.fullscreen();
+                //this.unwatch();
+                //this.watch().fullscreen();
+
+                //this.setMarkdown("#PHP");
+                //this.width("100%");
+                //this.height(480);
+                //this.resize("100%", 640);
+            }
+        });
+
+    });
+</script>
+                <br>
                 <p>visibility: {{ form.visibility }}</p><br><br>
                 <p>unlisted: {{ form.unlisted }}</p><br><br>
                 <p>content type: {{ form.contentType }}</p>
