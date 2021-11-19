@@ -17,6 +17,27 @@ from rest_framework.parsers import JSONParser
 from socialapp.models import Author, Post, Comment
 from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer
 
+@api_view(['GET'])
+def api_authors_profile(request):
+    data = {}
+    data['type'] = 'authors'
+    data['items'] = []
+
+    # GET ://service/authors/
+    if not request.query_params:
+        try:
+            authors = Author.objects.all()
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        for author in authors:
+            serializer = AuthorSerializer(author)
+            data['items'].append(serializer.data)
+        
+    # GET ://service/authors?page=10&size=5
+    print(request.query_params)
+    
+    return Response(data=data)
+
 @api_view(['GET', 'POST'])
 def api_author_detail(request, author_id):
     try:
