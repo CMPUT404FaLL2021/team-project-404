@@ -8,7 +8,9 @@ post_like
 '''
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
@@ -48,6 +50,8 @@ def api_authors_profile(request):
     return Response(data=data)
 
 @api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_author_detail(request, author_id):
     try:
         author = Author.objects.get(id=author_id)
@@ -78,6 +82,8 @@ def api_post_comments(request, author_id, post_id):
 
 
 @api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
     try:
         posts = Post.objects.filter(author=author_id)
@@ -93,6 +99,8 @@ def api_posts(request, author_id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'DELETE'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_post_detail(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -113,7 +121,7 @@ def api_post_detail(request, author_id, post_id):
         if serializer.is_valid():
             serializer.save()
             data['success'] = 'Updated Successfully'
-            return Response(serializer.data)
+            return Response(data=data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # DELETE remove the post
