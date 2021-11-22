@@ -16,26 +16,30 @@ LAB 802 Team-13
 ## The project is running on Heroku
 
 ## Wiki
-include API Document and Running Test
+>  include API Document and Test Document
+
+https://github.com/CMPUT404FaLL2021/team-project-404/wiki/Home-Wiki
 
 ## Installation
-Create a virtualenv and activate the python virtual environment
+> Create a virtualenv and activate the python virtual environment
 
 ```
 >$ virtualenv venv --python=python3
 
 >$ source venv/bin/activate
 ```
-Download the project and install all libraries that are needed
+> Download the project and install all libraries that are needed
 
 ```
 >$ git clone https://github.com/CMPUT404FaLL2021/team-project-404.git
 
 >$ pip install -r requirments.txt
 ```
-Migrate all the changes if there are any
-and create superuser (this will be the admin on server)
-and then we can run the server on localhost
+> Migrate all the changes if there are any
+> 
+> Create superuser (this will be the admin on server)
+> 
+> Run the server on localhost
 ```
 >$ python manage.py migrate
 
@@ -43,7 +47,7 @@ and then we can run the server on localhost
 
 >$ python manage.py runserver
 ```
-If you made any changes to the Django model, please run the follow to commiting all those changes to the actual SQL database
+> If you made any changes to the Django model, please run the follow to commiting all those changes to the actual SQL database
 
 ```
 >$ python manage.py makemigrations
