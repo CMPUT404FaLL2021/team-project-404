@@ -8,14 +8,25 @@ post_like
 '''
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import BasicAuthentication
 
+from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 
 from socialapp.models import Author, Post, Comment
 from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer
+
+# reference: https://www.youtube.com/watch?v=wmYSKVWOOTM
+# pagination, default page = 1, size = 5
+def pagination(objects, request):
+    page = request.GET.get('page', 1)
+    size = request.GET.get('size', 5)
+    objects_page = Paginator(objects, size)
+    return objects_page.get_page(page)
 
 @api_view(['GET'])
 def api_authors_profile(request):
@@ -39,6 +50,8 @@ def api_authors_profile(request):
     return Response(data=data)
 
 @api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_author_detail(request, author_id):
     try:
         author = Author.objects.get(id=author_id)
@@ -61,14 +74,33 @@ def api_post_comments(request, author_id, post_id):
     
     # GET get comments of the post
     if request.method == 'GET':
-        serializer = CommentSerializer(comments, many=True)
+        comments_page = pagination(comments, request)
+        serializer = CommentSerializer(comments_page, many=True)
         return Response(serializer.data)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def api_posts(request, author_id):
+    try:
+        posts = Post.objects.filter(author=author_id)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        posts_page = pagination(posts, request)
+        serializer = PostSerializer(posts_page, many=True)
+        print(posts)
+        return Response(serializer.data)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'DELETE'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_post_detail(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -89,7 +121,7 @@ def api_post_detail(request, author_id, post_id):
         if serializer.is_valid():
             serializer.save()
             data['success'] = 'Updated Successfully'
-            return Response(serializer.data)
+            return Response(data=data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # DELETE remove the post
