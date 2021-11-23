@@ -35,7 +35,7 @@ https://github.com/CMPUT404FaLL2021/team-project-404/wiki/Home-Wiki
 ```
 >$ git clone https://github.com/CMPUT404FaLL2021/team-project-404.git
 
->$ pip install -r requirments.txt
+>$ pip install -r requirements.txt
 ```
 > Migrate all the changes if there are any
 > 
