@@ -264,8 +264,12 @@ def show_post(request, author_id, show_post_id):
         if 'like_button' in request.POST:
             if like_status:
                 post_to_show.likes.remove(Author.objects.get(id=author_id))
+                l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
+                l.delete()
             else:
                 post_to_show.likes.add(Author.objects.get(id=author_id))
+                l = Like(author=Author.objects.get(id=author_id), object=post_to_show)
+                l.save()
 
         elif 'post_button' in request.POST:
             comment = form.data['comment']
