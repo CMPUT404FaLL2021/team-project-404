@@ -16,6 +16,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
+from socialapp.api import serializers
 
 from socialapp.models import Author, Post, Comment
 from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer
@@ -28,26 +29,29 @@ def pagination(objects, request):
     objects_page = Paginator(objects, size)
     return objects_page.get_page(page)
 
+
 @api_view(['GET'])
 def api_authors_profile(request):
-    data = {}
-    data['type'] = 'authors'
-    data['items'] = []
+    if request.method == 'GET':
+        data = {}
+        data['type'] = 'authors'
+        data['items'] = []
 
-    # GET ://service/authors/
-    if not request.query_params:
-        try:
-            authors = Author.objects.all()
-        except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        for author in authors:
-            serializer = AuthorSerializer(author)
-            data['items'].append(serializer.data)
-        
-    # GET ://service/authors?page=10&size=5
-    print(request.query_params)
-    
-    return Response(data=data)
+        # GET ://service/authors/
+        if not request.query_params:
+            try:
+                authors = Author.objects.all()
+            except Author.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            for author in authors:
+                serializer = AuthorSerializer(author)
+                data['items'].append(serializer.data)
+            
+        # GET ://service/authors?page=10&size=5
+        print(request.query_params)
+
+        return Response(data=data)
+
 
 @api_view(['GET', 'POST'])
 @authentication_classes([BasicAuthentication])
@@ -58,9 +62,54 @@ def api_author_detail(request, author_id):
     except Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+    # GET //service/author/{AUTHOR_ID}/ 
     if request.method == 'GET':
         serializer = AuthorSerializer(author)
         return Response(serializer.data)
+    
+    # POST //service/author/{AUTHOR_ID}/
+    if request.method == 'POST':
+        pass
+
+
+@api_view(['GET'])
+def api_author_followers(request, author_id):
+    if request.method == 'GET':
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        # GET //service/author/{AUTHOR_ID}/followers
+        data = {}
+        data['type'] = 'followers'
+        data['items'] = []
+        for follower in author.followers.all():
+            serializer = AuthorSerializer(follower)
+            data['items'].append(serializer.data)
+
+        return Response(data=data)
+
+
+@api_view(['DELETE', 'PUT', 'GET'])
+def api_author_follower(request, author_id, follower_id):
+    try:
+        author = Author.objects.get(id=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+    if request.method == 'GET':
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data)
+    
+    # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+    if request.method == 'PUT':
+        pass
+
+    # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+    if request.method == 'DELETE':
+        pass
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,8 +127,6 @@ def api_post_comments(request, author_id, post_id):
         serializer = CommentSerializer(comments_page, many=True)
         return Response(serializer.data)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['GET'])
 @authentication_classes([BasicAuthentication])
@@ -96,7 +143,6 @@ def api_posts(request, author_id):
         print(posts)
         return Response(serializer.data)
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([BasicAuthentication])
@@ -151,3 +197,26 @@ def api_post_like(request, author_id, post_id):
         data['author'] = AuthorSerializer(author).data
         data['object'] = post_id
         return Response(data=data)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def api_author_inbox(request, author_id):
+    try:
+        author = Author.objects.get(id=author_id)
+    except Post.DoesNotExist or Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    # GET //service/author/{AUTHOR_ID}/inbox 
+    if request.method == 'GET':
+        data = {}
+        data['type'] = 'inbox'
+        data['author'] = author.id
+        data['items'] = []
+
+    if request.method == 'POST':
+        pass
+
+    if request.method == 'DELETE':
+        pass
+
+    
