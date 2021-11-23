@@ -18,8 +18,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from socialapp.api import serializers
 
-from socialapp.models import Author, Post, Comment
-from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer
+from socialapp.models import Author, Post, Comment, Like
+from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
 
 # reference: https://www.youtube.com/watch?v=wmYSKVWOOTM
 # pagination, default page = 1, size = 5
@@ -182,7 +182,7 @@ def api_post_detail(request, author_id, post_id):
 
     # PUT create a post with that post_id
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def api_post_like(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -192,11 +192,38 @@ def api_post_like(request, author_id, post_id):
     
     data = {}
     if request.method == 'GET':
-        data['summary'] = author.displayName + 'Likes your post'
+        try:
+            like = Like.objects.get(author=author, object=post)
+        except Like.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        data['summary'] = author.displayName + ' Likes your post'
         data['type'] = 'like'
         data['author'] = AuthorSerializer(author).data
         data['object'] = post_id
         return Response(data=data)
+
+    # elif request.method == 'POST':
+    #     data = JSONParser().parse(request)
+    #     data['author'] = Author.objects.get(id=author_id)
+    #     data['object'] = Post.objects.get(id=post_id)
+    #     serializer = LikeSerializer(data=data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         data['success'] = 'Updated Successfully'
+    #         return Response(data=data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def api_likes(request, author_id):
+    try:
+        likes = Like.objects.filter(author=author_id)
+    except Like.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        likes_page = pagination(likes, request)
+        serializer = LikeSerializer(likes_page, many=True)
+        return Response(serializer.data)
 
 
 @api_view(['GET', 'POST', 'DELETE'])

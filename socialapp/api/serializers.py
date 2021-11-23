@@ -8,7 +8,7 @@ PostSerializer
 '''
 
 from rest_framework import serializers
-from socialapp.models import Author, Post, Comment
+from socialapp.models import Author, Post, Comment, Like
 
 #set the serializer of Author
 class AuthorSerializer(serializers.ModelSerializer):
@@ -51,3 +51,14 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['type', 'title', 'id', 'description', 'contentType', 'content', 'author', 'count', 'comment', 'published', 'visibility', 'unlisted']
 
+
+class LikeSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+    summary = serializers.SerializerMethodField()
+    @classmethod
+    def get_summary(self, object):
+        return object.author.displayName + ' likes your post.'
+
+    class Meta:
+        model = Like
+        fields = ['summary', 'type', 'author', 'object']
