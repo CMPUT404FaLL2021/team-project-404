@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import django_on_heroku
+import django_heroku
+#import dotenv
+#import dj_database_url
 from pathlib import Path
 import os
 
@@ -54,6 +57,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'projectsite.urls'
 
@@ -148,7 +154,6 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #set path of static -HHY
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
@@ -156,4 +161,4 @@ STATICFILES_DIRS = (
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-django_on_heroku.settings(locals())
+django_heroku.settings(locals())
