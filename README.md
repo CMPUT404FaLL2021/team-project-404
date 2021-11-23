@@ -15,6 +15,8 @@ LAB 802 Team-13
 
 ## The project is running on Heroku
 
+https://cmput404-team13-socialapp.herokuapp.com/socialapp
+
 ## Wiki
 >  include API Document and Test Document
 
