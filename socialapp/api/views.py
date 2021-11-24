@@ -35,22 +35,24 @@ def api_authors_profile(request):
     if request.method == 'GET':
         data = {}
         data['type'] = 'authors'
-        data['items'] = []
+
+        try:
+            authors = Author.objects.all()
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         # GET ://service/authors/
         if not request.query_params:
-            try:
-                authors = Author.objects.all()
-            except Author.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            for author in authors:
-                serializer = AuthorSerializer(author)
-                data['items'].append(serializer.data)
+            serializer = AuthorSerializer(authors, many=True)
+            data['items'] = serializer.data
+            return Response(data=data)
             
         # GET ://service/authors?page=10&size=5
-        print(request.query_params)
-
-        return Response(data=data)
+        if request.query_params:
+            authors_page = pagination(authors, request)
+            serializer = AuthorSerializer(authors_page, many=True)
+            data['items'] = serializer.data
+            return Response(data=data)
 
 
 @api_view(['GET', 'POST'])
@@ -83,10 +85,9 @@ def api_author_followers(request, author_id):
         # GET //service/author/{AUTHOR_ID}/followers
         data = {}
         data['type'] = 'followers'
-        data['items'] = []
-        for follower in author.followers.all():
-            serializer = AuthorSerializer(follower)
-            data['items'].append(serializer.data)
+        followers = author.followers.all()
+        serializer = AuthorSerializer(followers, many=True)
+        data['items'] = serializer.data
 
         return Response(data=data)
 
@@ -140,7 +141,6 @@ def api_posts(request, author_id):
     if request.method == 'GET':
         posts_page = pagination(posts, request)
         serializer = PostSerializer(posts_page, many=True)
-        print(posts)
         return Response(serializer.data)
     
 
