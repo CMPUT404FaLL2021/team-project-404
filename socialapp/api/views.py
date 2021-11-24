@@ -71,7 +71,13 @@ def api_author_detail(request, author_id):
     
     # POST //service/author/{AUTHOR_ID}/
     if request.method == 'POST':
-        pass
+        print(request.data)
+        data = JSONParser().parse(request)
+        serializer = AuthorSerializer(author,data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
