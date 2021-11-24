@@ -81,6 +81,9 @@ def author_inbox(request, author_id):
     inbox = Inbox.objects.get(author=author)
     friend_request_list = FriendRequest.objects.filter(inbox=inbox)
     posts = Post.objects.filter(inbox=inbox)
+    author_posts = Post.objects.filter(author=author)
+    likes = Like.objects.filter(object__in=author_posts).order_by('-id')
+    comments = Comment.objects.filter(post__in=author_posts).order_by('-published')
 
     if request.method == 'POST':
         for friend_request in friend_request_list:
@@ -93,7 +96,7 @@ def author_inbox(request, author_id):
                 friend_request.delete()
                 return redirect(author_inbox, author_id)
 
-    return render(request, 'socialapp/author_inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts})
+    return render(request, 'socialapp/author_inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts, 'likes':likes, 'comments':comments})
 
 
 # view of author_profile.html

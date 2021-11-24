@@ -54,7 +54,35 @@
                         <h1>friend post from {{ post.author.displayName }}</h1>
                     {% endif %}
                     <p>{{ post.content }}</p>
-                    <a href="{% url 'show_post' author_id post.id %}">details</a>
+                    <a href="{% url 'show_post' author_id post.id %}">See details</a>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for like in likes %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+                    <h1>{{ like.author.displayName }} liked this post:</h1>
+                    <p style="font-size:large">{{ like.object.title }}  --  {{ like.object.description}}</p>
+                    <a href="{% url 'show_post' author_id like.object.id %}">See details</a>
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for comment in comments %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+                    <h1>{{ comment.author.displayName }} replied to the post "{{ comment.post.title }}":</h1>
+                    <p style="font-size:large;">{{ comment.comment }}</p>
+                    <a href="{% url 'show_post' author_id comment.post.id %}">See details</a>
                     </p>
                 </div>
             </div>
