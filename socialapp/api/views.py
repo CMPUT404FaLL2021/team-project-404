@@ -142,7 +142,7 @@ def api_post_comments(request, author_id, post_id):
         return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
@@ -155,6 +155,23 @@ def api_posts(request, author_id):
         posts_page = pagination(posts, request)
         serializer = PostSerializer(posts_page, many=True)
         return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+            
+        data = JSONParser().parse(request)
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            new_post = serializer.save()
+            new_post.author = Author.objects.get(id=author_id)
+            new_post.save()
+            data['success'] = 'Updated Successfully'
+            return Response(data=data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(['GET', 'POST', 'DELETE', 'PUT'])
@@ -215,6 +232,7 @@ def api_post_detail(request, author_id, post_id):
         if serializer.is_valid():
             new_post = serializer.save()
             new_post.id = post_id
+            new_post.author = Author.objects.get(id=author_id)
             new_post.save()
             data['success'] = 'Updated Successfully'
             return Response(data=data)
