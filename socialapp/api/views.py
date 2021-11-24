@@ -25,7 +25,7 @@ from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentS
 # pagination, default page = 1, size = 5
 def pagination(objects, request):
     page = request.GET.get('page', 1)
-    size = request.GET.get('size', 5)
+    size = request.GET.get('size', objects.count())
     objects_page = Paginator(objects, size)
     return objects_page.get_page(page)
 
@@ -167,7 +167,7 @@ def api_post_comments(request, author_id, post_id):
         return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
@@ -181,24 +181,44 @@ def api_posts(request, author_id):
         serializer = PostSerializer(posts_page, many=True)
         return Response(serializer.data)
     
+    elif request.method == 'POST':
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+            
+        data = JSONParser().parse(request)
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            new_post = serializer.save()
+            new_post.author = Author.objects.get(id=author_id)
+            new_post.save()
+            data['success'] = 'Updated Successfully'
+            return Response(data=data)
 
-@api_view(['GET', 'POST', 'DELETE'])
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'DELETE', 'PUT'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_post_detail(request, author_id, post_id):
-    try:
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
     # GET get the public post
     if request.method == 'GET':
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = PostSerializer(post)
         return Response(serializer.data)
 
     # POST update the post (must be authenticated)
     # missing authenticating step
     elif request.method == 'POST':
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         data = JSONParser().parse(request)
         data['id'] = post_id
         serializer = PostSerializer(post,data=data)
@@ -210,6 +230,10 @@ def api_post_detail(request, author_id, post_id):
 
     # DELETE remove the post
     elif request.method == 'DELETE':
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         operation = post.delete()
         data = {}
         if operation:
@@ -219,6 +243,25 @@ def api_post_detail(request, author_id, post_id):
         return Response(data=data)
 
     # PUT create a post with that post_id
+        # PUT create a post with that post_id
+    elif request.method == 'PUT':
+        try:
+            post = Post.objects.get(id=post_id)
+            return Response("Post already exists.", status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            pass
+            
+        data = JSONParser().parse(request)
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            new_post = serializer.save()
+            new_post.id = post_id
+            new_post.author = Author.objects.get(id=author_id)
+            new_post.save()
+            data['success'] = 'Updated Successfully'
+            return Response(data=data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 @authentication_classes([BasicAuthentication])
