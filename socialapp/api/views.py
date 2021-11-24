@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
@@ -35,22 +35,24 @@ def api_authors_profile(request):
     if request.method == 'GET':
         data = {}
         data['type'] = 'authors'
-        data['items'] = []
+
+        try:
+            authors = Author.objects.all()
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         # GET ://service/authors/
         if not request.query_params:
-            try:
-                authors = Author.objects.all()
-            except Author.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            for author in authors:
-                serializer = AuthorSerializer(author)
-                data['items'].append(serializer.data)
+            serializer = AuthorSerializer(authors, many=True)
+            data['items'] = serializer.data
+            return Response(data=data)
             
         # GET ://service/authors?page=10&size=5
-        print(request.query_params)
-
-        return Response(data=data)
+        if request.query_params:
+            authors_page = pagination(authors, request)
+            serializer = AuthorSerializer(authors_page, many=True)
+            data['items'] = serializer.data
+            return Response(data=data)
 
 
 @api_view(['GET', 'POST'])
@@ -69,7 +71,14 @@ def api_author_detail(request, author_id):
     
     # POST //service/author/{AUTHOR_ID}/
     if request.method == 'POST':
-        pass
+        print(request.data)
+        data = JSONParser().parse(request)
+        # 这有问题，老姐改一下
+        serializer = AuthorSerializer(author,data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -83,10 +92,9 @@ def api_author_followers(request, author_id):
         # GET //service/author/{AUTHOR_ID}/followers
         data = {}
         data['type'] = 'followers'
-        data['items'] = []
-        for follower in author.followers.all():
-            serializer = AuthorSerializer(follower)
-            data['items'].append(serializer.data)
+        followers = author.followers.all()
+        serializer = AuthorSerializer(followers, many=True)
+        data['items'] = serializer.data
 
         return Response(data=data)
 
@@ -94,13 +102,13 @@ def api_author_followers(request, author_id):
 @api_view(['DELETE', 'PUT', 'GET'])
 def api_author_follower(request, author_id, follower_id):
     try:
-        author = Author.objects.get(id=author_id)
+        follower = Author.objects.get(id=follower_id)
     except Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'GET':
-        serializer = AuthorSerializer(author)
+        serializer = AuthorSerializer(follower)
         return Response(serializer.data)
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
@@ -109,9 +117,11 @@ def api_author_follower(request, author_id, follower_id):
 
     # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'DELETE':
-        pass
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        author = Author.objects.get(id=author_id)
+        author.followers.remove(follower)
+        data = {}
+        data['success'] = "Delete successfully"
+        return Response(data=data)
 
 
 @api_view(['GET'])
@@ -140,7 +150,6 @@ def api_posts(request, author_id):
     if request.method == 'GET':
         posts_page = pagination(posts, request)
         serializer = PostSerializer(posts_page, many=True)
-        print(posts)
         return Response(serializer.data)
     
 
@@ -183,6 +192,8 @@ def api_post_detail(request, author_id, post_id):
     # PUT create a post with that post_id
 
 @api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_post_like(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
