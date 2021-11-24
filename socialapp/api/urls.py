@@ -6,6 +6,7 @@ urlpatterns = [
     path('author/<uuid:author_id>/', views.api_author_detail, name='author_detail'),
     path('author/<uuid:author_id>/followers/', views.api_author_followers, name='author_followers'),
     path('author/<uuid:author_id>/followers/<uuid:follower_id>/', views.api_author_follower, name='author_follower'),
+    path('author/<uuid:author_id>/follows/<uuid:follows_id>/', views.api_author_follows, name='author_follows'),
     path('author/<uuid:author_id>/posts/<uuid:post_id>/comments/', views.api_post_comments, name='comments_detail'),
     path('author/<uuid:author_id>/posts/<uuid:post_id>/likes/', views.api_post_like, name='post_like'),
     path('author/<uuid:author_id>/likes/', views.api_likes, name='liked'),
