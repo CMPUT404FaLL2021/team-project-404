@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
@@ -56,7 +56,7 @@ def api_authors_profile(request):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([BasicAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_author_detail(request, author_id):
     try:
@@ -130,7 +130,7 @@ def api_post_comments(request, author_id, post_id):
 
 
 @api_view(['GET'])
-@authentication_classes([BasicAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
     try:
@@ -145,7 +145,7 @@ def api_posts(request, author_id):
     
 
 @api_view(['GET', 'POST', 'DELETE'])
-@authentication_classes([BasicAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_post_detail(request, author_id, post_id):
     try:
@@ -183,6 +183,8 @@ def api_post_detail(request, author_id, post_id):
     # PUT create a post with that post_id
 
 @api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_post_like(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
