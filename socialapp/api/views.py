@@ -102,13 +102,13 @@ def api_author_followers(request, author_id):
 @api_view(['DELETE', 'PUT', 'GET'])
 def api_author_follower(request, author_id, follower_id):
     try:
-        author = Author.objects.get(id=author_id)
+        follower = Author.objects.get(id=follower_id)
     except Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'GET':
-        serializer = AuthorSerializer(author)
+        serializer = AuthorSerializer(follower)
         return Response(serializer.data)
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
@@ -117,9 +117,11 @@ def api_author_follower(request, author_id, follower_id):
 
     # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'DELETE':
-        pass
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        author = Author.objects.get(id=author_id)
+        author.followers.remove(follower)
+        data = {}
+        data['success'] = "Delete successfully"
+        return Response(data=data)
 
 
 @api_view(['GET'])
