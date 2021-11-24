@@ -25,7 +25,7 @@ from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentS
 # pagination, default page = 1, size = 5
 def pagination(objects, request):
     page = request.GET.get('page', 1)
-    size = request.GET.get('size', 5)
+    size = request.GET.get('size', objects.count())
     objects_page = Paginator(objects, size)
     return objects_page.get_page(page)
 
@@ -172,7 +172,6 @@ def api_posts(request, author_id):
             return Response(data=data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
 
 @api_view(['GET', 'POST', 'DELETE', 'PUT'])
 @authentication_classes([BasicAuthentication])
