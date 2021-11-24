@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from socialapp.api import serializers
 
-from socialapp.models import Author, Post, Comment, Like
+from socialapp.models import Author, Post, Comment, Like, Inbox
 from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
 
 # reference: https://www.youtube.com/watch?v=wmYSKVWOOTM
@@ -265,70 +265,87 @@ def api_post_detail(request, author_id, post_id):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_post_like(request, author_id, post_id):
     try:
         post = Post.objects.get(id=post_id)
-        author = Author.objects.get(id=author_id)
+        # author = Author.objects.get(id=author_id)
     except Post.DoesNotExist or Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-    data = {}
     if request.method == 'GET':
-        try:
-            like = Like.objects.get(author=author, object=post)
-        except Like.DoesNotExist:
+        likes = Like.objects.filter(object=post)
+        if likes.count() == 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        data['summary'] = author.displayName + ' Likes your post'
-        data['type'] = 'like'
-        data['author'] = AuthorSerializer(author).data
-        data['object'] = post_id
-        return Response(data=data)
+        likes_page = pagination(likes, request)
+        serializer = LikeSerializer(likes_page, many=True)
+        return Response(serializer.data)
 
-    # elif request.method == 'POST':
-    #     data = JSONParser().parse(request)
-    #     data['author'] = Author.objects.get(id=author_id)
-    #     data['object'] = Post.objects.get(id=post_id)
-    #     serializer = LikeSerializer(data=data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         data['success'] = 'Updated Successfully'
-    #         return Response(data=data)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def api_likes(request, author_id):
-    try:
-        likes = Like.objects.filter(author=author_id)
-    except Like.DoesNotExist:
+    liked = Post.objects.filter(likes=author_id)
+    if liked.count() == 0:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        likes_page = pagination(likes, request)
-        serializer = LikeSerializer(likes_page, many=True)
+        liked_page = pagination(liked, request)
+        serializer = PostSerializer(liked_page, many=True)
         return Response(serializer.data)
 
 
 @api_view(['GET', 'POST', 'DELETE'])
 def api_author_inbox(request, author_id):
     try:
-        author = Author.objects.get(id=author_id)
-    except Post.DoesNotExist or Author.DoesNotExist:
+        inbox = Inbox.objects.get(author=Author.objects.get(id=author_id))
+    except Inbox.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     # GET //service/author/{AUTHOR_ID}/inbox 
     if request.method == 'GET':
+        posts = Post.objects.filter(inbox=inbox)
+        if posts.count() == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        posts_page = pagination(posts, request)
+        serializer = PostSerializer(posts_page, many=True)
         data = {}
         data['type'] = 'inbox'
-        data['author'] = author.id
-        data['items'] = []
+        data['author'] = author_id
+        data['items'] = serializer.data
+        return Response(data)
 
-    if request.method == 'POST':
-        pass
+    elif request.method == 'POST':
+        data = request.data
+        if data['type'] == 'post':
+            try:
+                post = Post.objects.get(id=data['id'])
+            except Post.DoesNotExist:
+                id = data['id']
+                title = data['title']
+                content = data['content']
+                description = data['description']
+                visibility = data['visibility']
+                contentType = data['contentType']
+                unlisted = data['unlisted']
+                post = Post(id=id, title=title, content=content, description=description, author=Author.objects.get(id=data['author']['id']), visibility=visibility, unlisted=unlisted, contentType=contentType)
 
-    if request.method == 'DELETE':
-        pass
+            post.save()
+            post.inbox.add(inbox)
+            return HttpResponse('Success')
+        
+        elif data['type'] == 'like':
+            try:
+                post = Post.objects.get(id=data['object'])
+            except Post.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            l = Like(author=Author.objects.get(id=data['author']['id']), object=post)
+            l.save()
+            post.likes.add(Author.objects.get(id=data['author']['id']))
+            return HttpResponse('Success')
+
+    # if request.method == 'DELETE':
+    #     pass
 
     
