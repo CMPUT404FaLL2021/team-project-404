@@ -82,11 +82,27 @@
                 <li><a href="{% url 'author_profile' author_id %}">Back</a></li>
             </ul>
         </header>
+
         <div class="content">
             <form action="{% url 'edit_profile' author_id %}" method="POST">
                 {% csrf_token %}
+                {% if form.avatar %}
+                    <div class="col-md-4">User Photo</div>
+                    <img src="{{ form.avatar.url }}" style="max-width: 20%; border-radius: 15%;" class="col-md-4">
+                {% else %}
+                    <img src="/static/mdeditor/avatar/default.PNG" style="max-width: 20%; border-radius: 15%;" class="col-md-4">
+                {% endif %}
+                <br>
+                <br>
+                <form ... enctype="multipart/form-data">{% csrf_token %}
+                 <!-- avatar -->
+                    <div class="form-group">
+                        <label for="avatar">Upload</label>
+                        <input type="file" class="form-control-file" name="avatar" id="avatar">
+                    </div>
                 {{ form.displayName }}<br><br>
                 {{ form.password }}<br><br>
+                {{ form.github }}<br><br>
                 <br><br>
                 <input type='submit' value="Save change" style="width: 7em; background-color: #dee6b8;">
             </form>

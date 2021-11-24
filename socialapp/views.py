@@ -111,12 +111,15 @@ def author_profile(request, author_id):
 def edit_profile(request, author_id):
     me = Author.objects.get(pk=author_id)
     if request.method == 'POST':
-        form = AuthorForm(request.POST)
+        form = AuthorForm(request.POST, request.FILES)
         if form.is_valid():
+            if 'avatar' in request.FILES:
+                changed_avatar = form.cleaned_data["avatar"]
             changed_name = form.cleaned_data['displayName']
             changed_passwaord = form.cleaned_data['password']
             me.displayName = changed_name
             me.password = changed_passwaord
+            me.avatar = changed_avatar
             me.save()
             response = redirect(author_profile, author_id)
             return response
