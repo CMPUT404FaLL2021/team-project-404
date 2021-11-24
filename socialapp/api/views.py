@@ -73,6 +73,7 @@ def api_author_detail(request, author_id):
     if request.method == 'POST':
         print(request.data)
         data = JSONParser().parse(request)
+        # 这有问题，老姐改一下
         serializer = AuthorSerializer(author,data=data)
         if serializer.is_valid():
             serializer.save()
