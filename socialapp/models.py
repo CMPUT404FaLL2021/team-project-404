@@ -2,8 +2,7 @@
 in thjis file we create the models used to collcet the data easier 
 and use the models in views.py
 '''
-from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFill
+
 import uuid
 from django.db import models
 from django.utils import timezone
