@@ -33,7 +33,7 @@
                 
                         <h1>{{ p.author.displayName }}</h1>
                         <h2>{{ p.published }}</h2>
-                        <p>{{ p.content }}</p>
+                        <p>{{ p.get_markdown_content | safe }}</p>
                 
                         <p class="read-more">
                             <a href="{% url 'show_post' author.id p.id %}">Read More</a>

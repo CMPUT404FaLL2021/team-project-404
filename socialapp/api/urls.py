@@ -11,5 +11,5 @@ urlpatterns = [
     path('author/<uuid:author_id>/likes/', views.api_likes, name='liked'),
     path('author/<uuid:author_id>/posts/<uuid:post_id>/', views.api_post_detail, name='post_detail'),
     path('author/<uuid:author_id>/posts/', views.api_posts, name='post_detail'),
-    path('author/<uuid:author_id>/inbox/', views.api_author_inbox, name='author_inbox'),
+    path('author/<uuid:author_id>/inbox/', views.api_author_inbox, name='api_inbox'),
 ]
