@@ -28,5 +28,3 @@ urlpatterns = [
     path('api/', include('socialapp.api.urls')),
     url(r'mdeditor/', include('mdeditor.urls')),
 ]
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_root)

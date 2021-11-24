@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'socialapp.apps.SicialAppConfig',
     'rest_framework',                      
     'mdeditor',       # markdown
-    'imagekit',       # for image
 ]
 
 REST_FRAMEWORK = {

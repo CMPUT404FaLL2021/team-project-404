@@ -2,8 +2,7 @@
 in thjis file we create the models used to collcet the data easier 
 and use the models in views.py
 '''
-from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFill
+
 import uuid
 from django.db import models
 from django.utils import timezone
@@ -15,10 +14,10 @@ class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
     displayName = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
-    avatar = models.ImageField(upload_to = 'avatar%Y%m%d', blank=True)
+    # profileImage =
     host = models.URLField(max_length=64, default="http://cmput404-team13-socialapp.herokuapp.com")
     url = models.URLField(max_length=100, default='http://cmput404-team13-socialapp.herokuapp.com/author/' + str(id))
-    github = models.CharField(max_length=100)
+    # github =
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 #Inbox model
