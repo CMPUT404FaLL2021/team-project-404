@@ -71,9 +71,7 @@ def api_author_detail(request, author_id):
     
     # POST //service/author/{AUTHOR_ID}/
     if request.method == 'POST':
-        print(request.data)
         data = JSONParser().parse(request)
-        # 这有问题，老姐改一下
         serializer = AuthorSerializer(author,data=data)
         if serializer.is_valid():
             serializer.save()
@@ -100,6 +98,8 @@ def api_author_followers(request, author_id):
 
 
 @api_view(['DELETE', 'PUT', 'GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_author_follower(request, author_id, follower_id):
     try:
         follower = Author.objects.get(id=follower_id)
@@ -113,7 +113,11 @@ def api_author_follower(request, author_id, follower_id):
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'PUT':
-        pass
+        author = Author.objects.get(id=author_id)
+        author.followers.add(follower)
+        data = {}
+        data['success'] = "Put successfully"
+        return Response(data=data)
 
     # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'DELETE':
