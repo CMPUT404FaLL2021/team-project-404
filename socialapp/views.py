@@ -4,11 +4,14 @@ views.py includes all the function of the pages
 '''
 from django.shortcuts import render, redirect
 from django.contrib import messages
+import requests
 from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
 from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
+
+remote_nodes = ["https://cmput404fall21g11.herokuapp.com/"]
 
 
 # view of index.html
@@ -20,8 +23,17 @@ def index(request):
 # view of main_page
 def main_page(request, author_id):
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
+    p_list = list(p_list)
+    remote_post = []
+    for node in remote_nodes:
+        api_url = node + 'api/posts/'
+        content_get = requests.get(api_url)
+        if content_get.status_code == 200:
+            remote_post += content_get.json()
+    p_list.extend(remote_post)
+    debug=content_get.json()
 
-    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list})
+    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'debug':debug})
 
 
 # view of register.html
