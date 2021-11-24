@@ -56,7 +56,7 @@ def api_authors_profile(request):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_author_detail(request, author_id):
     try:
@@ -130,7 +130,7 @@ def api_post_comments(request, author_id, post_id):
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
     try:
@@ -145,7 +145,7 @@ def api_posts(request, author_id):
     
 
 @api_view(['GET', 'POST', 'DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_post_detail(request, author_id, post_id):
     try:
@@ -183,7 +183,7 @@ def api_post_detail(request, author_id, post_id):
     # PUT create a post with that post_id
 
 @api_view(['GET', 'POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
+@authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_post_like(request, author_id, post_id):
     try:
