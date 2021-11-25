@@ -82,8 +82,8 @@ def author_inbox(request, author_id):
     friend_request_list = FriendRequest.objects.filter(inbox=inbox)
     posts = Post.objects.filter(inbox=inbox)
     author_posts = Post.objects.filter(author=author)
-    likes = Like.objects.filter(object__in=author_posts).order_by('-id')
-    comments = Comment.objects.filter(post__in=author_posts).order_by('-published')
+    likes = Like.objects.filter(inbox=inbox).order_by('-id')
+    comments = Comment.objects.filter(inbox=inbox).order_by('-published')
 
     if request.method == 'POST':
         for friend_request in friend_request_list:
