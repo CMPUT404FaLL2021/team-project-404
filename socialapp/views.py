@@ -23,17 +23,14 @@ def index(request):
 # view of main_page
 def main_page(request, author_id):
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
-    # p_list = list(p_list)
-    # remote_post = []
-    # for node in remote_nodes:
-    #     api_url = node + 'api/posts/'
-    #     content_get = requests.get(api_url)
-    #     if content_get.status_code == 200:
-    #         remote_post += content_get.json()
-    # p_list.extend(remote_post)
-    debug='content_get.json()'
+    remote_post = []
+    for node in remote_nodes:
+        api_url = node + 'api/posts/'
+        content_get = requests.get(api_url)
+        if content_get.status_code == 200:
+            remote_post.extend(content_get.json()['items'])
 
-    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'debug':debug})
+    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'remote_post':remote_post})
 
 
 # view of register.html

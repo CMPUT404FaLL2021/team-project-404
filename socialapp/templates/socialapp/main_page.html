@@ -23,8 +23,6 @@
 
         </ul>
     </header>
-    
-    <p>{{ debug }}</p>
 
     <div style="margin: 1% 5%; width: 900px;">
         {% for p in p_list %}
@@ -42,6 +40,22 @@
                     <p class="read-more">
                         <a href="{% url 'show_post' author_id p.id %}">Read More</a>
                     </p>
+                </div>
+            </div>
+        {% endfor %}
+        {% for rp in remote_post %}
+            <div class="blog-card">
+            <div class="meta">
+                <div class="photo" style="background-color: #F1F2B5"></div>
+                <ul class="details"></ul>
+            </div>
+                <div class="description">
+            
+                    <h1>{{ rp.author.username }} - {{rp.title}}</h1>
+                    <h2>{{ rp.published }}</h2>
+                    <p>Description: {{ rp.description }}</p>
+                    <p>Content: {{ rp.content }}</p>
+            
                 </div>
             </div>
         {% endfor %}

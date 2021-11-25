@@ -22,19 +22,19 @@ class Author(models.Model):
 
 #Inbox model
 class Inbox(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
 
 #froends model
 class FriendRequest(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     actor = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     object = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='frieqnd_request_object', null=True)
     inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
 
 #post model
 class Post(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=140, default='')
     # source
     # origin
@@ -62,7 +62,7 @@ class Post(models.Model):
     
 #comment model
 class Comment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.CharField(max_length=140)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
