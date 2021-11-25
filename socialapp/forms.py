@@ -13,7 +13,7 @@ class AuthorForm(forms.ModelForm):
     password = forms.CharField(label='password', widget=forms.PasswordInput(attrs={'placeholder': 'password'}), required=True)
     class Meta:
         model = Author
-        fields = ("avatar", 'displayName', 'password', "github")
+        fields = ('displayName', 'password')
 
 #post form
 class PostForm(forms.ModelForm):
