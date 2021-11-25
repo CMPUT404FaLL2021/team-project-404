@@ -11,7 +11,7 @@ import markdown
 
 # Author model
 class Author(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     displayName = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
     avatar = models.ImageField(upload_to = 'avatar', blank=True)
