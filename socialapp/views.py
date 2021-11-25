@@ -5,7 +5,8 @@ views.py includes all the function of the pages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
-from django.http import HttpResponse, HttpResponseRedirect
+import uuid
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
 from socialapp.models import *
 from django.urls import reverse
@@ -22,13 +23,29 @@ def index(request):
 
 # view of main_page
 def main_page(request, author_id):
+    try:
+        Author.objects.get(pk=author_id)
+    except:
+        return HttpResponseNotFound('404 Page Not Found')
+    
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
     remote_post = []
-    for node in remote_nodes:
-        api_url = node + 'api/posts/'
-        content_get = requests.get(api_url)
-        if content_get.status_code == 200:
-            remote_post.extend(content_get.json()['items'])
+    api_url1 = remote_nodes[0] + 'api/posts/'
+    # api_url2 = remote_nodes[1] + 'api/posts/'
+    # api_url3 = remote_nodes[2] + 'api/posts/'
+    content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+    # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
+    # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
+    if content_get1.status_code == 200:
+        for post in content_get1.json()['items']:
+            post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
+            post['id'] = uuid.UUID(post['id'])
+            if post['visibility'] == 1:
+                remote_post.append(post)
+    # if content_get2.status_code == 200:
+        # remote_post.extend(content_get2.json()['items'])
+    # if content_get3.status_code == 200:
+        # remote_post.extend(content_get3.json()['items'])
 
     return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'remote_post':remote_post})
 
@@ -258,13 +275,43 @@ def follow_check(post_to_show, author_id):
 
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
-    post_to_show = Post.objects.get(pk=show_post_id)
+    try:
+        post_to_show = Post.objects.get(pk=show_post_id)
+    except:
+        api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/' %(author_id, show_post_id)
+        # api_url2 = remote_nodes[1] + 'api/posts/'
+        # api_url3 = remote_nodes[2] + 'api/posts/'
+        content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+        # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
+        # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
+        if content_get1.status_code == 200:
+            post_to_show = content_get1.json()
+        # if content_get2.status_code == 200:
+        #     post_to_show = content_get2.json()
+        # if content_get3.status_code == 200:
+        #     post_to_show = content_get3.json()
+
     if request.method == 'GET' and 'delete_button' in request.GET:
         post_to_show.delete()
         response = redirect(main_page, author_id)
         return response
 
-    post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
+    try:
+        post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
+    except:
+        api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/comments/' %(author_id, show_post_id)
+        # api_url2 = remote_nodes[1] + 'api/author/%s/posts/%s/comments/'
+        # api_url3 = remote_nodes[2] + 'api/author/%s/posts/%s/comments/'
+        content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+        # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
+        # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
+        if content_get1.status_code == 200:
+            post_comments = content_get1.json()
+        # if content_get2.status_code == 200:
+        #     post_to_show = content_get2.json()
+        # if content_get3.status_code == 200:
+        #     post_to_show = content_get3.json()
+
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0}
     if post_comments:
         context['post_comments'] = post_comments
