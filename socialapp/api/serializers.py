@@ -10,6 +10,7 @@ PostSerializer
 from rest_framework import serializers
 from socialapp.models import Author, Post, Comment, Like
 
+
 #set the serializer of Author
 class AuthorSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
@@ -18,7 +19,8 @@ class AuthorSerializer(serializers.ModelSerializer):
         return 'author'
     class Meta:
         model = Author
-        fields = ['type', 'id', 'displayName']
+        fields = ['type', 'id', 'displayName', 'url', 'host', 'github', 'avatar']
+
 
 #set the serializer of Comments
 class CommentSerializer(serializers.ModelSerializer):
@@ -30,6 +32,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
+
 
 #set the serializer of Post
 class PostSerializer(serializers.ModelSerializer): 

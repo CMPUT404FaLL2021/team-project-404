@@ -11,13 +11,13 @@ import markdown
 
 # Author model
 class Author(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
     displayName = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
-    # profileImage =
-    # host =
-    # url =
-    # github =
+    avatar = models.ImageField(upload_to = 'avatar', blank=True)
+    host = models.URLField(max_length=64, default="http://cmput404-team13-socialapp.herokuapp.com")
+    url = models.URLField(max_length=100, default='http://cmput404-team13-socialapp.herokuapp.com/author/')
+    github = models.CharField(max_length=100, blank = True)
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 #Inbox model
@@ -36,13 +36,13 @@ class FriendRequest(models.Model):
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=140, default='')
-    # source
-    # origin
+    source = models.URLField(default='https://cmput404-team13-socialapp.herokuapp.com/')
+    origin = models.URLField(default='https://cmput404-team13-socialapp.herokuapp.com/')
     description = models.CharField(max_length=140, default='')
     contentType = models.CharField(max_length=30, default='PLAIN')
     content = MDTextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
-    # categories
+    categories = models.CharField(max_length=100, blank=True)
     published = models.DateTimeField(default=timezone.now)
     visibility = models.CharField(max_length=30, default='PUBLIC')
     unlisted = models.BooleanField(default=False)

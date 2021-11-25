@@ -4,11 +4,14 @@ views.py includes all the function of the pages
 '''
 from django.shortcuts import render, redirect
 from django.contrib import messages
+import requests
 from django.http import HttpResponse, HttpResponseRedirect
 from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
 from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
+
+remote_nodes = ["https://cmput404fall21g11.herokuapp.com/"]
 
 
 # view of index.html
@@ -20,8 +23,14 @@ def index(request):
 # view of main_page
 def main_page(request, author_id):
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
+    remote_post = []
+    for node in remote_nodes:
+        api_url = node + 'api/posts/'
+        content_get = requests.get(api_url)
+        if content_get.status_code == 200:
+            remote_post.extend(content_get.json()['items'])
 
-    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list})
+    return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'remote_post':remote_post})
 
 
 # view of register.html
@@ -37,7 +46,10 @@ def register(request):
             #return render(request, 'socialapp/login.html', content)
             
             messages.success(request, 'Sign up successfully!')
-            inbox = Inbox(author=Author.objects.get(displayName=name))
+            author = Author.objects.get(displayName=name)
+            author.url = author.url + str(author.id)
+            author.save()
+            inbox = Inbox(author=author)
             inbox.save()
             return redirect(login)
         else:
@@ -111,12 +123,15 @@ def author_profile(request, author_id):
 def edit_profile(request, author_id):
     me = Author.objects.get(pk=author_id)
     if request.method == 'POST':
-        form = AuthorForm(request.POST)
+        form = AuthorForm(request.POST, request.FILES)
         if form.is_valid():
+            if 'avatar' in request.FILES:
+                changed_avatar = form.cleaned_data["avatar"]
             changed_name = form.cleaned_data['displayName']
             changed_passwaord = form.cleaned_data['password']
             me.displayName = changed_name
             me.password = changed_passwaord
+            me.avatar = changed_avatar
             me.save()
             response = redirect(author_profile, author_id)
             return response

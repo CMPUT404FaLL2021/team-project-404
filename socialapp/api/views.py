@@ -103,7 +103,11 @@ def api_author_followers(request, author_id):
 def api_author_follower(request, author_id, follower_id):
     try:
         follower = Author.objects.get(id=follower_id)
+        author = Author.objects.get(id=author_id)
     except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if follower not in author.followers.all():
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
@@ -113,7 +117,6 @@ def api_author_follower(request, author_id, follower_id):
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'PUT':
-        author = Author.objects.get(id=author_id)
         author.followers.add(follower)
         data = {}
         data['success'] = "Put successfully"
@@ -121,10 +124,34 @@ def api_author_follower(request, author_id, follower_id):
 
     # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'DELETE':
-        author = Author.objects.get(id=author_id)
         author.followers.remove(follower)
         data = {}
         data['success'] = "Delete successfully"
+        return Response(data=data)
+
+
+@api_view(['POST'])
+def api_author_follows(request, author_id, follows_id):
+    try:
+        author = Author.objects.get(id=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'POST':
+        try:
+            author_to_follow = Author.objects.get(id=follows_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        author_to_follow.followers.add(author)
+
+        data = {}
+        data['type'] = "Follow"
+        data['summary'] = author.displayName + " wants to follow " + author_to_follow.displayName
+        serializer1 = AuthorSerializer(author)
+        serializer2 = AuthorSerializer(author_to_follow)
+        data['actor'] = serializer1.data
+        data['object'] = serializer2.data
+
         return Response(data=data)
 
 
