@@ -19,7 +19,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         return 'author'
     class Meta:
         model = Author
-        fields = ['type', 'id', 'displayName']
+        fields = ['type', 'id', 'displayName', 'url', 'host']
 
 
 #set the serializer of Comments

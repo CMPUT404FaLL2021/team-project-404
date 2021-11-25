@@ -11,13 +11,13 @@ import markdown
 
 # Author model
 class Author(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False, unique=True)
     displayName = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=32)
-    # profileImage =
-    # host =
-    # url =
-    # github =
+    avatar = models.ImageField(upload_to = 'avatar', blank=True)
+    host = models.URLField(max_length=64, default="http://cmput404-team13-socialapp.herokuapp.com")
+    url = models.URLField(max_length=100, default='http://cmput404-team13-socialapp.herokuapp.com/author/' + str(id))
+    github = models.CharField(max_length=100)
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 #Inbox model
