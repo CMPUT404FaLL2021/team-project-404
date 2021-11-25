@@ -346,17 +346,20 @@ def api_author_inbox(request, author_id):
 
             post.save()
             post.inbox.add(inbox)
-            return HttpResponse('Success')
+            data['message'] = 'success'
+            return Response(data=data)
         
         elif data['type'] == 'like':
             try:
                 post = Post.objects.get(id=data['object'])
             except Post.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            l = Like(author=Author.objects.get(id=data['author']['id']), object=post)
+            l = Like(author=Author.objects.get(id=data['author']['id']), object=post, inbox=inbox)
             l.save()
             post.likes.add(Author.objects.get(id=data['author']['id']))
-            return HttpResponse('Success')
+            data = {}
+            data['message'] = 'success'
+            return Response(data=data)
 
         elif data['type'] == 'follow':
             try:

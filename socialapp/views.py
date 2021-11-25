@@ -333,14 +333,14 @@ def show_post(request, author_id, show_post_id):
                 l.delete()
             else:
                 post_to_show.likes.add(Author.objects.get(id=author_id))
-                l = Like(author=Author.objects.get(id=author_id), object=post_to_show)
+                l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
                 l.save()
 
         elif 'post_button' in request.POST:
             comment = form.data['comment']
             if form.is_valid():
                 comment = form.cleaned_data['comment']
-                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id))
+                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                 c.save()
         
         elif 'delete_comment' in request.POST:
