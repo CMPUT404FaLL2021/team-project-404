@@ -157,10 +157,12 @@ def api_author_follows(request, author_id, follows_id):
 
 @api_view(['GET'])
 def api_post_comments(request, author_id, post_id):
-    try:
-        comments = Comment.objects.filter(post=post_id)
-    except Comment.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    comments = Comment.objects.filter(post=post_id)
+    if comments.count() == 0:
+        data = {}
+        data['type'] = 'comment'
+        data['item'] = ''
+        return Response(data=data)
     
     # GET get comments of the post
     if request.method == 'GET':
@@ -173,10 +175,12 @@ def api_post_comments(request, author_id, post_id):
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_posts(request, author_id):
-    try:
-        posts = Post.objects.filter(author=author_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    posts = Post.objects.filter(author=author_id)
+    if posts.count() == 0:
+        data = {}
+        data['type'] = 'post'
+        data['item'] = ''
+        return Response(data=data)
     
     if request.method == 'GET':
         posts_page = pagination(posts, request)
@@ -278,7 +282,10 @@ def api_post_like(request, author_id, post_id):
     if request.method == 'GET':
         likes = Like.objects.filter(object=post)
         if likes.count() == 0:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            data = {}
+            data['type'] = 'like'
+            data['item'] = ''
+            return Response(data=data)
         likes_page = pagination(likes, request)
         serializer = LikeSerializer(likes_page, many=True)
         return Response(serializer.data)
@@ -288,7 +295,10 @@ def api_post_like(request, author_id, post_id):
 def api_likes(request, author_id):
     liked = Post.objects.filter(likes=author_id)
     if liked.count() == 0:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        data = {}
+        data['type'] = 'post'
+        data['item'] = ''
+        return Response(data=data)
     
     if request.method == 'GET':
         liked_page = pagination(liked, request)
@@ -307,7 +317,10 @@ def api_author_inbox(request, author_id):
     if request.method == 'GET':
         posts = Post.objects.filter(inbox=inbox)
         if posts.count() == 0:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            data = {}
+            data['type'] = 'post'
+            data['item'] = ''
+            return Response(data=data)
         posts_page = pagination(posts, request)
         serializer = PostSerializer(posts_page, many=True)
         data = {}
