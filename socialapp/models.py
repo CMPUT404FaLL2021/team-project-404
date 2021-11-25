@@ -17,7 +17,7 @@ class Author(models.Model):
     avatar = models.ImageField(upload_to = 'avatar', blank=True)
     host = models.URLField(max_length=64, default="http://cmput404-team13-socialapp.herokuapp.com")
     url = models.URLField(max_length=100, default='http://cmput404-team13-socialapp.herokuapp.com/author/' + str(id))
-    github = models.CharField(max_length=100)
+    github = models.CharField(max_length=100, blank=True)
     followers = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 #Inbox model
