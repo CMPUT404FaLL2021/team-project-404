@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from socialapp.api import serializers
 
-from socialapp.models import Author, Post, Comment, Like, Inbox
+from socialapp.models import Author, Post, Comment, Like, Inbox, FriendRequest
 from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
 
 # reference: https://www.youtube.com/watch?v=wmYSKVWOOTM
@@ -345,7 +345,36 @@ def api_author_inbox(request, author_id):
             post.likes.add(Author.objects.get(id=data['author']['id']))
             return HttpResponse('Success')
 
-    # if request.method == 'DELETE':
-    #     pass
+        elif data['type'] == 'follow':
+            try:
+                actor = Author.objects.get(id=data['actor']['id'])
+                object = Author.objects.get(id=data['object']['id'])
+            except Author.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            try:
+                FriendRequest.objects.get(actor=actor,object=object)
+            except FriendRequest.DoesNotExist:
+                friend_request = FriendRequest(actor=actor, object=object, inbox=Inbox.objects.get(author=object))
+                friend_request.save()
+                return Response(data=data)
+
+            data = {}
+            data['Failed':'Friend Request already existed.']
+            return Response(data=data)
+        
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        for p in Post.objects.filter(inbox=inbox):
+            p.inbox.clear()
+            return Response(data=data)
+        FriendRequest.objects.filter(inbox=inbox).update(inbox=None)
+        Comment.objects.filter(inbox=inbox).update(inbox=None)
+        Like.objects.filter(inbox=inbox).update(inbox=None)
+        data = {}
+        data['message'] = 'Deleted'
+        return Response(data=data)
 
     
