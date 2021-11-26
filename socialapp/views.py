@@ -48,14 +48,14 @@ def main_page(request, author_id):
     if content_get2_1.status_code == 200:
         for remote_author in content_get2_1.json()['items']:
             # for each author, we extends the url for finding their post
-            api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
-            content_get2_2 = requests.get(api_url2_2)
+            # api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
+            content_get2_2 = requests.get(remote_author['id']+'/posts/')
             # now the elements in content_get2_2 are all the posts
             if content_get2_2.status_code == 200:
                 for post in content_get2_2.json():
                     if post['visibility'] == 'PUBLIC':
                         # wrong url of id of team 09, fixed  
-                        # post['url'] = post['url'].replace('/author', 'author')
+                        post['url'] = post['id']
                         post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
                         post['id'] = uuid.UUID(post['id'].split('/')[-1])
                         #print(post)
