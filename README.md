@@ -22,6 +22,10 @@ https://cmput404-team13-socialapp.herokuapp.com/socialapp/index
 
 https://github.com/CMPUT404FaLL2021/team-project-404/wiki/Home-Wiki
 
+>  Here is the swagger includes API Overview
+
+https://cmput404-team13-socialapp.herokuapp.com/swagger/
+
 ## Installation
 > Create a virtualenv and activate the python virtual environment
 
