@@ -26,7 +26,7 @@ def main_page(request, author_id):
     try:
         Author.objects.get(pk=author_id)
     except:
-        return HttpResponseNotFound('404 Page Not Found')
+        return HttpResponseNotFound('404 Page Not Found, author %s does not exist' %(author_id))
     
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
     remote_post = []
@@ -318,12 +318,9 @@ def get_remote_comments(post_url):
 def show_post(request, author_id, show_post_id):
     REMOTE = False
     try: 
-        request.GET['remote_post_url']
-        # return HttpResponse(show_post_id)
-        REMOTE = True
         post_url = request.GET['remote_post_url'].replace('author','api/author')
+        REMOTE = True
         get_post = requests.get(post_url, auth=('team13', '123456'))
-        # return HttpResponse(post_url)
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
