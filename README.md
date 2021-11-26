@@ -88,6 +88,8 @@ https://docs.djangoproject.com/en/3.2/ref/
 
 REST API: https://www.youtube.com/playlist?list=PLgCYzUzKIBE9Pi8wtx8g55fExDAPXBsbV
 
+https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+
 ***
 
 #### CSS Related:
