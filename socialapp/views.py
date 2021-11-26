@@ -147,11 +147,12 @@ def edit_profile(request, author_id):
         if form.is_valid():
             if 'avatar' in request.FILES:
                 changed_avatar = form.cleaned_data["avatar"]
+                me.avatar = changed_avatar
             changed_name = form.cleaned_data['displayName']
             changed_passwaord = form.cleaned_data['password']
             me.displayName = changed_name
             me.password = changed_passwaord
-            me.avatar = changed_avatar
+            #me.avatar = changed_avatar
             me.save()
             response = redirect(author_profile, author_id)
             return response
