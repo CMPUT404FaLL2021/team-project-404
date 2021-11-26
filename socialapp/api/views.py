@@ -155,20 +155,38 @@ def api_author_follows(request, author_id, follows_id):
         return Response(data=data)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def api_post_comments(request, author_id, post_id):
-    comments = Comment.objects.filter(post=post_id)
-    if comments.count() == 0:
-        data = {}
-        data['type'] = 'comment'
-        data['item'] = ''
-        return Response(data=data)
-    
     # GET get comments of the post
     if request.method == 'GET':
+        comments = Comment.objects.filter(post=post_id)
+        if comments.count() == 0:
+            data = {}
+            data['type'] = 'comment'
+            data['item'] = ''
+            return Response(data=data)
         comments_page = pagination(comments, request)
         serializer = CommentSerializer(comments_page, many=True)
         return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        data = JSONParser().parse(request)
+        serializer = CommentSerializer(data=data)
+        if serializer.is_valid():
+            author = Author.objects.get(id=data['author']['id'])
+            comment = data['comment']
+            contentType = data['contentType']
+            c = Comment(comment=comment, post=post, author=author, inbox=Inbox.objects.get(author=author))
+            c.save()
+            data['success'] = 'Updated Successfully'
+            return Response(data=data)
 
 
 @api_view(['GET', 'POST'])
