@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'socialapp.apps.SicialAppConfig',
     'rest_framework',                      
     'mdeditor',       # markdown
+    'drf_yasg2', 
 ]
 
 REST_FRAMEWORK = {
