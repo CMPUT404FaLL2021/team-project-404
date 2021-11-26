@@ -101,29 +101,48 @@ def api_author_followers(request, author_id):
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_author_follower(request, author_id, follower_id):
-    try:
-        follower = Author.objects.get(id=follower_id)
-        author = Author.objects.get(id=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
-    if follower not in author.followers.all():
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
     # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'GET':
+        try:
+            follower = Author.objects.get(id=follower_id)
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        if follower not in author.followers.all():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
         serializer = AuthorSerializer(follower)
         return Response(serializer.data)
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'PUT':
+        try:
+            author = Author.objects.get(id=author_id)
+        except:
+            author = Author.objects.create(id=author_id)
+        
+        try:
+            follower = Author.objects.get(id=follower_id)
+        except:
+            follower = Author.objects.create(id=follower_id)
+        
         author.followers.add(follower)
         data = {}
-        data['success'] = "Put successfully"
+        data['success'] = "Put Successfully"
         return Response(data=data)
 
     # DELETE //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'DELETE':
+        try:
+            follower = Author.objects.get(id=follower_id)
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        if follower not in author.followers.all():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
         author.followers.remove(follower)
         data = {}
         data['success'] = "Delete successfully"
