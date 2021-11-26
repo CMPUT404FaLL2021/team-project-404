@@ -193,16 +193,37 @@ def api_post_comments(request, author_id, post_id):
     elif request.method == 'POST':
         try:
             post = Post.objects.get(id=post_id)
+            author = Author.objects.get(id=author_id)
+            inbox = Inbox.objects.get(author=author)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         data = JSONParser().parse(request)
+        comment_data = data['author']
+        try:
+            comment_id = comment_data['uuid']
+        except:
+            # return HttpResponse(data['author'])
+            comment_id = comment_data['id']
+            
+        try:
+            comment_author = Author.objects.get(id=comment_id)
+        except:
+            comment_displayName = comment_data['displayName']
+            comment_url = comment_data['url']
+            comment_host = comment_data['host']
+            comment_github = comment_data['github']
+            comment_author = Author(id=comment_id, displayName=comment_displayName, url=comment_url, host=comment_host, github=comment_github)
+            comment_author.save()
+            comment_author = Author.objects.get(id=comment_id)
+            comment_inbox = Inbox(author=comment_author)
+            comment_inbox.save()
+
         serializer = CommentSerializer(data=data)
         if serializer.is_valid():
-            author = Author.objects.get(id=data['author']['id'])
             comment = data['comment']
             contentType = data['contentType']
-            c = Comment(comment=comment, post=post, author=author, inbox=Inbox.objects.get(author=author))
+            c = Comment(comment=comment, post=post, author=comment_author, inbox=inbox)
             c.save()
             data['success'] = 'Updated Successfully'
             return Response(data=data)
