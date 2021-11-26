@@ -83,7 +83,6 @@ def register(request):
 
 # view of login.html
 def login(request):
-    global current_user
     if request.method == 'POST':
         form = AuthorForm(request.POST)
         displayName = form.data['displayName']
@@ -92,7 +91,6 @@ def login(request):
         if author:
             info = 'Login Successfully!'
             content = {'info':info}
-            current_user = author[0]
 
             # set cookies
             response = redirect(main_page, author[0].id)
