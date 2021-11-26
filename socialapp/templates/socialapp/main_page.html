@@ -51,13 +51,12 @@
             </div>
                 <div class="description">
             
-                    <h1>{{ rp.author.username }} - {{rp.title}}</h1>
+                    <h1>{{ rp.author.displayName }} - {{rp.title}}</h1>
                     <h2>{{ rp.published }}</h2>
                     <p>{{ rp.description }}</p>
-                    <p>{{ rp.content }}</p>
 
                     <p class="read-more">
-                        <a href="{% url 'show_post' rp.author.id rp.id %}">Read More</a>
+                        <a href="{% url 'remote_show_post' author_id rp.author.id rp.id %}">Read More</a>
                     </p>
             
                 </div>

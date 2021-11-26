@@ -19,5 +19,6 @@ urlpatterns = [
     path('main_page/<uuid:author_id>/', views.main_page, name = 'main_page'),
     path('my_followers/<uuid:author_id>/', views.my_followers, name  = 'my_followers'),
     path('my_follows/<uuid:author_id>/', views.my_follows, name  = 'my_follows'),
-    path('my_friends/<uuid:author_id>/', views.my_friends, name  = 'my_friends')
+    path('my_friends/<uuid:author_id>/', views.my_friends, name  = 'my_friends'),
+    path('remote_show_post/<uuid:author_id>/<uuid:remote_author>/<remote_show_post>', views.remote_show_post, name = 'remote_show_post'),
 ]

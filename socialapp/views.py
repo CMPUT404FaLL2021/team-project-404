@@ -83,6 +83,7 @@ def register(request):
 
 # view of login.html
 def login(request):
+    global current_user
     if request.method == 'POST':
         form = AuthorForm(request.POST)
         displayName = form.data['displayName']
@@ -91,6 +92,7 @@ def login(request):
         if author:
             info = 'Login Successfully!'
             content = {'info':info}
+            current_user = author[0]
 
             # set cookies
             response = redirect(main_page, author[0].id)
@@ -259,23 +261,33 @@ def select_viewers(request, author_id, post_id):
 
 # helper function for checking if I like the post
 def if_like(post_to_show, author_id):
-    if post_to_show.likes.filter(id=author_id).exists():
-        return True
-    return False
+    try:
+        if post_to_show.likes.filter(id=author_id).exists():
+            return True
+        return False
+    except:
+        # -----TODO more------
+        return False
 
 # helper function for checking the follow status
 def follow_check(post_to_show, author_id):
-    if_follow = False
-    if_follows_me = False
+    try:
+        if_follow = False
+        if_follows_me = False
 
-    post_author = post_to_show.author
-    me = Author.objects.get(pk=author_id)
+        post_author = post_to_show.author
+        me = Author.objects.get(pk=author_id)
 
-    if post_to_show in Post.objects.all():
-        if me in post_author.followers.all():
-            if_follow = True
-        if post_author in me.followers.all():
-            if_follows_me = True
+        if post_to_show in Post.objects.all():
+            if me in post_author.followers.all():
+                if_follow = True
+            if post_author in me.followers.all():
+                if_follows_me = True
+        return (if_follow, if_follows_me)
+    except:
+        # ----TODO more--
+        return False, False
+
     # else:
     #     api_url1 = remote_nodes[0] + 'api/author/%s/followers/' %(post_to_show.author.id)
     #     content_get1 = requests.get(api_url1, auth=('team13', '123456'))
@@ -293,53 +305,130 @@ def follow_check(post_to_show, author_id):
         # if content_get3.status_code == 200:
         #     post_to_show = content_get3.json()
 
-    return (if_follow, if_follows_me)
 
 # view of show_post.html
-def show_post(request, author_id, show_post_id):
-    post_to_show = None
-    try:
-        post_to_show = Post.objects.get(pk=show_post_id)
-    except:
-        api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/' %(author_id, show_post_id)
-        content_get1 = requests.get(api_url1, auth=('team13', '123456'))
-        if content_get1.status_code == 200:
-            post_to_show = content_get1.json()
-        
-        # api_url2 = remote_nodes[1] + 'api/posts/'
-        # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
-        # if content_get2.status_code == 200:
-        #     post_to_show = content_get2.json()
+def remote_show_post(request, author_id, remote_author, remote_show_post):
+    
+    # author_id = author_id.hex
+    # show_post_id = show_post_id.hex
+    show_post_id = remote_show_post.replace("-", "")
+    api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/' %(remote_author, show_post_id)
+    content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+    if content_get1.status_code == 200:
+        post_to_show = content_get1.json()
+    
+    # api_url2 = remote_nodes[1] + 'api/posts/'
+    # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
+    # if content_get2.status_code == 200:
+    #     post_to_show = content_get2.json()
 
-        # api_url3 = remote_nodes[2] + 'api/posts/'
-        # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
-        # if content_get3.status_code == 200:
-        #     post_to_show = content_get3.json()
-        else:
-            return HttpResponseNotFound('404 Page Not Found')
+    # api_url3 = remote_nodes[2] + 'api/posts/'
+    # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
+    # if content_get3.status_code == 200:
+    #     post_to_show = content_get3.json()
+    else:
+        return HttpResponseNotFound('404 Page Not Found (view.py show_post 1st) %s  -- %s\n%s' %(author_id, show_post_id, api_url1))
 
     if request.method == 'GET' and 'delete_button' in request.GET:
         post_to_show.delete()
         response = redirect(main_page, author_id)
         return response
 
-    try:
-        post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
-    except:
-        api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/comments/' %(author_id, show_post_id)
-        content_get1 = requests.get(api_url1, auth=('team13', '123456'))
-        if content_get1.status_code == 200:
-            post_comments = content_get1.json()
-        
-        # api_url2 = remote_nodes[1] + 'api/author/%s/posts/%s/comments/ %(author_id, show_post_id)'
-        # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
-        # if content_get2.status_code == 200:
-        #     post_to_show = content_get2.json()
+
+    api_url1 = remote_nodes[0] + 'api/author/%s/posts/%s/comments/' %(author_id, show_post_id)
+    content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+    if content_get1.status_code == 200:
+        post_comments = content_get1.json()["items"]
     
-        # api_url3 = remote_nodes[2] + 'api/author/%s/posts/%s/comments/ %(author_id, show_post_id)'
-        # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
-        # if content_get3.status_code == 200:
-        #     post_to_show = content_get3.json()
+    # api_url2 = remote_nodes[1] + 'api/author/%s/posts/%s/comments/ %(author_id, show_post_id)'
+    # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
+    # if content_get2.status_code == 200:
+    #     post_to_show = content_get2.json()
+
+    # api_url3 = remote_nodes[2] + 'api/author/%s/posts/%s/comments/ %(author_id, show_post_id)'
+    # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
+    # if content_get3.status_code == 200:
+    #     post_to_show = content_get3.json()
+
+    context = {'post_to_show': post_to_show, 'author_id': author_id, 'remote_author': remote_author, 'post_comments':None, 'comment_count':0}
+    if post_comments:
+        context['post_comments'] = post_comments
+        context['comment_count'] = len(post_comments)
+
+    like_status = if_like(post_to_show, remote_author)
+    context['like_status'] = like_status
+    follow_status = follow_check(post_to_show, remote_author)[0]
+    friend_request_status = follow_check(post_to_show, remote_author)[1]
+    context['follow_status'] = follow_status
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST or None)
+        context['form'] = form
+        if 'like_button' in request.POST:
+            if like_status:
+                post_to_show.likes.remove(Author.objects.get(id=author_id))
+                l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
+                l.delete()
+            else:
+                post_to_show.likes.add(Author.objects.get(id=author_id))
+                l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
+                l.save()
+
+        elif 'post_button' in request.POST:
+            comment = form.data['comment']
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
+                c.save()
+        
+        elif 'delete_comment' in request.POST:
+            comment_id = request.POST['delete_comment']
+            del_comment = Comment.objects.get(id=comment_id)
+            del_comment.delete()
+
+        elif 'share_post' in request.POST:
+            author = Author.objects.get(id=author_id)
+            content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
+            # visibility = 
+            # unlisted = check_box.cleaned_data['check_box']
+            p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
+            p.save()
+            response = redirect(main_page, author_id)
+            return response
+
+        elif 'follow_button' in request.POST:
+            me = Author.objects.get(pk=author_id)
+            post_author = post_to_show.author
+            if follow_status:
+                post_author.followers.remove(me)
+            else:
+                post_author.followers.add(me)
+                if not friend_request_status:
+                    friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
+                    friend_request.save()
+
+        return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
+
+    else:
+        form = CommentForm()
+
+    context['form'] = form
+    context['if_remote'] = 1
+    return render(request, 'socialapp/show_post.html', context)
+
+
+# view of show_post.html
+def show_post(request, author_id, show_post_id):
+    post_to_show = None
+    post_to_show = Post.objects.get(pk=show_post_id)
+    
+
+    if request.method == 'GET' and 'delete_button' in request.GET:
+        post_to_show.delete()
+        response = redirect(main_page, author_id)
+        return response
+
+    post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
 
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0}
     if post_comments:
@@ -404,6 +493,7 @@ def show_post(request, author_id, show_post_id):
         form = CommentForm()
 
     context['form'] = form
+    context['if_remote'] = 0
     return render(request, 'socialapp/show_post.html', context)
 
 
