@@ -18,8 +18,8 @@ class AuthorForm(forms.ModelForm):
 #post form
 class PostForm(forms.ModelForm):
     CONTENT_TYPES = {
-        ("MARKDOWN", 'text/markdown'),
-        ("PLAIN", 'text/plain')
+        ("text/markdown", 'text/markdown'),
+        ("text/plain", 'text/plain')
         # add png & jpeg
     }
     VISIBILITY_CHOICES = {
@@ -32,7 +32,7 @@ class PostForm(forms.ModelForm):
     content = MDTextFormField()
     # content = forms.CharField(label=False, required=True, widget=forms.Textarea(attrs={'placeholder': hint_text}))
     visibility = forms.ChoiceField(label=False, choices = VISIBILITY_CHOICES, initial='PUBLIC')
-    contentType = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='PLAIN')
+    contentType = forms.ChoiceField(label=False, choices = CONTENT_TYPES, initial='text/plain')
     class Meta:
         model = Post
         fields = ('content', 'description', 'title', 'unlisted', 'visibility', 'contentType')

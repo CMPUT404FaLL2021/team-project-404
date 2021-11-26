@@ -39,7 +39,7 @@ class Post(models.Model):
     source = models.URLField(default='https://cmput404-team13-socialapp.herokuapp.com/')
     origin = models.URLField(default='https://cmput404-team13-socialapp.herokuapp.com/')
     description = models.CharField(max_length=140, default='')
-    contentType = models.CharField(max_length=30, default='PLAIN')
+    contentType = models.CharField(max_length=30, default='text/plain')
     content = MDTextField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     categories = models.CharField(max_length=100, blank=True)
@@ -66,7 +66,7 @@ class Comment(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     comment = models.CharField(max_length=140)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    contentType = models.CharField(max_length=30, default='PLAIN')
+    contentType = models.CharField(max_length=30, default='text/plain')
     published = models.DateTimeField(default=timezone.now)
     inbox = models.ForeignKey(Inbox, on_delete=models.CASCADE, null=True, blank=True)
 
