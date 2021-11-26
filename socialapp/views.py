@@ -318,7 +318,7 @@ def get_remote_comments(post_url):
 def show_post(request, author_id, show_post_id):
     REMOTE = False
     try: 
-        post_url = request.GET['remote_post_url'].replace('author','api/author')
+        post_url = request.GET['remote_post_url']
         REMOTE = True
         get_post = requests.get(post_url, auth=('team13', '123456'))
         if get_post.status_code == 200:
