@@ -56,7 +56,7 @@
                     <p>{{ rp.description }}</p>
 
                     <p class="read-more">
-                        <a href="{% url 'remote_show_post' author_id rp.author.id rp.id %}">Read More</a>
+                        <a href="{% url 'show_post' author_id rp.id %}?remote_post_url={{ rp.url }}">Read More</a>
                     </p>
             
                 </div>
