@@ -12,7 +12,7 @@ from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
 
-remote_nodes = ["https://cmput404fall21g11.herokuapp.com/"]
+remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/"]
 
 
 # view of index.html
@@ -35,15 +35,25 @@ def main_page(request, author_id):
     content_get1 = requests.get(api_url1, auth=('team13', '123456'))
     if content_get1.status_code == 200:
         for post in content_get1.json()['items']:
-            post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
-            post['id'] = uuid.UUID(post['id'])
             if post['visibility'] == 1:
+                post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
+                post['id'] = uuid.UUID(post['id'])
                 remote_post.append(post)
     
-    # api_url2 = remote_nodes[1] + 'api/posts/'
-    # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
-    # if content_get2.status_code == 200:
-        # remote_post.extend(content_get2.json()['items'])
+    # team 09 does not require auth at the time
+    api_url2_1 = remote_nodes[1] + 'authors?page=1&size=100/'
+    content_get2_1 = requests.get(api_url2_1)
+    if content_get2_1.status_code == 200:
+        for remote_author in content_get2_1.json()['items']:
+            api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
+            content_get2_2 = requests.get(api_url2_2)
+            if content_get2_2.status_code == 200:
+                for post in content_get2_2.json():
+                    if post['visibility'] == 'PUBLIC':
+                        post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
+                        post['id'] = uuid.UUID(post['id'].split('/')[-1])
+                        print(post)
+                        remote_post.append(post)
     
     # api_url3 = remote_nodes[2] + 'api/posts/'
     # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
