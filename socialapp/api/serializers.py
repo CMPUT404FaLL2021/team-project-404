@@ -40,6 +40,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
     count = serializers.SerializerMethodField()
     comment = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
     @classmethod
     def get_type(self, object):
         return 'post'
@@ -50,9 +51,12 @@ class PostSerializer(serializers.ModelSerializer):
     def get_comment(self, object):
         return CommentSerializer(Comment.objects.filter(post=object), many=True).data
 
+    def get_url(self, object):
+        return object.origin + 'api/author/' + str(object.author.id) + '/posts/' + str(object.id) + '/'
+
     class Meta:
         model = Post
-        fields = ['type', 'title', 'id', 'description', 'contentType', 'content', 'author', 'count', 'comment', 'published', 'visibility', 'unlisted']
+        fields = ['type', 'title', 'id', 'url', 'description', 'contentType', 'content', 'author', 'count', 'comment', 'published', 'visibility', 'unlisted']
 
 
 class LikeSerializer(serializers.ModelSerializer):
