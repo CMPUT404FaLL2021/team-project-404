@@ -120,12 +120,13 @@ def api_author_follower(request, author_id, follower_id):
         try:
             author = Author.objects.get(id=author_id)
         except:
-            author = Author.objects.create(id=author_id)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
         try:
             follower = Author.objects.get(id=follower_id)
         except:
             follower = Author.objects.create(id=follower_id)
+            author.github = 'cache_remote_user'
         
         author.followers.add(follower)
         data = {}
@@ -144,6 +145,15 @@ def api_author_follower(request, author_id, follower_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
         
         author.followers.remove(follower)
+        
+        if follower.github == 'cache_remote_user':
+            remove_remote_user = True
+            for current_author in Author.objects.all():
+                if follower in current_author.followers.all():
+                    remove_remote_user = False
+            if remove_remote_user:
+                Author.objects.delete(id=follower.id)
+
         data = {}
         data['success'] = "Delete successfully"
         return Response(data=data)
@@ -151,17 +161,23 @@ def api_author_follower(request, author_id, follower_id):
 
 @api_view(['POST'])
 def api_author_follows(request, author_id, follows_id):
-    try:
-        author = Author.objects.get(id=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    
+    # POST //service/author/{FOREIGN_AUTHOR_ID}/follows/{AUTHOR_ID}
     if request.method == 'POST':
         try:
+            author = Author.objects.get(id=author_id)
+        except:
+            author = Author.objects.create(id=author_id)
+            author.github = 'cache_remote_user'
+
+        try:
             author_to_follow = Author.objects.get(id=follows_id)
-        except Author.DoesNotExist:
+        except:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        author_to_follow.followers.add(author)
+        
+        friend_request = FriendRequest.objects.create()
+        friend_request.actor = author
+        friend_request.object = author_to_follow
+        friend_request.inbox = Inbox.objects.get(author=author_to_follow)
 
         data = {}
         data['type'] = "Follow"
@@ -201,23 +217,18 @@ def api_post_comments(request, author_id, post_id):
         data = JSONParser().parse(request)
         comment_data = data['author']
         try:
-            comment_id = comment_data['uuid']
+            comment_author_id = comment_data['uuid']
         except:
-            # return HttpResponse(data['author'])
-            comment_id = comment_data['id']
+            comment_author_id = comment_data['id']
             
         try:
-            comment_author = Author.objects.get(id=comment_id)
+            comment_author = Author.objects.get(id=comment_author_id)
         except:
-            comment_displayName = comment_data['displayName']
-            comment_url = comment_data['url']
-            comment_host = comment_data['host']
-            comment_github = comment_data['github']
-            comment_author = Author(id=comment_id, displayName=comment_displayName, url=comment_url, host=comment_host, github=comment_github)
-            comment_author.save()
-            comment_author = Author.objects.get(id=comment_id)
-            comment_inbox = Inbox(author=comment_author)
-            comment_inbox.save()
+            # cache remote author
+            comment_author = Author.objects.create(id=comment_author_id)
+            comment_author.github = 'cache_remote_user'  
+            comment_author.displayName = comment_data['displayName']
+            comment_author.save() 
 
         serializer = CommentSerializer(data=data)
         if serializer.is_valid():
@@ -411,29 +422,43 @@ def api_author_inbox(request, author_id):
                 post = Post.objects.get(id=data['object'])
             except Post.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            l = Like(author=Author.objects.get(id=data['author']['id']), object=post, inbox=inbox)
+
+            try:
+                author = Author.objects.get(id=data['author']['id'])
+            except Author.DoesNotExist:
+                # cache remote author
+                author = Author.objects.create(id=data['author']['id'])
+                author.displayName = data['author']['displayName']
+                author.github = 'cache_remote_user'
+                author.save()
+
+            l = Like(author=author, object=post, inbox=inbox)
             l.save()
-            post.likes.add(Author.objects.get(id=data['author']['id']))
-            data = {}
+            post.likes.add(author)
+
             data['message'] = 'success'
             return Response(data=data)
 
         elif data['type'] == 'follow':
             try:
-                actor = Author.objects.get(id=data['actor']['id'])
                 object = Author.objects.get(id=data['object']['id'])
             except Author.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-            
-            try:
-                FriendRequest.objects.get(actor=actor,object=object)
-            except FriendRequest.DoesNotExist:
-                friend_request = FriendRequest(actor=actor, object=object, inbox=Inbox.objects.get(author=object))
-                friend_request.save()
-                return Response(data=data)
 
-            data = {}
-            data['Failed':'Friend Request already existed.']
+            try:
+                actor = Author.objects.get(id=data['actor']['id'])
+            except Author.DoesNotExist:
+                # cache remote author
+                actor = Author.objects.create(id=data['actor']['id'])
+                actor.displayName = data['actor']['displayName']
+                actor.github = 'cache_remote_user'
+                actor.save()
+
+            object.followers.add(actor)
+            friend_request = FriendRequest(actor=actor, object=object, inbox=Inbox.objects.get(author=object))
+            friend_request.save()
+
+            data['message'] = 'success'
             return Response(data=data)
         
         else:

@@ -38,21 +38,27 @@ def main_page(request, author_id):
             if post['visibility'] == 1:
                 post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
                 post['id'] = uuid.UUID(post['id'])
+                #print(post)
                 remote_post.append(post)
     
     # team 09 does not require auth at the time
     api_url2_1 = remote_nodes[1] + 'authors?page=1&size=100/'
     content_get2_1 = requests.get(api_url2_1)
+    # according to team09's api document, we first get are all the authors
     if content_get2_1.status_code == 200:
         for remote_author in content_get2_1.json()['items']:
-            api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
-            content_get2_2 = requests.get(api_url2_2)
+            # for each author, we extends the url for finding their post
+            # api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
+            content_get2_2 = requests.get(remote_author['id']+'/posts/')
+            # now the elements in content_get2_2 are all the posts
             if content_get2_2.status_code == 200:
                 for post in content_get2_2.json():
                     if post['visibility'] == 'PUBLIC':
+                        # wrong url of id of team 09, fixed  
+                        post['url'] = post['id']
                         post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
                         post['id'] = uuid.UUID(post['id'].split('/')[-1])
-                        print(post)
+                        #print(post)
                         remote_post.append(post)
     
     # api_url3 = remote_nodes[2] + 'api/posts/'
@@ -327,10 +333,15 @@ def get_remote_comments(post_url):
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
     REMOTE = False
+    post_url = None
     try: 
         post_url = request.GET['remote_post_url']
+        #print(111)
+        # print(post_url)
+        #print(222)
         REMOTE = True
         get_post = requests.get(post_url, auth=('team13', '123456'))
+        #print(get_post.json())
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
@@ -357,8 +368,8 @@ def show_post(request, author_id, show_post_id):
     else:
         post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
         comment_count = post_comments.count()
-
-    context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0}
+    
+    context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
     if post_comments:
         context['post_comments'] = post_comments
         context['comment_count'] = comment_count
@@ -374,21 +385,31 @@ def show_post(request, author_id, show_post_id):
         form = CommentForm(request.POST or None)
         context['form'] = form
         if 'like_button' in request.POST:
-            if like_status:
-                post_to_show.likes.remove(Author.objects.get(id=author_id))
-                l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
-                l.delete()
+            if not REMOTE:
+                if like_status:
+                    post_to_show.likes.remove(Author.objects.get(id=author_id))
+                    l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
+                    l.delete()
+                else:
+                    post_to_show.likes.add(Author.objects.get(id=author_id))
+                    l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
+                    l.save()
             else:
-                post_to_show.likes.add(Author.objects.get(id=author_id))
-                l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
-                l.save()
+                pass
 
         elif 'post_button' in request.POST:
-            comment = form.data['comment']
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
-                c.save()
+            if not REMOTE:
+                comment = form.data['comment']
+                if form.is_valid():
+                    comment = form.cleaned_data['comment']
+                    c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
+                    c.save()
+            else:
+                comment = form.data['comment']
+                if form.is_valid():
+            # #         # response = redirect(main_page, author_id)
+            # #         # return response
+                    pass
         
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
@@ -396,14 +417,24 @@ def show_post(request, author_id, show_post_id):
             del_comment.delete()
 
         elif 'share_post' in request.POST:
-            author = Author.objects.get(id=author_id)
-            content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
-            # visibility = 
-            # unlisted = check_box.cleaned_data['check_box']
-            p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
-            p.save()
-            response = redirect(main_page, author_id)
-            return response
+            if not REMOTE:
+                author = Author.objects.get(id=author_id)
+                content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
+                # visibility = 
+                # unlisted = check_box.cleaned_data['check_box']
+                p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
+                p.save()
+                response = redirect(main_page, author_id)
+                return response
+            else:
+                author = Author.objects.get(id=author_id)
+                content = post_to_show['content'] + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show['author']['displayName']))
+                # visibility = 
+                # unlisted = check_box.cleaned_data['check_box']
+                p = Post(title=post_to_show['title'], description=post_to_show['description'], content=content, author=Author.objects.get(id=author_id), origin=post_to_show['origin'])
+                p.save()
+                response = redirect(main_page, author_id)
+                return response
 
         elif 'follow_button' in request.POST:
             me = Author.objects.get(pk=author_id)
