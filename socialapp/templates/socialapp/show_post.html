@@ -123,7 +123,7 @@
                         <button type="submit" name='share_post' value='Post'>Share
                         </button><br><br><br>
                     </form>
-                    <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
+                    <form action="{% url 'show_post' author_id post_to_show.id %}?remote_post_url={{ post_url }}" method=POST>
                         {% csrf_token %}
                         {{ form }}<br><br>
                         <input type='submit' name='post_button' value='Post'>

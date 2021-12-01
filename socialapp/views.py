@@ -385,21 +385,31 @@ def show_post(request, author_id, show_post_id):
         form = CommentForm(request.POST or None)
         context['form'] = form
         if 'like_button' in request.POST:
-            if like_status:
-                post_to_show.likes.remove(Author.objects.get(id=author_id))
-                l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
-                l.delete()
+            if not REMOTE:
+                if like_status:
+                    post_to_show.likes.remove(Author.objects.get(id=author_id))
+                    l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
+                    l.delete()
+                else:
+                    post_to_show.likes.add(Author.objects.get(id=author_id))
+                    l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
+                    l.save()
             else:
-                post_to_show.likes.add(Author.objects.get(id=author_id))
-                l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
-                l.save()
+                pass
 
         elif 'post_button' in request.POST:
-            comment = form.data['comment']
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
-                c.save()
+            if not REMOTE:
+                comment = form.data['comment']
+                if form.is_valid():
+                    comment = form.cleaned_data['comment']
+                    c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
+                    c.save()
+            else:
+                comment = form.data['comment']
+                if form.is_valid():
+            # #         # response = redirect(main_page, author_id)
+            # #         # return response
+                    pass
         
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
