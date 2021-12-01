@@ -333,10 +333,11 @@ def get_remote_comments(post_url):
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
     REMOTE = False
+    post_url = None
     try: 
         post_url = request.GET['remote_post_url']
         #print(111)
-        #print(post_url)
+        # print(post_url)
         #print(222)
         REMOTE = True
         get_post = requests.get(post_url, auth=('team13', '123456'))
@@ -367,8 +368,8 @@ def show_post(request, author_id, show_post_id):
     else:
         post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
         comment_count = post_comments.count()
-
-    context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0}
+    
+    context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
     if post_comments:
         context['post_comments'] = post_comments
         context['comment_count'] = comment_count
@@ -406,14 +407,24 @@ def show_post(request, author_id, show_post_id):
             del_comment.delete()
 
         elif 'share_post' in request.POST:
-            author = Author.objects.get(id=author_id)
-            content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
-            # visibility = 
-            # unlisted = check_box.cleaned_data['check_box']
-            p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
-            p.save()
-            response = redirect(main_page, author_id)
-            return response
+            if not REMOTE:
+                author = Author.objects.get(id=author_id)
+                content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
+                # visibility = 
+                # unlisted = check_box.cleaned_data['check_box']
+                p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
+                p.save()
+                response = redirect(main_page, author_id)
+                return response
+            else:
+                author = Author.objects.get(id=author_id)
+                content = post_to_show['content'] + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show['author']['displayName']))
+                # visibility = 
+                # unlisted = check_box.cleaned_data['check_box']
+                p = Post(title=post_to_show['title'], description=post_to_show['description'], content=content, author=Author.objects.get(id=author_id), origin=post_to_show['origin'])
+                p.save()
+                response = redirect(main_page, author_id)
+                return response
 
         elif 'follow_button' in request.POST:
             me = Author.objects.get(pk=author_id)
