@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
+credentials = [('team13', '123456'), ('defaul', 'default'), ('socialdistribution_t03', 'c404t03')]
 
 
 # view of index.html
@@ -34,10 +35,11 @@ def main_page(request, author_id):
 
     # get posts from team11
     api_url1 = remote_nodes[0] + 'api/posts/'
-    content_get1 = requests.get(api_url1, auth=('team13', '123456'))
+    content_get1 = requests.get(api_url1, auth=credentials[0])
     if content_get1.status_code == 200:
         for post in content_get1.json()['items']:
             if post['visibility'] == 1:
+                # post['url'] = post['id']
                 post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
                 post['id'] = uuid.UUID(post['id'])
                 remote_post.append(post)
@@ -59,11 +61,11 @@ def main_page(request, author_id):
     
     # get posts from team03
     api_url3 = remote_nodes[2] + 'posts/'
-    content_get3 = requests.get(api_url3, auth=('socialdistribution_t03', 'c404t03'))
+    content_get3 = requests.get(api_url3, auth=credentials[2])
     if content_get3.status_code == 200:
         for post in content_get3.json()['items']:
             if post['visibility'] == 'PUBLIC':
-                post['url'] = post['id'] + '/'
+                post['url'] = post['id']
                 post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
                 post['id'] = uuid.UUID(post['id'].split('/')[-1])
                 remote_post.append(post)
@@ -286,44 +288,40 @@ def if_like(post_to_show, author_id):
         return False
 
 # helper function for checking the follow status
-def follow_check(post_to_show, author_id):
-    try:
-        if_follow = False
-        if_follows_me = False
+def follow_check(post_to_show, author_id, if_remote):
+    if_follow = False
+    if_follows_me = False
 
+    if not if_remote:
         post_author = post_to_show.author
         me = Author.objects.get(pk=author_id)
 
-        if post_to_show in Post.objects.all():
-            if me in post_author.followers.all():
-                if_follow = True
-            if post_author in me.followers.all():
-                if_follows_me = True
-        return (if_follow, if_follows_me)
-    except:
-        # ----TODO more--
-        return False, False
+        if me in post_author.followers.all():
+            if_follow = True
+        if post_author in me.followers.all():
+            if_follows_me = True
+        return if_follow, if_follows_me
+    
+    else:
+        remote_post_author = post_to_show['author']
+        me = Author.objects.get(pk=author_id)
+        if remote_post_author in me.followers.all():
+            if_follows_me = True
+    
+    # # subject to change, just assumptions
+    # if remote_post_author['host'] == "https://cmput404fall21g11.herokuapp.com/":
+    #     if_follow = requests.get(remote_nodes[0]+"api/author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[0])
+    # elif remote_post_author['host'] == "https://fast-chamber-90421.herokuapp.com/":
+    #     if_follow = requests.get(remote_nodes[1]+"author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[1])
+    # elif remote_post_author['host'] == "https://social-dis.herokuapp.com/":
+    #     if_follow = requests.get(remote_nodes[1]+"author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[2])
+    
+    return if_follow, if_follows_me
 
-    # else:
-    #     api_url1 = remote_nodes[0] + 'api/author/%s/followers/' %(post_to_show.author.id)
-    #     content_get1 = requests.get(api_url1, auth=('team13', '123456'))
-    #     if content_get1.status_code == 200:
-    #         for follwer in content_get1.json()['items']:
-    #             pass
-        
-        # api_url2 = remote_nodes[1] + 'api/author/%s/followers/' %(author_id)'
-        # content_get2 = requests.get(api_url2, auth=('team13', '123456'))
-        # if content_get2.status_code == 200:
-        #     post_to_show = content_get2.json()
-
-        # api_url3 = remote_nodes[2] + 'api/author/%s/followers/' %(author_id)'
-        # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
-        # if content_get3.status_code == 200:
-        #     post_to_show = content_get3.json()
 
 def get_remote_comments(post_url):
     comments_url = post_url + 'comments/'
-    get_comments = requests.get(comments_url, auth=('team13', '123456'))
+    get_comments = requests.get(comments_url, auth=credentials[0])
     if get_comments.status_code == 200:
         post_comments = get_comments.json()["items"]
         comment_count = len(post_comments)
@@ -336,12 +334,22 @@ def get_remote_comments(post_url):
 def show_post(request, author_id, show_post_id):
     REMOTE = False
     post_url = None
-    try: 
+    try:
         post_url = request.GET['remote_post_url']
         REMOTE = True
-        get_post = requests.get(post_url, auth=('team13', '123456'))
-        if request.method == 'POST':
-            HttpResponse(post_url)
+        credential = None
+        
+        # credentials might be different!!!!!!
+        # 之后应该要加if判断是哪个remote node然后用相应的credential进行判断
+        if "https://cmput404fall21g11.herokuapp.com/" in post_url:
+            credential = credentials[0]
+        elif "https://fast-chamber-90421.herokuapp.com/" in post_url:
+            credential = credentials[1]
+        # ???? 为啥这第三组http和https混着用😵‍💫
+        elif "http://social-dis.herokuapp.com/" in post_url:
+            credential = credentials[2]
+
+        get_post = requests.get(post_url, auth=credential)
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
@@ -354,8 +362,7 @@ def show_post(request, author_id, show_post_id):
     like_status = if_like(post_to_show, author_id)
     context['like_status'] = like_status
 
-    follow_status = follow_check(post_to_show, author_id)[0]
-    friend_request_status = follow_check(post_to_show, author_id)[1]
+    follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE)
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
