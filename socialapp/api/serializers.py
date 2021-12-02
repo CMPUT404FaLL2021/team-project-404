@@ -5,10 +5,11 @@ function includes:
 AuthorSerializer
 CommentSerializer
 PostSerializer
+LikeSerializer
 '''
 
 from rest_framework import serializers
-from socialapp.models import Author, Post, Comment, Like
+from socialapp.models import Author, FriendRequest, Post, Comment, Like
 
 
 #set the serializer of Author
@@ -69,3 +70,19 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ['summary', 'type', 'author', 'object']
+
+
+class FriendRequestSerialier(serializers.ModelSerializer):
+    actor = AuthorSerializer(read_only=True)
+    object = AuthorSerializer(read_only=True)
+    type = serializers.SerializerMethodField()
+    summary = serializers.SerializerMethodField()
+    @classmethod
+    def get_type(self, this_object):
+        return 'follow'
+    def get_summary(self, this_object):
+        return this_object.actor.displayName + 'wants to follow' + this_object.object.displayName
+    
+    class Meta:
+        model = FriendRequest
+        fields = ['type', 'summary', 'actor', 'object']
