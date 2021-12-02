@@ -13,7 +13,7 @@ from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
 
-remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/"]
+remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
 
 
 # view of index.html
@@ -32,6 +32,7 @@ def main_page(request, author_id):
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
     remote_post = []
 
+    # get posts from team11
     api_url1 = remote_nodes[0] + 'api/posts/'
     content_get1 = requests.get(api_url1, auth=('team13', '123456'))
     if content_get1.status_code == 200:
@@ -39,33 +40,33 @@ def main_page(request, author_id):
             if post['visibility'] == 1:
                 post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
                 post['id'] = uuid.UUID(post['id'])
-                #print(post)
                 remote_post.append(post)
     
+    # get posts from team09
     # team 09 does not require auth at the time
     api_url2_1 = remote_nodes[1] + 'authors?page=1&size=100/'
     content_get2_1 = requests.get(api_url2_1)
-    # according to team09's api document, we first get are all the authors
     if content_get2_1.status_code == 200:
         for remote_author in content_get2_1.json()['items']:
-            # for each author, we extends the url for finding their post
-            # api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
             content_get2_2 = requests.get(remote_author['id']+'/posts/')
-            # now the elements in content_get2_2 are all the posts
             if content_get2_2.status_code == 200:
                 for post in content_get2_2.json():
                     if post['visibility'] == 'PUBLIC':
-                        # wrong url of id of team 09, fixed  
                         post['url'] = post['id']
                         post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
                         post['id'] = uuid.UUID(post['id'].split('/')[-1])
-                        #print(post)
                         remote_post.append(post)
     
-    # api_url3 = remote_nodes[2] + 'api/posts/'
-    # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
-    # if content_get3.status_code == 200:
-        # remote_post.extend(content_get3.json()['items'])
+    # get posts from team03
+    api_url3 = remote_nodes[2] + 'posts/'
+    content_get3 = requests.get(api_url3, auth=('socialdistribution_t03', 'c404t03'))
+    if content_get3.status_code == 200:
+        for post in content_get3.json()['items']:
+            if post['visibility'] == 'PUBLIC':
+                post['url'] = post['id'] + '/'
+                post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
+                post['id'] = uuid.UUID(post['id'].split('/')[-1])
+                remote_post.append(post)
 
     return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'remote_post':remote_post})
 
