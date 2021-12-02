@@ -41,6 +41,8 @@
             </ul>
         </header>
 
+        <p>{{ debug }}</p>
+
         <div style="margin: 2% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
             <div class="blog-card">
                 <div class="meta">
@@ -123,11 +125,15 @@
                         <button type="submit" name='share_post' value='Post'>Share
                         </button><br><br><br>
                     </form>
-                    <form action="{% url 'show_post' author_id post_to_show.id %}?remote_post_url={{ post_url }}" method=POST>
+                    <form action="" method=GET>
                         {% csrf_token %}
                         {{ form }}<br><br>
+                        <input type='hidden' name='remote_post_url' id='comment_query'>
                         <input type='submit' name='post_button' value='Post'>
                     </form>
+                    <script>
+                        document.getElementById('comment_query').value = '{{ post_url }}';
+                    </script>
                 {% endif %}
             {% endif %}
             <br><pre>Comments:</pre><br>

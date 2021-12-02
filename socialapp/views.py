@@ -5,6 +5,7 @@ views.py includes all the function of the pages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
+import json
 import uuid
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
@@ -380,6 +381,7 @@ def show_post(request, author_id, show_post_id):
     follow_status = follow_check(post_to_show, author_id)[0]
     friend_request_status = follow_check(post_to_show, author_id)[1]
     context['follow_status'] = follow_status
+    context['debug'] = post_url + "------"
 
     if request.method == 'POST':
         form = CommentForm(request.POST or None)
@@ -405,11 +407,7 @@ def show_post(request, author_id, show_post_id):
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
             else:
-                comment = form.data['comment']
-                if form.is_valid():
-            # #         # response = redirect(main_page, author_id)
-            # #         # return response
-                    pass
+                pass
         
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
@@ -448,6 +446,41 @@ def show_post(request, author_id, show_post_id):
                     friend_request.save()
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
+
+    
+    elif request.method == 'GET' and 'post_button' in request.GET:
+        form = CommentForm(request.POST or None)
+        context['form'] = form
+        if not REMOTE:
+            comment = form.data['comment']
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
+                c.save()
+        else:
+            # return redirect(main_page, author_id)
+            comment = request.GET['comment']
+            context['debug'] = "debug: " + comment + "----" + post_url
+            data = {
+            "type": "comment",
+            "id_comment": "89c452dd-ccdd-45e6-a4ff-98e769ef1b10",
+            "author": {
+                "id": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
+                "url": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
+                "host": "https://social-distribution-fall2021.herokuapp.com/api/",
+                "type": "author",
+                "github": "",
+                "displayName": "zepeng",
+                "profileImage": ""
+                },
+            "published": "2021-12-01T23:48:30.602821Z",
+            "comment": "hello, aaa",
+            "api_url": "http://httpscmput404fall21g11.herokuapp.com/api/author/210650b5-eb59-47af-8c69-cea25300e160/posts/c1072e5b041e4ef483e1d7985767479c/comments/89c452dd-ccdd-45e6-a4ff-98e769ef1b10"
+            }
+            data_json = json.dumps(data)
+            payload = {'json_payload': data_json}
+            # r = requests.post(post_url + "comments/", data=payload)
+
 
     else:
         form = CommentForm()
