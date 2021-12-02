@@ -57,7 +57,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['type', 'title', 'id', 'url', 'description', 'contentType', 'content', 'author', 'count', 'comment', 'published', 'visibility', 'unlisted']
+        fields = ['type', 'title', 'id', 'url', 'source', 'origin', 'description', 'contentType', 'content', 'author', 'count', 'comment', 'published', 'visibility', 'unlisted']
 
 
 class LikeSerializer(serializers.ModelSerializer):
