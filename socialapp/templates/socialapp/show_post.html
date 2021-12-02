@@ -29,19 +29,13 @@
     </head>
     <body>
         <header>
-            {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
-                <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
-            {% else %}
-                <a href="{% url 'show_post' author_id post_to_show.id %}?remote_post_url={{ post_url }}" class="logo">Post Details</a>
-            {% endif %}
+            <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
             <ul class="navigation">
                 <li><a href="{% url 'author_inbox' author_id %}">Inbox</a></li>
                 <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
                 <li><a href="{% url 'main_page' author_id %}">Main Page</a></li>
             </ul>
         </header>
-
-        <p>{{ debug }}</p>
 
         <div style="margin: 2% 5%; width: 900px; word-wrap: break-word; word-break: break-all; /*overflow: hidden;*/ font-size: 20px;">
             <div class="blog-card">
@@ -66,11 +60,8 @@
                         <h2>{{ post_to_show.published }}</h2>
                         <pre>Title: {{ post_to_show.title }}</pre>
                         <pre>Description: {{ post_to_show.description }}</pre>
-                        {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
                         <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
-                        {% else %}
                         <pre>{{ post_to_show.content }}</pre>
-                        {% endif %}
                     </div>
             </div>
             <pre>{{ post_to_show.like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
@@ -94,51 +85,27 @@
                 </a><br> -->
 
             {% else %}
-                {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
-                    <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
-                        {% csrf_token %}
-                        <button type="submit" name='like_button' value=like>
-                            {% if like_status %}
-                                Unlike
-                            {% else %}
-                                Like
-                            {% endif %}
-                        </button>
-                        <button type="submit" name='share_post' value='Post'>Share
-                        </button><br><br><br>
-                    </form>
-                    <form action="{% url 'show_post' author_id post_to_show.id %}" method=POST>
-                        {% csrf_token %}
-                        {{ form }}<br><br>
-                        <input type='submit' name='post_button' value='Post'>
-                    </form>
-                {% else %}
-                    <form action="{% url 'show_post' author_id post_to_show.id %}?remote_post_url={{ post_url }}" method=POST>
-                        {% csrf_token %}
-                        <button type="submit" name='like_button' value=like>
-                            {% if like_status %}
-                                Unlike
-                            {% else %}
-                                Like
-                            {% endif %}
-                        </button>
-                        <button type="submit" name='share_post' value='Post'>Share
-                        </button><br><br><br>
-                    </form>
-                    <form action="" method=GET>
-                        {% csrf_token %}
-                        {{ form }}<br><br>
-                        <input type='hidden' name='remote_post_url' id='comment_query'>
-                        <input type='submit' name='post_button' value='Post'>
-                    </form>
-                    <script>
-                        document.getElementById('comment_query').value = '{{ post_url }}';
-                    </script>
-                {% endif %}
+                <form method=POST>
+                    {% csrf_token %}
+                    <button type="submit" name='like_button' value=like>
+                        {% if like_status %}
+                            Unlike
+                        {% else %}
+                            Like
+                        {% endif %}
+                    </button>
+                    <button type="submit" name='share_post' value='Post'>Share
+                    </button><br><br><br>
+                </form>
+                <form method=POST>
+                    {% csrf_token %}
+                    {{ form }}<br><br>
+                    <input type='submit' name='post_button' value='Post'>
+                </form>
             {% endif %}
             <br><pre>Comments:</pre><br>
             <div style="font-size: 16px;">
-            <form action = "{% url 'show_post' author_id post_to_show.id %}" method = "POST">
+            <form method = "POST">
                 {% csrf_token %}
                 {% if post_to_show.visibility == 'FRIENDS' and post_to_show.author.id != author_id %}
                 {% else %}
@@ -156,29 +123,6 @@
             </form>
             </div>
         </div>
-        <script>
-            function fetchJSON(url) {
-                console.log(url);
-                fetch(url, {
-                    method: 'GET',
-                    credentials: "same-origin",
-                    headers: {
-                        'mode': 'no-cors',
-                        "Accept": "application/json",
-                        'Content-Type': 'application/json',
-                    }
-                    })
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log('Success:', data);
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                });
-            }
-            var url = '{{ post_url }}'; 
-            // console.log('url' + url);
-            fetchJSON(url);
-        </script>
+        
     </body>
 </html>

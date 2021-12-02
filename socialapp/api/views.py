@@ -209,7 +209,6 @@ def api_post_comments(request, author_id, post_id):
             data['success'] = 'Updated Successfully'
             return Response(data=data)
 
-
 @api_view(['GET', 'POST'])
 @authentication_classes([BasicAuthentication])
 @permission_classes([IsAuthenticated])

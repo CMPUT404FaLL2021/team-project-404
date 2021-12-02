@@ -338,12 +338,10 @@ def show_post(request, author_id, show_post_id):
     post_url = None
     try: 
         post_url = request.GET['remote_post_url']
-        #print(111)
-        # print(post_url)
-        #print(222)
         REMOTE = True
         get_post = requests.get(post_url, auth=('team13', '123456'))
-        #print(get_post.json())
+        if request.method == 'POST':
+            HttpResponse(post_url)
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
@@ -351,64 +349,73 @@ def show_post(request, author_id, show_post_id):
             return HttpResponseNotFound('404 Page Not Found (view.py show_post 1st) %s  -- %s\n%s' %(author_id, show_post_id, post_url))
     except:
         post_to_show = Post.objects.get(pk=show_post_id)
-    
 
-    if request.method == 'GET' and 'delete_button' in request.GET:
-        post_to_show.delete()
-        response = redirect(main_page, author_id)
-        return response
-
-    if REMOTE:
-        # comments_url = post_url + 'comments/'
-        # get_comments = requests.get(comments_url, auth=('team13', '123456'))
-        # if get_comments.status_code == 200:
-        #     post_comments = get_comments.json()["items"]
-        #     comment_count = len(post_comments)
-        # else:
-        #     post_comments = None
-        post_comments, comment_count = get_remote_comments(post_url)
-    else:
-        post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
-        comment_count = post_comments.count()
-    
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
-    if post_comments:
-        context['post_comments'] = post_comments
-        context['comment_count'] = comment_count
-
     like_status = if_like(post_to_show, author_id)
     context['like_status'] = like_status
 
     follow_status = follow_check(post_to_show, author_id)[0]
     friend_request_status = follow_check(post_to_show, author_id)[1]
     context['follow_status'] = follow_status
-    # context['debug'] = post_url + "------"
+
+    if request.method == 'GET':
+        if REMOTE:
+            post_comments, comment_count = get_remote_comments(post_url)
+        else:
+            post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
+            comment_count = post_comments.count()
+        
+        if post_comments:
+            context['post_comments'] = post_comments
+            context['comment_count'] = comment_count
+
+        if 'delete_button' in request.GET:
+            post_to_show.delete()
+            response = redirect(main_page, author_id)
+            return response
+
 
     if request.method == 'POST':
         form = CommentForm(request.POST or None)
         context['form'] = form
         if 'like_button' in request.POST:
-            if not REMOTE:
-                if like_status:
+            if like_status:
+                if REMOTE:
+                    data = {}
+                    data['type'] = 'like'
+                    data['author'] = Author.objects.get(id=author_id)
+                    data['object'] = post_to_show
+                    print(data)
+                else:
                     post_to_show.likes.remove(Author.objects.get(id=author_id))
                     l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
                     l.delete()
+            else:
+                if REMOTE:
+                    data = {}
+                    data['type'] = 'like'
+                    data['author'] = Author.objects.get(id=author_id)
+                    data['object'] = post_to_show
+                    print(data)
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
                     l.save()
-            else:
-                pass
 
         elif 'post_button' in request.POST:
-            if not REMOTE:
-                comment = form.data['comment']
-                if form.is_valid():
-                    comment = form.cleaned_data['comment']
+            comment = form.data['comment']
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+                if REMOTE:
+                    data = {}
+                    data['type'] = 'comment'
+                    data['author'] = Author.objects.get(id=author_id)
+                    data['commnet'] = comment
+                    data['contentType'] = 'text/plain'
+                    print(data)
+                else:
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
-            else:
-                pass
         
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
@@ -419,8 +426,6 @@ def show_post(request, author_id, show_post_id):
             if not REMOTE:
                 author = Author.objects.get(id=author_id)
                 content = post_to_show.content + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show.author.displayName))
-                # visibility = 
-                # unlisted = check_box.cleaned_data['check_box']
                 p = Post(title=post_to_show.title, description=post_to_show.description, content=content, author=Author.objects.get(id=author_id))
                 p.save()
                 response = redirect(main_page, author_id)
@@ -428,8 +433,6 @@ def show_post(request, author_id, show_post_id):
             else:
                 author = Author.objects.get(id=author_id)
                 content = post_to_show['content'] + ("\n(%s forwarded %s's post)" % (author.displayName, post_to_show['author']['displayName']))
-                # visibility = 
-                # unlisted = check_box.cleaned_data['check_box']
                 p = Post(title=post_to_show['title'], description=post_to_show['description'], content=content, author=Author.objects.get(id=author_id), origin=post_to_show['origin'])
                 p.save()
                 response = redirect(main_page, author_id)
@@ -446,42 +449,7 @@ def show_post(request, author_id, show_post_id):
                     friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
                     friend_request.save()
 
-        return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
-
-    
-    elif request.method == 'GET' and 'post_button' in request.GET:
-        form = CommentForm(request.POST or None)
-        context['form'] = form
-        if not REMOTE:
-            comment = form.data['comment']
-            if form.is_valid():
-                comment = form.cleaned_data['comment']
-                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
-                c.save()
-        else:
-            # return redirect(main_page, author_id)
-            comment = request.GET['comment']
-            context['debug'] = "debug: " + comment + "----" + post_url
-            data = {
-            "type": "comment",
-            "id_comment": "89c452dd-ccdd-45e6-a4ff-98e769ef1b10",
-            "author": {
-                "id": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
-                "url": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
-                "host": "https://social-distribution-fall2021.herokuapp.com/api/",
-                "type": "author",
-                "github": "",
-                "displayName": "zepeng",
-                "profileImage": ""
-                },
-            "published": "2021-12-01T23:48:30.602821Z",
-            "comment": "hello, aaa",
-            "api_url": "http://httpscmput404fall21g11.herokuapp.com/api/author/210650b5-eb59-47af-8c69-cea25300e160/posts/c1072e5b041e4ef483e1d7985767479c/comments/89c452dd-ccdd-45e6-a4ff-98e769ef1b10"
-            }
-            data_json = json.dumps(data)
-            payload = {'json_payload': data_json}
-            # r = requests.post(post_url + "comments/", data=payload)
-
+        return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]) + '?remote_post_url=' + post_url)
 
     else:
         form = CommentForm()
