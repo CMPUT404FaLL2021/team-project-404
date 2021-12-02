@@ -356,10 +356,11 @@ def api_author_inbox(request, author_id):
     if request.method == 'GET':
         posts = Post.objects.filter(inbox=inbox)
         friendrequests = FriendRequest.objects.filter(inbox=inbox)
+        likes = Like.objects.filter(inbox=inbox)
         data = {}
         data['type'] = 'inbox'
         data['items'] = []
-        
+
         if posts.count() != 0:
             posts_page = pagination(posts, request)
             serializer = PostSerializer(posts_page, many=True)
@@ -368,6 +369,11 @@ def api_author_inbox(request, author_id):
         if friendrequests.count() != 0:
             friend_request_page = pagination(friendrequests, request)
             serializer = FriendRequestSerialier(friend_request_page, many=True)
+            data['items'].extend(serializer.data)
+
+        if likes.count() != 0:
+            like_page = pagination(likes, request)
+            serializer = LikeSerializer(like_page, many=True)
             data['items'].extend(serializer.data)
         
         return Response(data=data)
