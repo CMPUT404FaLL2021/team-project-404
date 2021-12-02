@@ -19,7 +19,7 @@ from rest_framework.parsers import JSONParser
 from socialapp.api import serializers
 
 from socialapp.models import Author, Post, Comment, Like, Inbox, FriendRequest
-from socialapp.api.serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
+from socialapp.api.serializers import AuthorSerializer, FriendRequestSerialier, PostSerializer, CommentSerializer, LikeSerializer
 
 # reference: https://www.youtube.com/watch?v=wmYSKVWOOTM
 # pagination, default page = 1, size = 5
@@ -355,18 +355,22 @@ def api_author_inbox(request, author_id):
     # GET //service/author/{AUTHOR_ID}/inbox 
     if request.method == 'GET':
         posts = Post.objects.filter(inbox=inbox)
-        if posts.count() == 0:
-            data = {}
-            data['type'] = 'post'
-            data['item'] = ''
-            return Response(data=data)
-        posts_page = pagination(posts, request)
-        serializer = PostSerializer(posts_page, many=True)
+        friendrequests = FriendRequest.objects.filter(inbox=inbox)
         data = {}
         data['type'] = 'inbox'
-        data['author'] = author_id
-        data['items'] = serializer.data
-        return Response(data)
+        data['items'] = []
+        
+        if posts.count() != 0:
+            posts_page = pagination(posts, request)
+            serializer = PostSerializer(posts_page, many=True)
+            data['items'].extend(serializer.data)
+
+        if friendrequests.count() != 0:
+            friend_request_page = pagination(friendrequests, request)
+            serializer = FriendRequestSerialier(friend_request_page, many=True)
+            data['items'].extend(serializer.data)
+        
+        return Response(data=data)
 
     elif request.method == 'POST':
         data = request.data
