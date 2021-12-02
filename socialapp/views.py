@@ -381,7 +381,7 @@ def show_post(request, author_id, show_post_id):
     follow_status = follow_check(post_to_show, author_id)[0]
     friend_request_status = follow_check(post_to_show, author_id)[1]
     context['follow_status'] = follow_status
-    context['debug'] = post_url + "------"
+    # context['debug'] = post_url + "------"
 
     if request.method == 'POST':
         form = CommentForm(request.POST or None)

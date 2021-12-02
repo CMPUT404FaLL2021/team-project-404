@@ -126,7 +126,8 @@ def api_author_follower(request, author_id, follower_id):
             follower = Author.objects.get(id=follower_id)
         except:
             follower = Author.objects.create(id=follower_id)
-            author.github = 'cache_remote_user'
+            follower.github = 'cache_remote_user'
+            follower.save()
         
         author.followers.add(follower)
         data = {}
@@ -152,41 +153,10 @@ def api_author_follower(request, author_id, follower_id):
                 if follower in current_author.followers.all():
                     remove_remote_user = False
             if remove_remote_user:
-                Author.objects.delete(id=follower.id)
+                Author.objects.get(id=follower_id).delete()
 
         data = {}
         data['success'] = "Delete successfully"
-        return Response(data=data)
-
-
-@api_view(['POST'])
-def api_author_follows(request, author_id, follows_id):
-    # POST //service/author/{FOREIGN_AUTHOR_ID}/follows/{AUTHOR_ID}
-    if request.method == 'POST':
-        try:
-            author = Author.objects.get(id=author_id)
-        except:
-            author = Author.objects.create(id=author_id)
-            author.github = 'cache_remote_user'
-
-        try:
-            author_to_follow = Author.objects.get(id=follows_id)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        friend_request = FriendRequest.objects.create()
-        friend_request.actor = author
-        friend_request.object = author_to_follow
-        friend_request.inbox = Inbox.objects.get(author=author_to_follow)
-
-        data = {}
-        data['type'] = "Follow"
-        data['summary'] = author.displayName + " wants to follow " + author_to_follow.displayName
-        serializer1 = AuthorSerializer(author)
-        serializer2 = AuthorSerializer(author_to_follow)
-        data['actor'] = serializer1.data
-        data['object'] = serializer2.data
-
         return Response(data=data)
 
 
