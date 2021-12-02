@@ -5,6 +5,7 @@ views.py includes all the function of the pages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
+import json
 import uuid
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
@@ -12,7 +13,7 @@ from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
 
-remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/"]
+remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
 
 
 # view of index.html
@@ -31,6 +32,7 @@ def main_page(request, author_id):
     p_list = Post.objects.filter(visibility='PUBLIC').order_by('-published')
     remote_post = []
 
+    # get posts from team11
     api_url1 = remote_nodes[0] + 'api/posts/'
     content_get1 = requests.get(api_url1, auth=('team13', '123456'))
     if content_get1.status_code == 200:
@@ -38,33 +40,33 @@ def main_page(request, author_id):
             if post['visibility'] == 1:
                 post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-2])
                 post['id'] = uuid.UUID(post['id'])
-                #print(post)
                 remote_post.append(post)
     
+    # get posts from team09
     # team 09 does not require auth at the time
     api_url2_1 = remote_nodes[1] + 'authors?page=1&size=100/'
     content_get2_1 = requests.get(api_url2_1)
-    # according to team09's api document, we first get are all the authors
     if content_get2_1.status_code == 200:
         for remote_author in content_get2_1.json()['items']:
-            # for each author, we extends the url for finding their post
-            # api_url2_2 = remote_nodes[1] + 'author/%s/posts/' % (remote_author['id'].split('/')[-1])
             content_get2_2 = requests.get(remote_author['id']+'/posts/')
-            # now the elements in content_get2_2 are all the posts
             if content_get2_2.status_code == 200:
                 for post in content_get2_2.json():
                     if post['visibility'] == 'PUBLIC':
-                        # wrong url of id of team 09, fixed  
                         post['url'] = post['id']
                         post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
                         post['id'] = uuid.UUID(post['id'].split('/')[-1])
-                        #print(post)
                         remote_post.append(post)
     
-    # api_url3 = remote_nodes[2] + 'api/posts/'
-    # content_get3 = requests.get(api_url3, auth=('team13', '123456'))
-    # if content_get3.status_code == 200:
-        # remote_post.extend(content_get3.json()['items'])
+    # get posts from team03
+    api_url3 = remote_nodes[2] + 'posts/'
+    content_get3 = requests.get(api_url3, auth=('socialdistribution_t03', 'c404t03'))
+    if content_get3.status_code == 200:
+        for post in content_get3.json()['items']:
+            if post['visibility'] == 'PUBLIC':
+                post['url'] = post['id'] + '/'
+                post['author']['id'] = uuid.UUID(post['author']['id'].split('/')[-1])
+                post['id'] = uuid.UUID(post['id'].split('/')[-1])
+                remote_post.append(post)
 
     return render(request, "socialapp/main_page.html", {'author_id':author_id, 'p_list':p_list, 'remote_post':remote_post})
 
@@ -380,6 +382,7 @@ def show_post(request, author_id, show_post_id):
     follow_status = follow_check(post_to_show, author_id)[0]
     friend_request_status = follow_check(post_to_show, author_id)[1]
     context['follow_status'] = follow_status
+    # context['debug'] = post_url + "------"
 
     if request.method == 'POST':
         form = CommentForm(request.POST or None)
@@ -405,11 +408,7 @@ def show_post(request, author_id, show_post_id):
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
             else:
-                comment = form.data['comment']
-                if form.is_valid():
-            # #         # response = redirect(main_page, author_id)
-            # #         # return response
-                    pass
+                pass
         
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
@@ -448,6 +447,41 @@ def show_post(request, author_id, show_post_id):
                     friend_request.save()
 
         return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
+
+    
+    elif request.method == 'GET' and 'post_button' in request.GET:
+        form = CommentForm(request.POST or None)
+        context['form'] = form
+        if not REMOTE:
+            comment = form.data['comment']
+            if form.is_valid():
+                comment = form.cleaned_data['comment']
+                c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
+                c.save()
+        else:
+            # return redirect(main_page, author_id)
+            comment = request.GET['comment']
+            context['debug'] = "debug: " + comment + "----" + post_url
+            data = {
+            "type": "comment",
+            "id_comment": "89c452dd-ccdd-45e6-a4ff-98e769ef1b10",
+            "author": {
+                "id": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
+                "url": "https://social-distribution-fall2021.herokuapp.com/api/author/c1084885-d411-46e2-a9a1-73338545d541",
+                "host": "https://social-distribution-fall2021.herokuapp.com/api/",
+                "type": "author",
+                "github": "",
+                "displayName": "zepeng",
+                "profileImage": ""
+                },
+            "published": "2021-12-01T23:48:30.602821Z",
+            "comment": "hello, aaa",
+            "api_url": "http://httpscmput404fall21g11.herokuapp.com/api/author/210650b5-eb59-47af-8c69-cea25300e160/posts/c1072e5b041e4ef483e1d7985767479c/comments/89c452dd-ccdd-45e6-a4ff-98e769ef1b10"
+            }
+            data_json = json.dumps(data)
+            payload = {'json_payload': data_json}
+            # r = requests.post(post_url + "comments/", data=payload)
+
 
     else:
         form = CommentForm()
