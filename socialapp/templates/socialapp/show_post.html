@@ -156,6 +156,29 @@
             </form>
             </div>
         </div>
-        
+        <script>
+            function fetchJSON(url) {
+                console.log(url);
+                fetch(url, {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                        'mode': 'no-cors',
+                        "Accept": "application/json",
+                        'Content-Type': 'application/json',
+                    }
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log('Success:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                });
+            }
+            var url = '{{ post_url }}'; 
+            // console.log('url' + url);
+            fetchJSON(url);
+        </script>
     </body>
 </html>
