@@ -29,7 +29,11 @@
     </head>
     <body>
         <header>
-            <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
+            {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
+                 <a href="{% url 'show_post' author_id post_to_show.id %}" class="logo">Post Details</a>
+             {% else %}
+                 <a href="{% url 'show_post' author_id post_to_show.id %}?remote_post_url={{ post_url }}" class="logo">Post Details</a>
+             {% endif %}
             <ul class="navigation">
                 <li><a href="{% url 'author_inbox' author_id %}">Inbox</a></li>
                 <li><a href="{% url 'author_profile' author_id %}">User Profile</a></li>
@@ -60,8 +64,11 @@
                         <h2>{{ post_to_show.published }}</h2>
                         <pre>Title: {{ post_to_show.title }}</pre>
                         <pre>Description: {{ post_to_show.description }}</pre>
-                        <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
-                        <pre>{{ post_to_show.content }}</pre>
+                        {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
+                            <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
+                        {% else %}
+                            <pre>{{ post_to_show.content }}</pre>
+                        {% endif %}
                     </div>
             </div>
             <pre>{{ like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
