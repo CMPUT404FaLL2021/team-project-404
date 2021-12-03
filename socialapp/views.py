@@ -455,8 +455,11 @@ def show_post(request, author_id, show_post_id):
                 if not friend_request_status:
                     friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
                     friend_request.save()
+        if REMOTE:
+            return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]) + '?remote_post_url=' + post_url)
+        else:
+            return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
 
-        return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]) + '?remote_post_url=' + post_url)
 
     else:
         form = CommentForm()
