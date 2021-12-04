@@ -15,8 +15,9 @@ from django.urls import reverse
 from django.utils import timezone
 from socialapp.api.serializers import *
 
+#team connentions
 remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
-credentials = [('team13', '123456'), ('defaul', 'default'), ('socialdistribution_t03', 'c404t03')]
+credentials = [('team13', '123456'), ('team09', '404'), ('socialdistribution_t03', 'c404t03')]
 
 
 # view of index.html
@@ -303,14 +304,13 @@ def if_like(remote, post_to_show, author_id, post_url, server):
         return False, post_to_show.like_count
 
 # helper function for checking the follow status
-def follow_check(post_to_show, author_id, if_remote):
+def follow_check(post_to_show, author_id, if_remote, server):
     if_follow = False
     if_follows_me = False
 
     if not if_remote:
         post_author = post_to_show.author
         me = Author.objects.get(pk=author_id)
-
         if me in post_author.followers.all():
             if_follow = True
         if post_author in me.followers.all():
@@ -320,8 +320,23 @@ def follow_check(post_to_show, author_id, if_remote):
     else:
         remote_post_author = post_to_show['author']
         me = Author.objects.get(pk=author_id)
-        if remote_post_author in me.followers.all():
-            if_follows_me = True
+        # team11
+        if server == 0:
+            try:
+                remote_post_author = Author.objects.get(pk=uuid.UUID(remote_post_author['uuid']))
+                if remote_post_author in me.followers.all():
+                    if_follows_me = True
+            except:
+                if_follows_me = False
+            if_follow = requests.get(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
+        
+        # team09
+        elif server == 1:
+            pass
+
+        # team03
+        elif server == 2:
+            pass
     
     # # subject to change, just assumptions
     # if remote_post_author['host'] == "https://cmput404fall21g11.herokuapp.com/":
@@ -334,18 +349,24 @@ def follow_check(post_to_show, author_id, if_remote):
     return if_follow, if_follows_me
 
 
-def get_remote_comments(post_url):
+def get_remote_comments(post_url, server):
+    comments_url = None
+    comment_count = None
+    auth = credentials[server]
     comments_url = post_url + 'comments/'
-    get_comments = requests.get(comments_url, auth=credentials[0])
+    get_comments = requests.get(comments_url, auth=auth)
+
     if get_comments.status_code == 200:
         post_comments = get_comments.json()["items"]
         comment_count = len(post_comments)
     else:
+        print(get_comments)
         post_comments = None
         comment_count = 0
+
     return post_comments, comment_count
 
-def get_request_author(author_id):
+def get_request_author(author_id, server):
     request_author = {}
     if server == 0:
         author =Author.objects.get(id=author_id)
@@ -369,24 +390,22 @@ def get_request_author(author_id):
 def show_post(request, author_id, show_post_id):
     REMOTE = False
     post_url = None
+    server = -1
     try:
         post_url = request.GET['remote_post_url']
         REMOTE = True
-        credential = None
         
         # credentials might be different!!!!!!
         # 之后应该要加if判断是哪个remote node然后用相应的credential进行判断
         if "https://cmput404fall21g11.herokuapp.com/" in post_url:
-            credential = credentials[0]
+            server = 0
         elif "https://fast-chamber-90421.herokuapp.com/" in post_url:
-            credential = credentials[1]
+            server = 1
         # ???? 为啥这第三组http和https混着用😵‍💫
         elif "http://social-dis.herokuapp.com/" in post_url:
             server = 2
         
         get_post = requests.get(post_url, auth=credentials[server])
-        # return HttpResponse(get_post.text)
-        
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
@@ -400,12 +419,12 @@ def show_post(request, author_id, show_post_id):
     context['like_status'] = like_status
     context['like_count'] = like_count
 
-    follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE)
+    follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE, server)
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
         if REMOTE:
-            post_comments, comment_count = get_remote_comments(post_url)
+            post_comments, comment_count = get_remote_comments(post_url, server)
         else:
             post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
             comment_count = post_comments.count()
@@ -428,7 +447,7 @@ def show_post(request, author_id, show_post_id):
                 if REMOTE:
                     data = {}
                     data['type'] = 'like'
-                    data['author'] = get_request_author(author_id)
+                    data['author'] = get_request_author(author_id, server)
                     data['object'] = post_to_show['id']
                     request_url = post_url + 'likes'
                     print('test: '+data+'\nurl: '+request_url)
@@ -440,7 +459,7 @@ def show_post(request, author_id, show_post_id):
                 if REMOTE:
                     data = {
                         "type" :"like",
-                        "author" : get_request_author(author_id),
+                        "author" : get_request_author(author_id, server),
                         "object" : post_url
                     }
                     request_url = post_to_show["author"]["id"] + "inbox/"
@@ -455,13 +474,41 @@ def show_post(request, author_id, show_post_id):
             if form.is_valid():
                 comment = form.cleaned_data['comment']
                 if REMOTE:
-                    request_author = get_request_author(author_id)
-                    data = {}
-                    data['type'] = 'comment'
-                    data['author'] = request_author
-                    data['commnet'] = comment
-                    data['contentType'] = 'text/plain'
-                    print(data)
+                    if server == 0:
+                        request_author = get_request_author(author_id, server)
+                        data = {}
+                        data["type"] = "comment"
+                        data["author"] = json.loads(request_author)
+                        data["comment"] = comment
+                        data["contentType"] = "text/plain"
+                        print(data)
+                        # request_url_1 = post_to_show["author"]["id"] + "inbox/"
+                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        # print("---r_1--- : " + str(r.status_code) )
+                        # print("---url_1--- : " + request_url_1 )
+                        request_url_2 = post_url + "comments/"
+                        r = requests.post(request_url_2, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        print("---r_2--- : " + str(r.status_code) )
+                        print("---url_2--- : " + request_url_2 )
+                    elif server == 1:
+                        request_author = get_request_author(author_id, server)
+                        data = {}
+                        data["type"] = "comment"
+                        data["author"] = json.loads(request_author)
+                        data["comment"] = comment
+                        data["contentType"] = "text/plain"
+                        print(data)
+                        # request_url_1 = post_to_show["author"]["id"] + "inbox/"
+                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        # print("---r_1--- : " + str(r.status_code) )
+                        # print("---url_1--- : " + request_url_1 )
+                        request_url_2 = post_url + "/comments/"
+                        r = requests.post(request_url_2, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        print("---r_2--- : " + str(r.status_code) )
+                        print("---url_2--- : " + request_url_2 )
+                    elif server == 2:
+                        # --- TODO -- post comments to the third group
+                        pass
                 else:
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
