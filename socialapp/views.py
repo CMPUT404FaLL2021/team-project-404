@@ -17,7 +17,7 @@ from socialapp.api.serializers import *
 
 #team connentions
 remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
-credentials = [('team13', '123456'), ('team09', '404'), ('socialdistribution_t03', 'c404t03')]
+credentials = [('team13', '123456'), ('team09', 'cmput404'), ('socialdistribution_t03', 'c404t03')]
 
 
 # view of index.html
@@ -50,10 +50,10 @@ def main_page(request, author_id):
     # get posts from team09
     # team 09 does not require auth at the time
     api_url2_1 = remote_nodes[1] + 'authors?page=1&size=100/'
-    content_get2_1 = requests.get(api_url2_1)
+    content_get2_1 = requests.get(api_url2_1, auth=credentials[1])
     if content_get2_1.status_code == 200:
         for remote_author in content_get2_1.json()['items']:
-            content_get2_2 = requests.get(remote_author['id']+'/posts/')
+            content_get2_2 = requests.get(remote_author['id']+'/posts/', auth=credentials[1])
             if content_get2_2.status_code == 200:
                 for post in content_get2_2.json():
                     if post['visibility'] == 'PUBLIC':
@@ -325,23 +325,24 @@ def follow_check(post_to_show, author_id, if_remote, server):
                     if_follows_me = True
             except:
                 if_follows_me = False
-            if_follow = requests.get(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
+            if_follow_response = requests.get(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
         
         # team09
         elif server == 1:
-            pass
+            try:
+                remote_post_author = Author.objects.get(pk=uuid.UUID(remote_post_author['id'].split('/')[-1]))
+                if remote_post_author in me.followers.all():
+                    if_follows_me = True
+            except:
+                if_follows_me = False
+            if_follow_response = requests.get(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
+            if if_follow_response.status_code == 200:
+                if if_follow_response.json()['isFollowing'] == True:
+                    if_follow = True
 
         # team03
         elif server == 2:
             pass
-    
-    # # subject to change, just assumptions
-    # if remote_post_author['host'] == "https://cmput404fall21g11.herokuapp.com/":
-    #     if_follow = requests.get(remote_nodes[0]+"api/author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[0])
-    # elif remote_post_author['host'] == "https://fast-chamber-90421.herokuapp.com/":
-    #     if_follow = requests.get(remote_nodes[1]+"author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[1])
-    # elif remote_post_author['host'] == "https://social-dis.herokuapp.com/":
-    #     if_follow = requests.get(remote_nodes[1]+"author/"+remote_post_author.id+"/followers/"+me.id, auth=credentials[2])
     
     return if_follow, if_follows_me
 
@@ -357,7 +358,6 @@ def get_remote_comments(post_url, server):
         post_comments = get_comments.json()["items"]
         comment_count = len(post_comments)
     else:
-        print(get_comments)
         post_comments = None
         comment_count = 0
 
@@ -402,7 +402,7 @@ def show_post(request, author_id, show_post_id):
         # ???? 为啥这第三组http和https混着用😵‍💫
         elif "http://social-dis.herokuapp.com/" in post_url:
             server = 2
-        
+                
         get_post = requests.get(post_url, auth=credentials[server])
         if get_post.status_code == 200:
             post_to_show = get_post.json()
@@ -411,7 +411,7 @@ def show_post(request, author_id, show_post_id):
             return HttpResponseNotFound('404 Page Not Found (view.py show_post 1st) %s  -- %s\n%s' %(author_id, show_post_id, post_url))
     except:
         post_to_show = Post.objects.get(pk=show_post_id)
-
+    
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
     like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url)
     context['like_status'] = like_status
@@ -440,6 +440,8 @@ def show_post(request, author_id, show_post_id):
     if request.method == 'POST':
         form = CommentForm(request.POST or None)
         context['form'] = form
+
+        # like a post
         if 'like_button' in request.POST:
             if like_status:
                 if REMOTE:
@@ -448,7 +450,6 @@ def show_post(request, author_id, show_post_id):
                     data['author'] = get_request_author(author_id, server)
                     data['object'] = post_to_show['id']
                     request_url = post_url + 'likes'
-                    print('test: '+data+'\nurl: '+request_url)
                 else:
                     post_to_show.likes.remove(Author.objects.get(id=author_id))
                     l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
@@ -462,14 +463,12 @@ def show_post(request, author_id, show_post_id):
                     }
                     request_url = post_to_show["author"]["id"] + "inbox/"
                     r = requests.post(request_url, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
-                    # print(data)
-                    # print(json.dumps(data))
-                    print(r)
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
                     l.save()
 
+        # post a comment
         elif 'post_button' in request.POST:
             comment = form.data['comment']
             if form.is_valid():
@@ -514,11 +513,13 @@ def show_post(request, author_id, show_post_id):
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
         
+        # delete a comment
         elif 'delete_comment' in request.POST:
             comment_id = request.POST['delete_comment']
             del_comment = Comment.objects.get(id=comment_id)
             del_comment.delete()
 
+        # share a post
         elif 'share_post' in request.POST:
             if not REMOTE:
                 author = Author.objects.get(id=author_id)
@@ -535,20 +536,44 @@ def show_post(request, author_id, show_post_id):
                 response = redirect(main_page, author_id)
                 return response
 
+        # follow another author
         elif 'follow_button' in request.POST:
             me = Author.objects.get(pk=author_id)
-            post_author = post_to_show.author
-            if follow_status:
-                post_author.followers.remove(me)
+        
+            if REMOTE:
+                remote_post_author = post_to_show['author']
+                # team 11
+                if server == 0:
+                    pass
+                # team 09
+                elif server == 1:
+                    if follow_status:
+                        follower_delete = requests.delete(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
+                    else:
+                        print(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id))
+                        follower_put = requests.put(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
+                        # print("follower_put",follower_put, follower_put.status_code)
+                        friend_request_post = requests.post(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/friend_request/"+str(me.id), data=json.dumps({}), auth=credentials[server])
+                        # print("friend_request_post",friend_request_post, friend_request_post.status_code)
+                # team 03
+                elif server == 2:
+                    pass
+            
             else:
-                post_author.followers.add(me)
-                if not friend_request_status:
-                    friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
-                    friend_request.save()
+                post_author = post_to_show.author
+                if follow_status:
+                    post_author.followers.remove(me)
+                else:
+                    post_author.followers.add(me)
+                    if not friend_request_status:
+                        friend_request = FriendRequest(actor=me, object=post_author, inbox=Inbox.objects.get(author=post_author))
+                        friend_request.save()
+        
         if REMOTE:
             return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]) + '?remote_post_url=' + post_url)
         else:
             return HttpResponseRedirect(reverse('show_post', args=[author_id, show_post_id]))
+
 
 
     else:
