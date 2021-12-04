@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from socialapp.api.serializers import *
 
+#team connentions
 remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
 credentials = [('team13', '123456'), ('team09', '404'), ('socialdistribution_t03', 'c404t03')]
 
