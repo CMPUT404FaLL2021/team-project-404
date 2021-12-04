@@ -64,6 +64,9 @@ def main_page(request, author_id):
     # get posts from team03
     api_url3 = remote_nodes[2] + 'posts/'
     content_get3 = requests.get(api_url3, auth=credentials[2])
+    print(content_get3)
+    print(api_url3)
+    print(content_get3.json())
     if content_get3.status_code == 200:
         for post in content_get3.json()['items']:
             if post['visibility'] == 'PUBLIC':
@@ -280,11 +283,11 @@ def select_viewers(request, author_id, post_id):
 
 
 # helper function for checking if I like the post
-def if_like(remote, post_to_show, author_id, post_url):
+def if_like(remote, post_to_show, author_id, post_url, server):
     if remote:
         like_url = post_url + 'likes'
         try:
-            likes = requests.get(like_url, auth=('team13', '123456')).json()
+            likes = requests.get(like_url, auth=credentials[server]).json()
         except:
             return False, 0
         for like in likes['items']:
@@ -344,13 +347,23 @@ def get_remote_comments(post_url):
 
 def get_request_author(author_id):
     request_author = {}
-    author =Author.objects.get(id=author_id)
-    request_author['uuid'] = str(author.id)
-    request_author['id'] = author.url
-    request_author['url'] = author.url
-    request_author['displayName'] = author.displayName
-    request_author['host'] = author.host
-    return json.dumps(request_author)
+    if server == 0:
+        author =Author.objects.get(id=author_id)
+        request_author['uuid'] = str(author.id)
+        request_author['id'] = author.url
+        request_author['url'] = author.url
+        request_author['displayName'] = author.displayName
+        request_author['host'] = author.host
+    elif server == 1:
+        author =Author.objects.get(id=author_id)
+        request_author['type'] = 'author'
+        request_author['id'] = author.url
+        request_author['url'] = author.url
+        request_author['displayName'] = author.displayName
+    elif server == 2:
+        pass
+
+    return request_author
 
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
@@ -369,9 +382,11 @@ def show_post(request, author_id, show_post_id):
             credential = credentials[1]
         # ???? 为啥这第三组http和https混着用😵‍💫
         elif "http://social-dis.herokuapp.com/" in post_url:
-            credential = credentials[2]
-
-        get_post = requests.get(post_url, auth=credential)
+            server = 2
+        
+        get_post = requests.get(post_url, auth=credentials[server])
+        # return HttpResponse(get_post.text)
+        
         if get_post.status_code == 200:
             post_to_show = get_post.json()
             post_to_show['id'] = show_post_id
@@ -381,7 +396,7 @@ def show_post(request, author_id, show_post_id):
         post_to_show = Post.objects.get(pk=show_post_id)
 
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
-    like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url)
+    like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url, server)
     context['like_status'] = like_status
     context['like_count'] = like_count
 
@@ -429,9 +444,7 @@ def show_post(request, author_id, show_post_id):
                         "object" : post_url
                     }
                     request_url = post_to_show["author"]["id"] + "inbox/"
-                    r = requests.post(request_url, data=data, auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
-                    print(data)
-                    print(json.dumps(data))
+                    r = requests.post(request_url, json=data, auth=credentials[server], headers={"Content-Type":"application/json"})
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
@@ -495,6 +508,7 @@ def show_post(request, author_id, show_post_id):
 
     context['form'] = form
     context['if_remote'] = 0
+    context['auth'] = credentials[server]
     return render(request, 'socialapp/show_post.html', context)
 
 

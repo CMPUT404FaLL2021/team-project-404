@@ -129,7 +129,59 @@
                 {% endif %}
             </form>
             </div>
+            <div style="font-size: 16px;" id="comment">
+                <!-- <form method = "POST" id="comment">
+                    {% csrf_token %}
+                </form> -->
+            </div>
         </div>
-        
+        <script>
+            function createNode(element) {
+                return document.createElement(element);
+            }
+
+            function addComment(data) {
+                let div = document.getElementById('comment')
+                for (let c of data) {
+                    console.log(c.author.displayName);
+                    let author_name = createNode('pre');
+                    author_name.innerHTML = '@ ' + c.author.displayName;
+                    let comment = createNode('pre');
+                    comment.innerHTML = '   ' + c.comment;
+                    let published = createNode('pre');
+                    published.innerHTML = '   ' + c.published;
+                    let boarder = createNode('pre')
+                    boarder.innerHTML = '-------------------';
+                    div.append(author_name);
+                    div.append(comment);
+                    div.append(published);
+                    div.append(boarder);
+                }
+            }
+
+            function fetchJSON(url) {
+                console.log(url);
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa('team13:404'),
+                    }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // console.log('Success:', data);
+                        addComment(data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                });
+            }
+
+            var url = 'https://cmput404-team13-socialapp.herokuapp.com/api/author/b5359bf3-3001-486a-b873-975a12d9a2da/posts/42dabbb8-e1af-47a1-a81b-89f64367d65a/comments'; 
+            console.log('url: ' + url);
+            fetchJSON(url);
+            
+        </script>
     </body>
 </html>
