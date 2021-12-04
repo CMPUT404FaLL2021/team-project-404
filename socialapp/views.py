@@ -16,7 +16,7 @@ from django.utils import timezone
 from socialapp.api.serializers import *
 
 remote_nodes = ["https://cmput404fall21g11.herokuapp.com/", "https://fast-chamber-90421.herokuapp.com/", "https://social-dis.herokuapp.com/"]
-credentials = [('team13', '123456'), ('defaul', 'default'), ('socialdistribution_t03', 'c404t03')]
+credentials = [('team13', '123456'), ('team09', '404'), ('socialdistribution_t03', 'c404t03')]
 
 
 # view of index.html
@@ -348,19 +348,18 @@ def follow_check(post_to_show, author_id, if_remote, server):
 def get_remote_comments(post_url, server):
     comments_url = None
     comment_count = None
-    if server == 0:
-        comments_url = post_url + 'comments/'
-        get_comments = requests.get(comments_url, auth=credentials[0])
-        if get_comments.status_code == 200:
-            post_comments = get_comments.json()["items"]
-            comment_count = len(post_comments)
-        else:
-            post_comments = None
-            comment_count = 0
-    elif server == 1:
-        pass
-    elif server == 2:
-        pass
+    auth = credentials[server]
+    comments_url = post_url + 'comments/'
+    get_comments = requests.get(comments_url, auth=auth)
+
+    if get_comments.status_code == 200:
+        post_comments = get_comments.json()["items"]
+        comment_count = len(post_comments)
+    else:
+        print(get_comments)
+        post_comments = None
+        comment_count = 0
+
     return post_comments, comment_count
 
 def get_request_author(author_id, server):
@@ -456,9 +455,10 @@ def show_post(request, author_id, show_post_id):
                         "object" : post_url
                     }
                     request_url = post_to_show["author"]["id"] + "inbox/"
-                    r = requests.post(request_url, data=data, auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
-                    print(data)
-                    print(json.dumps(data))
+                    r = requests.post(request_url, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                    # print(data)
+                    # print(json.dumps(data))
+                    print(r)
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
