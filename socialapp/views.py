@@ -366,13 +366,18 @@ def get_request_author(author_id, server):
     request_author = {}
     if server == 0:
         author =Author.objects.get(id=author_id)
-        request_author['uuid'] = str(author.id)
-        request_author['id'] = author.url
-        request_author['url'] = author.url
-        request_author['displayName'] = author.displayName
-        request_author['host'] = author.host
+        request_author["uuid"] = str(author.id)
+        request_author["id"] = author.url
+        request_author["url"] = author.url
+        request_author["displayName"] = author.displayName
+        request_author["host"] = author.host
     elif server == 1:
-        pass
+        author =Author.objects.get(id=author_id)
+        request_author["uuid"] = str(author.id)
+        request_author["id"] = author.url
+        request_author["url"] = author.url
+        request_author["displayName"] = author.displayName
+        request_author["host"] = author.host
     elif server == 2:
         pass
 
@@ -469,13 +474,41 @@ def show_post(request, author_id, show_post_id):
             if form.is_valid():
                 comment = form.cleaned_data['comment']
                 if REMOTE:
-                    request_author = get_request_author(author_id, server)
-                    data = {}
-                    data['type'] = 'comment'
-                    data['author'] = request_author
-                    data['commnet'] = comment
-                    data['contentType'] = 'text/plain'
-                    print(data)
+                    if server == 0:
+                        request_author = get_request_author(author_id, server)
+                        data = {}
+                        data["type"] = "comment"
+                        data["author"] = json.loads(request_author)
+                        data["comment"] = comment
+                        data["contentType"] = "text/plain"
+                        print(data)
+                        # request_url_1 = post_to_show["author"]["id"] + "inbox/"
+                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        # print("---r_1--- : " + str(r.status_code) )
+                        # print("---url_1--- : " + request_url_1 )
+                        request_url_2 = post_url + "comments/"
+                        r = requests.post(request_url_2, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        print("---r_2--- : " + str(r.status_code) )
+                        print("---url_2--- : " + request_url_2 )
+                    elif server == 1:
+                        request_author = get_request_author(author_id, server)
+                        data = {}
+                        data["type"] = "comment"
+                        data["author"] = json.loads(request_author)
+                        data["comment"] = comment
+                        data["contentType"] = "text/plain"
+                        print(data)
+                        # request_url_1 = post_to_show["author"]["id"] + "inbox/"
+                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        # print("---r_1--- : " + str(r.status_code) )
+                        # print("---url_1--- : " + request_url_1 )
+                        request_url_2 = post_url + "/comments/"
+                        r = requests.post(request_url_2, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        print("---r_2--- : " + str(r.status_code) )
+                        print("---url_2--- : " + request_url_2 )
+                    elif server == 2:
+                        # --- TODO -- post comments to the third group
+                        pass
                 else:
                     c = Comment(comment=comment, post=post_to_show, author=Author.objects.get(id=author_id), inbox=Inbox.objects.get(author=post_to_show.author))
                     c.save()
