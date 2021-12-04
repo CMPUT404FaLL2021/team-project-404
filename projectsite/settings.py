@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',                      
     'mdeditor',       # markdown
     'drf_yasg2', 
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -69,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -162,5 +165,7 @@ STATICFILES_DIRS = (
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 django_heroku.settings(locals())
