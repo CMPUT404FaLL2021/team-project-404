@@ -289,7 +289,7 @@ def select_viewers(request, author_id, post_id):
 # helper function for checking if I like the post
 def if_like(remote, post_to_show, author_id, post_url, server):
     if remote:
-        author_url = Author.objects.get(id=author_id)
+        author_url = Author.objects.get(id=author_id).url
         like_url = post_url + 'likes'
         try:
             likes = requests.get(like_url, auth=credentials[server]).json()
@@ -379,21 +379,29 @@ def get_remote_comments(post_url, server):
 
 def get_request_author(author_id, server):
     request_author = {}
+    author =Author.objects.get(id=author_id)
     if server == 0:
-        author =Author.objects.get(id=author_id)
         request_author['uuid'] = str(author.id)
         request_author['id'] = author.url
         request_author['url'] = author.url
         request_author['displayName'] = author.displayName
         request_author['host'] = author.host
     elif server == 1:
-        author =Author.objects.get(id=author_id)
         request_author['type'] = 'author'
         request_author['id'] = author.url
         request_author['url'] = author.url
         request_author['displayName'] = author.displayName
     elif server == 2:
-        pass
+        request_author = {
+            "type": "author",
+            "id": author.url,
+            "host": author.host,
+            "displayName": author.displayName,
+            "url": author.url,
+            "github": author.github,
+            "profileImage": ""
+        }
+        return request_author
 
     return request_author
 
@@ -436,6 +444,8 @@ def show_post(request, author_id, show_post_id):
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
+        # handling team09 & team 11 comments with fetch in show_post.html
+        # only handling local & team 03 comments(CORS errors) here
         if server == 2 or not REMOTE:
             if not REMOTE:
                 post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
@@ -472,12 +482,20 @@ def show_post(request, author_id, show_post_id):
                     l.delete()
             else:
                 if REMOTE:
+                    request_url = post_to_show["author"]["id"]
+                    if request_url[-1] != '/':
+                        request_url += '/'
                     data = {
                         "type" : like_type,
                         "author" : get_request_author(author_id, server),
                         "object" : post_url
                     }
-                    request_url = post_to_show["author"]["id"] + "inbox/"
+
+                    if server == 2:
+                        request_url = post_url + "likes/"
+                    else:
+                        request_url += "inbox/"
+
                     r = requests.post(request_url, json=data, auth=credentials[server], headers={"Content-Type":"application/json"})
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
