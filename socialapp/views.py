@@ -354,7 +354,15 @@ def follow_check(post_to_show, author_id, if_remote, server):
 
         # team03
         elif server == 2:
-            pass
+            try:
+                remote_post_author = Author.objects.get(pk=uuid.UUID(remote_post_author['id'].split('/')[-1]))
+                if remote_post_author in me.followers.all():
+                    if_follows_me = True
+            except:
+                if_follows_me = False
+            if_follow_response = requests.get(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
+            if if_follow_response.status_code == 200 and if_follow_response.json()['detail'] == True:
+                    if_follow = True
     
     return if_follow, if_follows_me
 
@@ -431,6 +439,8 @@ def show_post(request, author_id, show_post_id):
     context['like_count'] = like_count
 
     follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE, server)
+    print("follow他了吗？", follow_status)
+    print("他follow我了吗？", friend_request_status)
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
@@ -562,7 +572,25 @@ def show_post(request, author_id, show_post_id):
                         follower_delete = requests.delete(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
                     else:
                         follower_put = requests.put(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
-                        friend_request_post = requests.post(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
+                        print("follower_put",follower_put, follower_put.status_code, follower_put.json())
+                        data = {
+                            "type": "Follow",
+                            "summary": me.displayName + "wants to follow" + remote_post_author['displayName'],
+                            "actor": {
+                                "type": "author",
+                                "id": "https://cmput404-team13-socialapp.herokuapp.com/api/" + str(me.id) +"/",
+                                "uuid": str(me.id),
+                                "displayName": me.displayName,
+                                "profileImage": "",
+                                "email": me.displayName + "@gmail.com",
+                                "github": me.github,
+                                "host": "cmput404-team13-socialapp.herokuapp.com",
+                                "url": "https://cmput404-team13-socialapp.herokuapp.com/api/" + str(me.id) +"/"
+                            },
+                            "object": remote_post_author
+                        }
+                        friend_request_post = requests.post(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/inbox/", json=data, auth=credentials[server])
+                        print("friend_request_post",friend_request_post, friend_request_post.status_code, friend_request_post.json())
                 # team 09
                 elif server == 1:
                     if follow_status:
@@ -574,7 +602,31 @@ def show_post(request, author_id, show_post_id):
                         # print("friend_request_post",friend_request_post, friend_request_post.status_code)
                 # team 03
                 elif server == 2:
-                    pass
+                    if follow_status:
+                        follower_delete = requests.delete(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
+                    else:
+                        data1 = {
+                            "author": remote_post_author['id'].split('/')[-1],
+                            "follower": str(me.id)
+                        }
+                        follower_put = requests.put(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), json=data1, auth=credentials[server])
+                        print("follower_put",follower_put, follower_put.status_code, follower_put.json())
+                        data2 = {
+                            "type": "Follow",
+                            "summary": me.displayName + "wants to follow" + remote_post_author['displayName'],
+                            "actor": {
+                                "type": "author",
+                                "id": "https://cmput404-team13-socialapp.herokuapp.com/api/author/"+str(me.id)+"/",
+                                "host": me.host,
+                                "displayName": me.displayName,
+                                "url": "https://cmput404-team13-socialapp.herokuapp.com/api/author/"+str(me.id)+"/",
+                                "github": me.github,
+                                "profileImage": ""
+                            },
+                            "object": remote_post_author
+                        }
+                        friend_request_post = requests.post(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/inbox", json=data2, auth=credentials[server])
+                        print("friend_request_post",friend_request_post, friend_request_post.status_code)
             
             else:
                 post_author = post_to_show.author
