@@ -44,6 +44,11 @@
         </div>
 
         <div style="width: 30%">
+            {% if author.avatar %}
+                <img src="{{ author.avatar.url }}" style="max-width: 30%; border-radius: 15%;">
+            {% else %}
+                <img src="/static/mdeditor/avatar/default.PNG" style="max-width: 30%; border-radius: 15%;">
+            {% endif %}
             <strong style="font-size: 30pt"> {{author.displayName}} </strong><br><br>
             <div class="blog-card">
                 <div class="meta">
