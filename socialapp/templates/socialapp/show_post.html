@@ -111,25 +111,106 @@
                 </form>
             {% endif %}
             <br><pre>Comments:</pre><br>
-            <div style="font-size: 16px;">
-            <form method = "POST">
-                {% csrf_token %}
-                {% if post_to_show.visibility == 'FRIENDS' and post_to_show.author.id != author_id %}
-                {% else %}
-                    <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
-                    {% for c in post_comments %}
-                        <pre> @{{ c.author.displayName }}: </pre><br>
-                        <pre>   {{ c.comment }}</pre><br>
-                        <pre>   {{ c.published }}</pre><br>
-                        {% if c.author.id == author_id %}
-                            <button type="hidden" name='delete_comment' value="{{ c.id }}">Delete</button>
-                        {% endif %}
-                        <pre>-------------------</pre>
-                {% endfor %}
-                {% endif %}
-            </form>
-            </div>
+            {% if auth == 0 or auth == 1 %}
+                <div style="font-size: 16px;" id="remote_comment">
+                </div>
+            {% else %}
+                <div style="font-size: 16px;">
+                <form method = "POST">
+                    {% csrf_token %}
+                    {% if post_to_show.visibility == 'FRIENDS' and post_to_show.author.id != author_id %}
+                    {% else %}
+                        <pre>{{ comment_count }} comment{{ comment_count|pluralize }}</pre><br><br>
+                        {% for c in post_comments %}
+                            <pre> @{{ c.author.displayName }}: </pre><br>
+                            <pre>   {{ c.comment }}</pre><br>
+                            <pre>   {{ c.published }}</pre><br>
+                            {% if c.author.id == author_id %}
+                                <button type="hidden" name='delete_comment' value="{{ c.id }}">Delete</button>
+                            {% endif %}
+                            <pre>-------------------</pre>
+                    {% endfor %}
+                    {% endif %}
+                </form>
+                </div>
+            {% endif %}
         </div>
-        
+        <script>
+            function createNode(element) {
+                return document.createElement(element);
+            }
+
+            function addBr() {
+                let br = createNode('br');
+                br.innerHTML = '<br>';
+                return br;
+            }
+
+            function addRemoteComment(data) {
+                let div = document.querySelector("#remote_comment")
+                let comment_count = createNode('pre');
+                comment_count.innerHTML = Object.keys(data).length + ' comment'
+                if (Object.keys(data).length != 1) {
+                    comment_count.innerHTML += 's';
+                }
+                div.append(comment_count);
+
+                for (let c of data) {
+                    console.log(c.author.displayName);
+                    let author_name = createNode('pre');
+                    author_name.innerHTML = '@ ' + c.author.displayName;
+                    let comment = createNode('pre');
+                    comment.innerHTML = '   ' + c.comment;
+                    let published = createNode('pre');
+                    published.innerHTML = '   ' + c.published;
+                    let boarder = createNode('pre')
+                    boarder.innerHTML = '-------------------';
+                    div.append(addBr());
+                    div.append(author_name);
+                    div.append(addBr());
+                    div.append(comment);
+                    div.append(addBr());
+                    div.append(published);
+                    div.append(addBr());
+                    div.append(boarder);
+                }
+            }
+
+            function fetchJSON(url, addElements) {
+                console.log(url);
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa(username + ':' + password),
+                    }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        if (a == 0){
+                            var comments = data.items;
+                            console.log('comments: ' + comments)
+                        } else {
+                            var comments = data.comments;
+                            console.log('comments0: ' + comments)
+                        }
+                        addElements(comments);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                });
+            }
+
+            var url = '{{ post_url }}' + 'comments/'; 
+            var cre = {'team13':'123456', 'team09': '404', 'socialdistribution_t03':'c404t03'};
+            console.log('url: ' + url);
+            let a = '{{ auth }}';
+            console.log('a: ' + a);
+            var username = Object.keys(cre)[a];
+            var password = cre[username];
+            fetchJSON(url, addRemoteComment);
+            
+        </script>
     </body>
 </html>

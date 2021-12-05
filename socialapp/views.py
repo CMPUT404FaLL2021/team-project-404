@@ -65,6 +65,9 @@ def main_page(request, author_id):
     # get posts from team03
     api_url3 = remote_nodes[2] + 'posts/'
     content_get3 = requests.get(api_url3, auth=credentials[2])
+    print(content_get3)
+    print(api_url3)
+    print(content_get3.json())
     if content_get3.status_code == 200:
         for post in content_get3.json()['items']:
             if post['visibility'] == 'PUBLIC':
@@ -284,20 +287,25 @@ def select_viewers(request, author_id, post_id):
 
 
 # helper function for checking if I like the post
-def if_like(remote, post_to_show, author_id, post_url):
+def if_like(remote, post_to_show, author_id, post_url, server):
     if remote:
+        author_url = Author.objects.get(id=author_id)
         like_url = post_url + 'likes'
         try:
-            likes = requests.get(like_url, auth=('team13', '123456')).json()
+            likes = requests.get(like_url, auth=credentials[server]).json()
+            if server == 0:
+                likes = likes['items']
         except:
             return False, 0
-        for like in likes['items']:
+        for like in likes:
+            if isinstance(like, str):
+                like = json.loads(like)
             author = like['author']
             if isinstance(author, str):
                 author = json.loads(like['author'])
-            if str(author['id']) == str(author_id) or str(author['uuid']) == str(author_id):
-                return True, len(likes['items'])
-        return False, len(likes['items'])
+            if str(author['id']) == str(author_url):
+                return True, len(likes)
+        return False, len(likes)
     else:
         if post_to_show.likes.filter(id=author_id).exists():
             return True, post_to_show.like_count
@@ -359,7 +367,10 @@ def get_remote_comments(post_url, server):
     get_comments = requests.get(comments_url, auth=auth)
 
     if get_comments.status_code == 200:
-        post_comments = get_comments.json()["items"]
+        if server == 2:
+            post_comments = get_comments.json()["comments"]
+        else:
+            post_comments = get_comments.json()["items"]
         comment_count = len(post_comments)
     else:
         post_comments = None
@@ -371,22 +382,21 @@ def get_request_author(author_id, server):
     request_author = {}
     if server == 0:
         author =Author.objects.get(id=author_id)
-        request_author["uuid"] = str(author.id)
-        request_author["id"] = author.url
-        request_author["url"] = author.url
-        request_author["displayName"] = author.displayName
-        request_author["host"] = author.host
+        request_author['uuid'] = str(author.id)
+        request_author['id'] = author.url
+        request_author['url'] = author.url
+        request_author['displayName'] = author.displayName
+        request_author['host'] = author.host
     elif server == 1:
         author =Author.objects.get(id=author_id)
-        request_author["uuid"] = str(author.id)
-        request_author["id"] = author.url
-        request_author["url"] = author.url
-        request_author["displayName"] = author.displayName
-        request_author["host"] = author.host
+        request_author['type'] = 'author'
+        request_author['id'] = author.url
+        request_author['url'] = author.url
+        request_author['displayName'] = author.displayName
     elif server == 2:
         pass
 
-    return json.dumps(request_author)
+    return request_author
 
 # view of show_post.html
 def show_post(request, author_id, show_post_id):
@@ -395,6 +405,8 @@ def show_post(request, author_id, show_post_id):
     server = -1
     try:
         post_url = request.GET['remote_post_url']
+        if post_url[-1] != '/':
+            post_url += '/'
         REMOTE = True
         
         if "cmput404fall21g11.herokuapp.com" in post_url:
@@ -414,7 +426,7 @@ def show_post(request, author_id, show_post_id):
         post_to_show = Post.objects.get(pk=show_post_id)
     
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
-    like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url)
+    like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url, server)
     context['like_status'] = like_status
     context['like_count'] = like_count
 
@@ -422,15 +434,16 @@ def show_post(request, author_id, show_post_id):
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
-        if REMOTE:
-            post_comments, comment_count = get_remote_comments(post_url, server)
-        else:
-            post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
-            comment_count = post_comments.count()
+        if server == 2 or not REMOTE:
+            if not REMOTE:
+                post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
+                comment_count = post_comments.count()
+            else:
+                post_comments, comment_count = get_remote_comments(post_url, server)
         
-        if post_comments:
-            context['post_comments'] = post_comments
-            context['comment_count'] = comment_count
+            if post_comments:
+                context['post_comments'] = post_comments
+                context['comment_count'] = comment_count
 
         if 'delete_button' in request.GET:
             post_to_show.delete()
@@ -444,13 +457,13 @@ def show_post(request, author_id, show_post_id):
 
         # like a post
         if 'like_button' in request.POST:
+            if server == 2:
+                like_type = 'Like'
+            else:
+                like_type = 'like'
             if like_status:
                 if REMOTE:
-                    data = {}
-                    data['type'] = 'like'
-                    data['author'] = get_request_author(author_id, server)
-                    data['object'] = post_to_show['id']
-                    request_url = post_url + 'likes'
+                    pass
                 else:
                     post_to_show.likes.remove(Author.objects.get(id=author_id))
                     l = Like.objects.get(author=Author.objects.get(id=author_id), object=post_to_show)
@@ -458,12 +471,12 @@ def show_post(request, author_id, show_post_id):
             else:
                 if REMOTE:
                     data = {
-                        "type" :"like",
+                        "type" : like_type,
                         "author" : get_request_author(author_id, server),
                         "object" : post_url
                     }
                     request_url = post_to_show["author"]["id"] + "inbox/"
-                    r = requests.post(request_url, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                    r = requests.post(request_url, json=data, auth=credentials[server], headers={"Content-Type":"application/json"})
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))
@@ -584,7 +597,8 @@ def show_post(request, author_id, show_post_id):
         form = CommentForm()
 
     context['form'] = form
-    context['if_remote'] = 0
+    context['remote'] = REMOTE
+    context['auth'] = server
     return render(request, 'socialapp/show_post.html', context)
 
 
