@@ -329,6 +329,8 @@ def follow_check(post_to_show, author_id, if_remote, server):
             except:
                 if_follows_me = False
             if_follow_response = requests.get(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
+            if if_follow_response.status_code == 200 and json.loads(if_follow_response.json())['status'] == True:
+                if_follow = True
         
         # team09
         elif server == 1:
@@ -339,8 +341,7 @@ def follow_check(post_to_show, author_id, if_remote, server):
             except:
                 if_follows_me = False
             if_follow_response = requests.get(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
-            if if_follow_response.status_code == 200:
-                if if_follow_response.json()['isFollowing'] == True:
+            if if_follow_response.status_code == 200 and if_follow_response.json()['isFollowing'] == True:
                     if_follow = True
 
         # team03
@@ -396,14 +397,11 @@ def show_post(request, author_id, show_post_id):
         post_url = request.GET['remote_post_url']
         REMOTE = True
         
-        # credentials might be different!!!!!!
-        # 之后应该要加if判断是哪个remote node然后用相应的credential进行判断
-        if "https://cmput404fall21g11.herokuapp.com/" in post_url:
+        if "cmput404fall21g11.herokuapp.com" in post_url:
             server = 0
-        elif "https://fast-chamber-90421.herokuapp.com/" in post_url:
+        elif "fast-chamber-90421.herokuapp.com" in post_url:
             server = 1
-        # ???? 为啥这第三组http和https混着用😵‍💫
-        elif "http://social-dis.herokuapp.com/" in post_url:
+        elif "social-dis.herokuapp.com" in post_url:
             server = 2
                 
         get_post = requests.get(post_url, auth=credentials[server])
@@ -547,13 +545,16 @@ def show_post(request, author_id, show_post_id):
                 remote_post_author = post_to_show['author']
                 # team 11
                 if server == 0:
-                    pass
+                    if follow_status:
+                        follower_delete = requests.delete(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
+                    else:
+                        follower_put = requests.put(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
+                        friend_request_post = requests.post(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
                 # team 09
                 elif server == 1:
                     if follow_status:
                         follower_delete = requests.delete(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[server])
                     else:
-                        print(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id))
                         follower_put = requests.put(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
                         # print("follower_put",follower_put, follower_put.status_code)
                         friend_request_post = requests.post(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/friend_request/"+str(me.id), data=json.dumps({}), auth=credentials[server])
