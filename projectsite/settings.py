@@ -34,7 +34,7 @@ ALLOWED_HOSTS = ["*"] #this is used to allow all host can use this website
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Application definition
 

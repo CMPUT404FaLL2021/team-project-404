@@ -15,6 +15,12 @@ class AuthorForm(forms.ModelForm):
         model = Author
         fields = ('displayName', 'password')
 
+class EditProfileForm(forms.ModelForm):
+    displayName = forms.CharField(label='displayName',widget=forms.TextInput(attrs={'placeholder': 'username'}), required=True)
+    password = forms.CharField(label='password', widget=forms.PasswordInput(attrs={'placeholder': 'password'}), required=True)
+    class Meta:
+        model= Author 
+        fields = ('displayName', 'password', 'avatar')
 #post form
 class PostForm(forms.ModelForm):
     CONTENT_TYPES = {

@@ -9,7 +9,7 @@ from requests.auth import HTTPBasicAuth
 import json
 import uuid
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from socialapp.forms import AuthorForm, PostForm, CommentForm, ViewerForm
+from socialapp.forms import AuthorForm, EditProfileForm, PostForm, CommentForm, ViewerForm
 from socialapp.models import *
 from django.urls import reverse
 from django.utils import timezone
@@ -166,11 +166,13 @@ def author_profile(request, author_id):
 def edit_profile(request, author_id):
     me = Author.objects.get(pk=author_id)
     if request.method == 'POST':
-        form = AuthorForm(request.POST, request.FILES)
+        form = EditProfileForm(request.POST, request.FILES)
         if form.is_valid():
+            print(11111)
             if 'avatar' in request.FILES:
                 changed_avatar = form.cleaned_data["avatar"]
                 me.avatar = changed_avatar
+            
             changed_name = form.cleaned_data['displayName']
             changed_passwaord = form.cleaned_data['password']
             me.displayName = changed_name
@@ -179,11 +181,12 @@ def edit_profile(request, author_id):
             me.save()
             response = redirect(author_profile, author_id)
             return response
+        print(form.errors)
     else:
-        form = AuthorForm(initial={"displayName":me.displayName, "password":me.password})
+        form = EditProfileForm(initial={"displayName":me.displayName, "password":me.password})
         #form.fields["post"].initial = p.post
 
-    return render(request, 'socialapp/edit_profile.html', {'form':form, 'author_id':author_id})
+    return render(request, 'socialapp/edit_profile.html', {'form':form, 'author_id':author_id, 'avatar':me.avatar})
 
 
 # view of author_follows_me.html
