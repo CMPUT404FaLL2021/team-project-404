@@ -5,6 +5,7 @@ views.py includes all the function of the pages
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
+from requests import auth
 from requests.auth import HTTPBasicAuth
 import json
 import uuid
@@ -65,9 +66,6 @@ def main_page(request, author_id):
     # get posts from team03
     api_url3 = remote_nodes[2] + 'posts/'
     content_get3 = requests.get(api_url3, auth=credentials[2])
-    print(content_get3)
-    print(api_url3)
-    print(content_get3.json())
     if content_get3.status_code == 200:
         for post in content_get3.json()['items']:
             if post['visibility'] == 'PUBLIC':
@@ -146,12 +144,30 @@ def author_inbox(request, author_id):
     if request.method == 'POST':
         for friend_request in friend_request_list:
             if 'follow_button_' + friend_request.actor.displayName in request.POST:
-                friend_request.actor.followers.add(author)
-                # wthether send friend request
-                if friend_request.actor not in author.followers.all():
-                    new_friend_request = FriendRequest(actor=author, object=friend_request.actor, inbox=Inbox.objects.get(author=friend_request.actor))
-                    new_friend_request.save()
-                friend_request.delete()
+                if friend_request.actor.github == "cache_remote_user":
+                    request1 = requests.get("https://cmput404fall21g11.herokuapp.com/api/author/"+str(friend_request.actor.id)+"/", auth=credentials[0])
+                    if request1.status_code == 200:
+                        follow_request = requests.post("https://cmput404fall21g11.herokuapp.com/api/author/"+str(friend_request.actor.id)+"/followers/"+str(author.id)+"/", auth=credentials[0])
+                        friend_request.delete()
+                    request2 = requests.get("https://fast-chamber-90421.herokuapp.com/author/"+str(friend_request.actor.id), auth=credentials[1])
+                    if request2.status_code == 200:
+                        follow_request = requests.post("https://fast-chamber-90421.herokuapp.com/author/"+str(friend_request.actor.id)+"/friend_request/"+str(author.id), auth=credentials[1])
+                        friend_request.delete()
+                    request3 = requests.get("https://social-dis.herokuapp.com/author/"+str(friend_request.actor.id), auth=credentials[2])
+                    if request3.status_code == 200:
+                        data = {
+                            "author": str(friend_request.actor.id),
+                            "follower": str(author.id)
+                        }
+                        follow_request = requests.post("https://social-dis.herokuapp.com/author/"+str(friend_request.actor.id)+"/followers/"+str(author.id), json=data, auth=credentials[2])
+                        friend_request.delete()
+                else:
+                    friend_request.actor.followers.add(author)
+                    # wthether send friend request
+                    if friend_request.actor not in author.followers.all():
+                        new_friend_request = FriendRequest(actor=author, object=friend_request.actor, inbox=Inbox.objects.get(author=friend_request.actor))
+                        new_friend_request.save()
+                    friend_request.delete()
                 return redirect(author_inbox, author_id)
 
     return render(request, 'socialapp/author_inbox.html', {'author_id': author_id, 'friend_request_list': friend_request_list, 'posts':posts, 'likes':likes, 'comments':comments})
@@ -171,7 +187,6 @@ def edit_profile(request, author_id):
     if request.method == 'POST':
         form = EditProfileForm(request.POST, request.FILES)
         if form.is_valid():
-            print(11111)
             if 'avatar' in request.FILES:
                 changed_avatar = form.cleaned_data["avatar"]
                 me.avatar = changed_avatar
@@ -184,7 +199,6 @@ def edit_profile(request, author_id):
             me.save()
             response = redirect(author_profile, author_id)
             return response
-        print(form.errors)
     else:
         form = EditProfileForm(initial={"displayName":me.displayName, "password":me.password})
         #form.fields["post"].initial = p.post
@@ -439,8 +453,8 @@ def show_post(request, author_id, show_post_id):
     context['like_count'] = like_count
 
     follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE, server)
-    print("follow他了吗？", follow_status)
-    print("他follow我了吗？", friend_request_status)
+    # print("follow他了吗？", follow_status)
+    # print("他follow我了吗？", friend_request_status)
     context['follow_status'] = follow_status
 
     if request.method == 'GET':
@@ -572,25 +586,25 @@ def show_post(request, author_id, show_post_id):
                         follower_delete = requests.delete(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), auth=credentials[server])
                     else:
                         follower_put = requests.put(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/followers/"+str(me.id), data=json.dumps({}), auth=credentials[server])
-                        print("follower_put",follower_put, follower_put.status_code, follower_put.json())
+                        print("follower_put",follower_put, follower_put.status_code)
                         data = {
                             "type": "Follow",
                             "summary": me.displayName + "wants to follow" + remote_post_author['displayName'],
                             "actor": {
                                 "type": "author",
-                                "id": "https://cmput404-team13-socialapp.herokuapp.com/api/" + str(me.id) +"/",
+                                "id": "https://cmput404-team13-socialapp.herokuapp.com/api/author/" + str(me.id) +"/",
                                 "uuid": str(me.id),
                                 "displayName": me.displayName,
                                 "profileImage": "",
                                 "email": me.displayName + "@gmail.com",
                                 "github": me.github,
                                 "host": "cmput404-team13-socialapp.herokuapp.com",
-                                "url": "https://cmput404-team13-socialapp.herokuapp.com/api/" + str(me.id) +"/"
+                                "url": "https://cmput404-team13-socialapp.herokuapp.com/api/author/" + str(me.id) +"/"
                             },
                             "object": remote_post_author
                         }
                         friend_request_post = requests.post(remote_nodes[server]+"api/author/"+remote_post_author['uuid']+"/inbox/", json=data, auth=credentials[server])
-                        print("friend_request_post",friend_request_post, friend_request_post.status_code, friend_request_post.json())
+                        # print("friend_request_post",friend_request_post, friend_request_post.status_code, friend_request_post.json())
                 # team 09
                 elif server == 1:
                     if follow_status:
@@ -610,7 +624,7 @@ def show_post(request, author_id, show_post_id):
                             "follower": str(me.id)
                         }
                         follower_put = requests.put(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/followers/"+str(me.id), json=data1, auth=credentials[server])
-                        print("follower_put",follower_put, follower_put.status_code, follower_put.json())
+                        # print("follower_put",follower_put, follower_put.status_code, follower_put.json())
                         data2 = {
                             "type": "Follow",
                             "summary": me.displayName + "wants to follow" + remote_post_author['displayName'],
@@ -626,7 +640,7 @@ def show_post(request, author_id, show_post_id):
                             "object": remote_post_author
                         }
                         friend_request_post = requests.post(remote_nodes[server]+"author/"+remote_post_author['id'].split('/')[-1]+"/inbox", json=data2, auth=credentials[server])
-                        print("friend_request_post",friend_request_post, friend_request_post.status_code)
+                        # print("friend_request_post",friend_request_post, friend_request_post.status_code)
             
             else:
                 post_author = post_to_show.author
