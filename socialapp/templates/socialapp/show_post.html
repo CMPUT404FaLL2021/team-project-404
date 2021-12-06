@@ -71,7 +71,11 @@
                         {% endif %}
                     </div>
             </div>
-            <pre>{{ like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
+            {% if auth == 0 or auth == 1 %}
+                <pre id="like_count"></pre>
+            {% else %}
+                <pre>{{ like_count }} like{{ post_to_show.like_count|pluralize }}</pre><br><br>
+            {% endif %}
             {% if author_id == post_to_show.author.id %}
                 <!-- <a href="{% url 'edit_post' author_id post_to_show.id %}">
                     <button style= "background-color: #e6e6e6; width: 70px; height: 25px; border-radius: 3px;" type="button">Edit</button>
@@ -92,26 +96,39 @@
                 </a><br> -->
 
             {% else %}
-                <form method=POST>
-                    {% csrf_token %}
-                    <button type="submit" name='like_button' value=like>
-                        {% if like_status %}
-                            Unlike
-                        {% else %}
-                            Like
-                        {% endif %}
-                    </button>
-                    <button type="submit" name='share_post' value='Post'>Share
-                    </button><br><br><br>
-                </form>
-                <form method=POST>
-                    {% csrf_token %}
-                    {{ form }}<br><br>
-                    <input type='submit' name='post_button' value='Post'>
-                </form>
+                {% if auth == 0 %}
+                    <div id="remote_like">
+                        <button id="like_button" onclick="like()"> </button>
+                        <br><br><br>
+                    </div>
+                    <div id="add_remote_comment">
+                        <input type="text" id="comment_input"><br><br>
+                        <button type="button" onclick="getCommentInput();" id="comment_button">Post</button>
+                    </div>
+                {% else %}
+                    <div>
+                        <form method=POST>
+                            {% csrf_token %}
+                            <button type="submit" name='like_button' value=like>
+                                {% if like_status %}
+                                    Unlike
+                                {% else %}
+                                    Like
+                                {% endif %}
+                            </button>
+                            <button type="submit" name='share_post' value='Post'>Share
+                            </button><br><br><br>
+                        </form>
+                    </div>
+                    <form method=POST>
+                        {% csrf_token %}
+                        {{ form }}<br><br>
+                        <input type='submit' name='post_button' value='Post'>
+                    </form>
+                {% endif %}
             {% endif %}
             <br><pre>Comments:</pre><br>
-            {% if auth == 0 or auth == 1 %}
+            {% if auth == 0 %}
                 <div style="font-size: 16px;" id="remote_comment">
                 </div>
             {% else %}
@@ -135,7 +152,64 @@
                 </div>
             {% endif %}
         </div>
+
         <script>
+            var like_button = document.getElementById('like_button');
+            var comment_button = document.getElementById('comment_button')
+            var comment_input = document.getElementById('comment_input');
+            like_button.style.cssText = "height: 25px; width: 70px border-radius: 3px; background-color: rgba(255, 255, 255, 0.6)";
+            comment_button.style.cssText = like_button.style.cssText;
+            comment_input.style.cssText = "height: 150px; width: 800px; padding: 12px 12px; border-radius: 3px; background-color: rgba(255, 255, 255, 0.6);";
+
+            function getCommentInput() {
+                var comment = comment_input.value;
+                if (comment.length > 0) {
+                    // alert(comment);
+                    var data = {
+                        "type" : "comment",
+                        "author" : request_author,
+                        "comment" : comment,
+                        "contentType" : "text/plain",
+                    };
+                    fecthPOST(comment_url, data);
+                    comment_input.value = "";
+                } else {
+                    alert("Comment cannot be empty.")
+                }
+            }
+            
+            function like() {
+                if (like_button.innerHTML == 'Like') {
+                    if (inbox_url.charAt(inbox_url.length-1) != '/'){
+                        inbox_url += '/';
+                    }
+                    inbox_url += 'inbox/'
+                    var data = {
+                        "type" : like_type,
+                        "author" : request_author,
+                        "object" : '{{ post_url }}'
+                    };
+                    fecthPOST(inbox_url, data);
+                    // console.log('LIKE!!!')
+                } else {
+                    console.log('UNLIKE!!!')
+                }
+            }
+
+            function checkLikeStatus(data) {
+                console.log('like')
+                for (let l of data) {
+                    if (l.author.id == author_url){
+                        like_button.innerHTML = 'Unlike';
+                        like_button.name = '';
+                        return true;
+                    }
+                }
+                like_button.innerHTML = 'Like';
+                like_button.name = 'like_button';
+                return false;
+            }
+
             function createNode(element) {
                 return document.createElement(element);
             }
@@ -149,6 +223,7 @@
             function addRemoteComment(data) {
                 let div = document.querySelector("#remote_comment")
                 let comment_count = createNode('pre');
+                comment_count.id = 'comment_count';
                 comment_count.innerHTML = Object.keys(data).length + ' comment'
                 if (Object.keys(data).length != 1) {
                     comment_count.innerHTML += 's';
@@ -176,8 +251,28 @@
                 }
             }
 
-            function fetchJSON(url, addElements) {
-                console.log(url);
+            function addRemoteLike(data) {
+                counts = Object.keys(data).length;
+                let like_count = document.getElementById('like_count');
+                like_count.innerHTML = Object.keys(data).length + ' like';
+                if (Object.keys(data).length != 1) {
+                    like_count.innerHTML += 's';
+                }
+                like_status = checkLikeStatus(data);
+                console.log('liked: ' + like_status);
+            }
+
+            function addElements(data, type) {
+                if (type=='like') {
+                    addRemoteLike(data);
+                } else {
+                    addRemoteComment(data);
+                }
+            }
+
+            function fetchJSON(url, addElements, type) {
+                console.log('fetch: ' + url)
+                console.log('auth: ' + username + ':' + password);
                 fetch(url, {
                     method: 'GET',
                     headers: {
@@ -189,27 +284,90 @@
                     .then(data => {
                         console.log('Success:', data);
                         if (a == 0){
-                            var comments = data.items;
-                            console.log('comments: ' + comments)
+                            var remote_data = data.items;
                         } else {
-                            var comments = data.comments;
-                            console.log('comments0: ' + comments)
+                            if (type=='comments') {
+                                var remote_data = data.comments;
+                            } else {
+                                var remote_data = data;
+                            }
+                            console.log('remote_data 0: ' + remote_data)
                         }
-                        addElements(comments);
+                        addElements(remote_data, type);
                     })
                     .catch((error) => {
                         console.error('Error:', error);
                 });
+            }     
+            
+            function fecthPOST(url, data, type) {
+                console.log('post like: ' + url);
+                console.log('post data: ' + JSON.stringify(data))
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa(username + ':' + password),
+                    },
+                    body: JSON.stringify(data),
+                    })
+                    .then(res => {
+                        if (res.status==200){
+                            return res.text();
+                        } else {
+                            console.log('post failed' + response.status);
+                        }
+                    })
+                    .then(data => {
+                    // enter you logic when the fetch is successful
+                        console.log(data)
+                        if (type=='like') {
+                            like_button.innerHTML = 'Unlike';
+                            counts += 1;
+                            let like_count = document.getElementById('like_count');
+                            like_count.innerHTML = counts + ' like';
+                            if (counts > 1) {
+                                like_count.innerHTML += 's'
+                            }
+                        } else {
+                            let myNode = document.querySelector("#remote_comment")
+                            while (myNode.firstChild) {
+                                myNode.removeChild(myNode.lastChild);
+                            }
+                            fetchJSON(comment_url, addRemoteComment, 'comment');
+                        }
+                        
+                    })
+                    .catch(error => {
+                        // enter your logic for when there is an error (ex. error toast)
+                        console.log(error)
+                    })
             }
 
-            var url = '{{ post_url }}' + 'comments/'; 
-            var cre = {'team13':'123456', 'team09': '404', 'socialdistribution_t03':'c404t03'};
-            console.log('url: ' + url);
+            var cre = {'team13':'123456', 'team09': '404'};
+            var author_url = '{{ author_url }}'
+            var inbox_url  = '{{ post_author }}';
+
             let a = '{{ auth }}';
-            console.log('a: ' + a);
             var username = Object.keys(cre)[a];
             var password = cre[username];
-            fetchJSON(url, addRemoteComment);
+            var request_author = JSON.parse('{{ request_author | safe }}');
+            console.log('author: ' + request_author);
+            console.log('id: ' + request_author.id);
+            var like_type;
+            var counts = 0;
+            if (a==0) {
+                like_type = 'like';
+            } else {
+                like_type = 'Like';
+            }
+
+            var comment_url = '{{ post_url }}' + 'comments/'; 
+            fetchJSON(comment_url, addRemoteComment, 'comment');
+            
+            var like_url = '{{ post_url }}' + 'likes/'
+            fetchJSON(like_url, addRemoteLike, 'like');
             
         </script>
     </body>
