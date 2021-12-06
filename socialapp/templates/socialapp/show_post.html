@@ -67,7 +67,7 @@
                         {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
                             <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
                         {% else %}
-                            <pre>{{ post_to_show.content }}</pre>
+                            <pre>{{ post_to_show.content | safe }}</pre>
                         {% endif %}
                     </div>
             </div>

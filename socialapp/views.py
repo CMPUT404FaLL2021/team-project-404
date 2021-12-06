@@ -455,6 +455,11 @@ def show_post(request, author_id, show_post_id):
         get_post = requests.get(post_url, auth=credentials[server])
         if get_post.status_code == 200:
             post_to_show = get_post.json()
+            post_to_show['content'] = markdown.markdown(post_to_show['content'], extensions=[
+                'markdown.extensions.extra',
+                'markdown.extensions.codehilite',
+                'markdown.extensions.toc',
+            ])
             post_to_show['id'] = show_post_id
         else:
             return HttpResponseNotFound('404 Page Not Found (view.py show_post 1st) %s  -- %s\n%s' %(author_id, show_post_id, post_url))
