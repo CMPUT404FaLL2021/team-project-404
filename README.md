@@ -37,7 +37,7 @@ https://social-dis.herokuapp.com/
 https://cmput404-team13-socialapp.herokuapp.com/socialapp/index
 
 ## Wiki
->  include API Document and Test Document
+>  include API Document, AJAX Document and Test Document
 
 https://github.com/CMPUT404FaLL2021/team-project-404/wiki/Home-Wiki
 
