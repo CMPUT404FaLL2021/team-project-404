@@ -517,9 +517,13 @@ def show_post(request, author_id, show_post_id):
         post_to_show = Post.objects.get(pk=show_post_id)
     
     context = {'post_to_show': post_to_show, 'author_id': author_id, 'post_comments':None, 'comment_count':0, 'post_url':post_url}
-    like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url, server)
-    context['like_status'] = like_status
-    context['like_count'] = like_count
+    if REMOTE:
+        context['post_author'] = post_to_show['author']['id']
+    like_status, like_count = False, 0
+    if not REMOTE or server >= 1:
+        like_status, like_count = if_like(REMOTE, post_to_show, author_id, post_url, server)
+        context['like_status'] = like_status
+        context['like_count'] = like_count
 
     follow_status, friend_request_status = follow_check(post_to_show, author_id, REMOTE, server)
     # print("follow他了吗？", follow_status)
@@ -529,7 +533,7 @@ def show_post(request, author_id, show_post_id):
     if request.method == 'GET':
         # handling team09 & team 11 comments with fetch in show_post.html
         # only handling local & team 03 comments(CORS errors) here
-        if server == 2 or not REMOTE:
+        if server >= 1 or not REMOTE:
             if not REMOTE:
                 post_comments = Comment.objects.filter(post=post_to_show).order_by("-published")
                 comment_count = post_comments.count()
@@ -754,6 +758,8 @@ def show_post(request, author_id, show_post_id):
     context['form'] = form
     context['remote'] = REMOTE
     context['auth'] = server
+    context['author_url'] = Author.objects.get(id=author_id).url
+    context['request_author'] = json.dumps(get_request_author(author_id, server))
     return render(request, 'socialapp/show_post.html', context)
 
 
