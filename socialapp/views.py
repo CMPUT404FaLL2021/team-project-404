@@ -235,6 +235,25 @@ def my_follows(request, author_id):
         for author in Author.objects.all():
             if me in author.followers.all():
                 author_list.append(author)
+
+        remote_authors1 = requests.get("https://cmput404fall21g11.herokuapp.com/api/authors/", auth=credentials[0])
+        for remote_author in remote_authors1.json()['items']:
+            check_follow_request = requests.get("https://cmput404fall21g11.herokuapp.com/api/author/"+remote_author['uuid']+"/followers/"+str(me.id)+"/", auth=credentials[0])
+            if check_follow_request.status_code == 200 and json.loads(check_follow_request.json())['status'] == True:
+                author_list.append(remote_author)
+        
+        remote_authors2 = requests.get("https://fast-chamber-90421.herokuapp.com/authors", auth=credentials[1])
+        for remote_author in remote_authors2.json()['items']:
+            check_follow_request = requests.get("https://fast-chamber-90421.herokuapp.com/author/"+remote_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[1])
+            if check_follow_request.status_code == 200 and check_follow_request.json()['isFollowing'] == True:
+                author_list.append(remote_author)
+        
+        remote_authors3 = requests.get("https://social-dis.herokuapp.com/authors", auth=credentials[2])
+        for remote_author in remote_authors3.json()['items']:
+            check_follow_request = requests.get("https://social-dis.herokuapp.com/author/"+remote_author['id'].split('/')[-1]+"/followers/"+str(me.id), auth=credentials[2])
+            if check_follow_request.status_code == 200 and check_follow_request.json()['detail'] == True:
+                author_list.append(remote_author)
+
     return render(request, "socialapp/my_follows.html", {'author_id':author_id, 'author_list': author_list})
 
 
@@ -246,6 +265,25 @@ def my_friends(request, author_id):
         for author in me.followers.all():
             if me in author.followers.all():
                 author_list.append(author)
+
+            request1 = requests.get("https://cmput404fall21g11.herokuapp.com/api/author/"+str(author.id)+"/", auth=credentials[0])
+            if request1.status_code == 200:
+                check_follow_request = requests.get("https://cmput404fall21g11.herokuapp.com/api/author/"+str(author.id)+"/followers/"+str(me.id)+"/", auth=credentials[0])
+                if check_follow_request.status_code == 200 and json.loads(check_follow_request.json())['status'] == True:
+                    author_list.append(author)
+            
+            request2 = requests.get("https://fast-chamber-90421.herokuapp.com/author/"+str(author.id), auth=credentials[1])
+            if request2.status_code == 200:
+                check_follow_request = requests.get("https://fast-chamber-90421.herokuapp.com/author/"+str(author.id)+"/followers/"+str(me.id), auth=credentials[1])
+                if check_follow_request.status_code == 200 and check_follow_request.json()['isFollowing'] == True:
+                    author_list.append(author)
+            
+            request3 = requests.get("https://social-dis.herokuapp.com/author/"+str(author.id), auth=credentials[2])
+            if request3.status_code == 200:
+                check_follow_request = requests.get("https://social-dis.herokuapp.com/author/"+str(author.id)+"/followers/"+str(me.id), auth=credentials[2])
+                if check_follow_request.status_code == 200 and check_follow_request.json()['detail'] == True:
+                    author_list.append(author)
+    
     return render(request, "socialapp/my_friends.html", {'author_id':author_id, 'author_list': author_list})
 
 
