@@ -13,6 +13,25 @@ https://github.com/CMPUT404FaLL2021/team-project-404
 ### LAB Section
 LAB 802 Team-13
 
+### Team connected with us
+
+> T11
+
+https://cmput404fall21g11.herokuapp.com/
+
+
+> T09
+
+
+https://fast-chamber-90421.herokuapp.com/
+
+
+> T03
+
+
+https://social-dis.herokuapp.com/
+
+
 ## The project is running on Heroku
 
 https://cmput404-team13-socialapp.herokuapp.com/socialapp/index
