@@ -110,6 +110,13 @@ REST API: https://www.youtube.com/playlist?list=PLgCYzUzKIBE9Pi8wtx8g55fExDAPXBs
 https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
 
 ***
+#### AJAX Related:
+
+Fetch: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+CORS headers: https://pypi.org/project/django-cors-headers/
+
+***
 
 #### CSS Related:
 
