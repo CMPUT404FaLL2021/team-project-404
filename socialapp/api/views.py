@@ -104,16 +104,23 @@ def api_author_follower(request, author_id, follower_id):
     # GET //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'GET':
         try:
-            follower = Author.objects.get(id=follower_id)
             author = Author.objects.get(id=author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        if follower not in author.followers.all():
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        data = {}
+        try:
+            follower = Author.objects.get(id=follower_id)
+        except:
+            data["if_follow"] = False
+            return Response(data=data)
         
-        serializer = AuthorSerializer(follower)
-        return Response(serializer.data)
+        if follower not in author.followers.all():
+            data["if_follow"] = False
+        elif follower in author.followers.all():
+            data["if_follow"] = True
+        
+        return Response(data=data)
     
     # PUT //service/author/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     if request.method == 'PUT':
