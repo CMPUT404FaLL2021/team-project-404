@@ -571,16 +571,16 @@ def show_post(request, author_id, show_post_id):
                         data["comment"] = comment
                         data["contentType"] = "text/plain"
                         print(data)
-                        # request_url_1 = post_to_show["author"]["id"] + "inbox/"
-                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth("team13", "123456"), headers={"Content-Type":"application/json"})
+                        # request_url_1 = post_to_show["author"]["id"] + "/inbox/"
+                        # r = requests.post(request_url_1, data=json.dumps(data), auth=HTTPBasicAuth('team09', 'cmput404'), headers={"Content-Type":"application/json"})
                         # print("---r_1--- : " + str(r.status_code) )
                         # print("---url_1--- : " + request_url_1 )
-                        request_url_2 = post_url + "/comments/"
+                        request_url_2 = post_url + "comments/"
                         r = requests.post(request_url_2, data=json.dumps(data), auth=HTTPBasicAuth('team09', 'cmput404'), headers={"Content-Type":"application/json"})
                         print("---r_2--- : " + str(r.status_code) )
                         print("---url_2--- : " + request_url_2 )
                     elif server == 2:
-                        # --- TODO -- post comments to the third group
+                        # post comments to the third group
                         request_author = get_request_author(author_id, server)
                         data = {}
                         data["type"] = "comment"
