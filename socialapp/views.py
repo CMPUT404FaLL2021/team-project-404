@@ -544,7 +544,7 @@ def show_post(request, author_id, show_post_id):
                         request_author = get_request_author(author_id, server)
                         data = {}
                         data["type"] = "comment"
-                        data["author"] = json.loads(request_author)
+                        data["author"] = request_author
                         data["comment"] = comment
                         data["contentType"] = "text/plain"
                         print(data)
@@ -560,7 +560,7 @@ def show_post(request, author_id, show_post_id):
                         request_author = get_request_author(author_id, server)
                         data = {}
                         data["type"] = "comment"
-                        data["author"] = json.loads(request_author)
+                        data["author"] = request_author
                         data["comment"] = comment
                         data["contentType"] = "text/plain"
                         print(data)
