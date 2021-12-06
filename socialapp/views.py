@@ -193,14 +193,16 @@ def edit_profile(request, author_id):
             
             changed_name = form.cleaned_data['displayName']
             changed_passwaord = form.cleaned_data['password']
+            changed_github = form.cleaned_data['github']
             me.displayName = changed_name
             me.password = changed_passwaord
+            me.github = changed_github
             #me.avatar = changed_avatar
             me.save()
             response = redirect(author_profile, author_id)
             return response
     else:
-        form = EditProfileForm(initial={"displayName":me.displayName, "password":me.password})
+        form = EditProfileForm(initial={"displayName":me.displayName, "password":me.password, "github":me.github})
         #form.fields["post"].initial = p.post
 
     return render(request, 'socialapp/edit_profile.html', {'form':form, 'author_id':author_id, 'avatar':me.avatar})
@@ -530,10 +532,10 @@ def show_post(request, author_id, show_post_id):
                         request_url += "inbox/"
 
                     r = requests.post(request_url, json=data, auth=credentials[server], headers={"Content-Type":"application/json"})
-                    print(request_url)
-                    print(json.dumps(data))
-                    print(r)
-                    return HttpResponse(r.text)
+                    #print(request_url)
+                    #print(json.dumps(data))
+                    #print(r)
+                    
                 else:
                     post_to_show.likes.add(Author.objects.get(id=author_id))
                     l = Like(author=Author.objects.get(id=author_id), object=post_to_show, inbox=Inbox.objects.get(author=post_to_show.author))

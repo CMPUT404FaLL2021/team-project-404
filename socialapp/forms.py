@@ -17,10 +17,11 @@ class AuthorForm(forms.ModelForm):
 
 class EditProfileForm(forms.ModelForm):
     displayName = forms.CharField(label='displayName',widget=forms.TextInput(attrs={'placeholder': 'username'}), required=True)
+    github = forms.CharField(label='github',widget=forms.TextInput(attrs={'placeholder': 'Github'}), required=False)
     password = forms.CharField(label='password', widget=forms.PasswordInput(attrs={'placeholder': 'password'}), required=True)
     class Meta:
         model= Author 
-        fields = ('displayName', 'password', 'avatar')
+        fields = ('displayName', 'password', 'avatar','github')
 #post form
 class PostForm(forms.ModelForm):
     CONTENT_TYPES = {
