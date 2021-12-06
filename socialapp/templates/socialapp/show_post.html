@@ -50,7 +50,7 @@
                     <div class="description">
                         <h1>{{ post_to_show.author.displayName }}</h1>
                         {% if author_id != post_to_show.author.id%}
-                            <form action="{% url 'show_post' author_id post_to_show.id %}" method="POST">
+                            <form method="POST">
                                 {% csrf_token %}
                                 <button type="submit" name='follow_button' value='Follow'>
                                 {% if follow_status %}
@@ -67,7 +67,7 @@
                         {% if post_to_show.source == 'https://cmput404-team13-socialapp.herokuapp.com/' %}
                             <pre>{{ post_to_show.get_markdown_content | safe }}</pre>
                         {% else %}
-                            <pre>{{ post_to_show.content }}</pre>
+                            <pre>{{ post_to_show.content | safe }}</pre>
                         {% endif %}
                     </div>
             </div>

@@ -16,6 +16,8 @@ class AuthorTestCase(TestCase):
 		self.user_id_2 = uuid.uuid4()
 		self.post_1 = uuid.uuid4()
 		self.post_2 = uuid.uuid4()
+		self.comment_1_id = uuid.uuid4()
+		self.comment_2_id = uuid.uuid4()
 
 		test_author_1 = Author()
 		test_author_1.id = self.user_id_1
@@ -129,6 +131,34 @@ class AuthorTestCase(TestCase):
 		self.assertEqual(post_two.visibility, "PRIVATE")
 		self.assertEqual(post_two.unlisted, True)
 		self.assertEqual(post_two.contentType, "PLAIN")
+
+	def test_Post_Like(self):
+		Like.objects.create(object=Post.objects.get(id=self.post_1), author=Author.objects.get(id=self.user_id_1))
+		post_like = Like.objects.all()
+		self.assertEqual(len(post_like), 1)
+		self.assertEqual(post_like.get().object.id, self.post_1)
+		self.assertEqual(post_like.get().author.id, self.user_id_1)
+
+	def test_Post_Like_Two(self):
+		Like.objects.create(object=Post.objects.get(id=self.post_1), author=Author.objects.get(id=self.user_id_2))
+		post_like = Like.objects.all()
+		self.assertEqual(len(post_like), 1)
+		self.assertEqual(post_like.get().object.id, self.post_1)
+		self.assertEqual(post_like.get().author.id, self.user_id_2)
+
+	def test_Post_Comment(self):
+		Comment.objects.create(id=self.comment_1_id,post=Post.objects.get(id=self.post_1), author=Author.objects.get(id=self.user_id_1), comment="test for comment_1")
+		post_comment = Comment.objects.get(id=self.comment_1_id)
+		self.assertEqual(post_comment.comment, "test for comment_1")
+		self.assertEqual(post_comment.id, self.comment_1_id)
+		self.assertEqual(post_comment.author, Author.objects.get(id=self.user_id_1))
+
+	def test_Post_Comment_Two(self):
+		Comment.objects.create(id=self.comment_2_id,post=Post.objects.get(id=self.post_2), author=Author.objects.get(id=self.user_id_2), comment="test for comment_2")
+		post_comment = Comment.objects.get(id=self.comment_2_id)
+		self.assertEqual(post_comment.comment, "test for comment_2")
+		self.assertEqual(post_comment.id, self.comment_2_id)
+		self.assertEqual(post_comment.author, Author.objects.get(id=self.user_id_2))
 
 # # Create your tests here.
 # class AuthorTestCase(TestCase):
