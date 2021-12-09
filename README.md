@@ -36,6 +36,10 @@ https://social-dis.herokuapp.com/
 
 https://cmput404-team13-socialapp.herokuapp.com/socialapp/index
 
+## Application Operation Video
+
+https://youtu.be/2gD_ciP7wXU
+
 ## Wiki
 >  include API Document, AJAX Document and Test Document
 
